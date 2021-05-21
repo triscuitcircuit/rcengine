@@ -1,0 +1,16 @@
+[submodule "RcEngine/external/GLFW"]
+	path = RcEngine/external/GLFW
+	url = https://github.com/glfw/glfw
+	branch = 3.3-stable
+[submodule "RcEngine/external/imgui"]
+	path = RcEngine/external/imgui
+	url = https://github.com/ocornut/imgui
+[submodule "RcEngine/external/spdlog"]
+	path = RcEngine/external/spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "external/glm"]
+	path = RcEngine/external/glm
+	url = https://github.com/g-truc/glm
+[submodule "RcEngine/external/GL"]
+	path = RcEngine/external/GL
+	url = https://github.com/nigels-com/glew
