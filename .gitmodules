@@ -8,7 +8,7 @@
 [submodule "RcEngine/external/spdlog"]
 	path = RcEngine/external/spdlog
 	url = https://github.com/gabime/spdlog
-[submodule "external/glm"]
+[submodule "RcEngine/external/glm"]
 	path = RcEngine/external/glm
 	url = https://github.com/g-truc/glm
 [submodule "RcEngine/external/GL"]
