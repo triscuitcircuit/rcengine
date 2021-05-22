@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "Core.h"
+#include "RcEngine/Events/Event.h"
 namespace RcEngine{
     class RC_API Application{
     public:

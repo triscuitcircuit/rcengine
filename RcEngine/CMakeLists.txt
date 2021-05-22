@@ -39,7 +39,7 @@ set(SOURCE_FILES src/RcEngine.h src/rcpch.cpp src/rcpch.h
         src/RcEngine/Core/Assert.h src/RcEngine/Core/Core.h
         src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
         src/RcEngine/EntryPoint.h src/RcEngine/Log.cpp
-        src/RcEngine/Log.h)
+        src/RcEngine/Log.h src/RcEngine/Events/Event.h src/RcEngine/Events/ApplicationEvent.h src/RcEngine/Events/KeyEvent.h src/RcEngine/Events/MouseEvent.h)
 
 add_library(rcengine ${SOURCE_FILES} ${source_headers} ${GLFW})
 
