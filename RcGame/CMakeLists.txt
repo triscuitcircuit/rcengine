@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.19)
 
-#project(rcengine_clion)
 project(RcGame)
 set(CMAKE_CXX_STANDARD 17)
 
+
+if(WIN32)
+    add_definitions(-DRC_PLATFORM_WINDOWS)
+endif(WIN32)
 
 add_executable (RcGame RcApp.cpp)
 

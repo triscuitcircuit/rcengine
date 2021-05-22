@@ -1,6 +1,8 @@
 //
 // Created by Tristan Zippert on 5/20/21.
 //
+#pragma once
+
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -13,6 +15,8 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+
+
 // TODO: add this into source/RcEngine
 #include <iostream>
 #include <cstdio>
@@ -22,5 +26,6 @@
 
 #include "RcEngine/Core/Application.h"
 #include "RcEngine/EntryPoint.h"
+#include "RcEngine/Log.h"
 
 
