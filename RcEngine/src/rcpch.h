@@ -6,7 +6,17 @@
 // Included headers for RcEngine applications
 
 #include <iostream>
-#include <glm.hpp>
-#include <include/GLFW/glfw3.h>
-#include <imgui.h>
+#include <memory>
+#include <utility>
+#include <algorithm>
 
+#include <string>
+#include <vector>
+#include <sstream>
+
+#include "RcEngine/Log.h"
+#include "RcEngine/Core/Core.h"
+
+#ifdef RC_PLATFORM_WINDOWS
+    #include <Windows.h>
+#endif

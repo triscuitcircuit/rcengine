@@ -17,9 +17,9 @@ namespace RcEngine{
 
         std::string ToString() const override{
             std::stringstream stream;
-            stream << "WindowResizeEvent(Width, Height): (" << m_Width << ", " << m_Height;
+            stream << "WindowResizeEvent(Width, Height): (" << m_Width << ", " << m_Height <<")";
             return stream.str();
-        }
+        };
 
         EVENT_CLASS_TYPE(WindowResize)
 

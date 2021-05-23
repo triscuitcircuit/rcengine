@@ -3,9 +3,8 @@
 //
 #pragma once
 
-#include "RcEngine.h"
-#include <string>
-#include <functional>
+#include "RcEngine/Core/Core.h"
+#include <src/rcpch.h>
 
 namespace RcEngine{
 
@@ -21,17 +20,19 @@ namespace RcEngine{
     // Bit-Shifted constant field values for bit masking
     enum EventCategory{
         None = 0x00,
-        EventCategoryApplication = 0x01,//0x02
-        EventCategoryInput = 0x02,//0x04
-        EventCategoryKeyboard = 0x04,//0x08
-        EventCategoryMouse = 0x08,//0x10
-        EventCategoryMouseButton= 0x10,//0x20
+        EventCategoryApplication = 0x01,
+        EventCategoryInput = 0x02,
+        EventCategoryKeyboard = 0x04,
+        EventCategoryMouse = 0x08,
+        EventCategoryMouseButton= 0x10,
     };
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() {return EventType::type;} \
-                  virtual EventType  GetStaticType() const override {return GetStaticType(); }\
+                  virtual EventType  GetEventType() const override {return GetStaticType(); } \
                   virtual const char*  GetName() const override {return #type; }
+
 #define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override {return category;}
+
     class RC_API Event{
         friend class EventDispatcher;
     public:

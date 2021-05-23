@@ -4,7 +4,7 @@
 #pragma once
 
 #include "Event.h"
-#include <sstream>
+#include <src/rcpch.h>
 
 namespace RcEngine{
     class RC_API KeyEvent: public Event{
@@ -17,6 +17,7 @@ namespace RcEngine{
     };
     class RC_API KeyPressedEvent
             : public KeyEvent{
+    public:
         KeyPressedEvent(int keycode, int repeat): KeyEvent(keycode), m_RepeatCount(repeat){}
 
         inline int GetRepeatCount() const {return m_RepeatCount;}

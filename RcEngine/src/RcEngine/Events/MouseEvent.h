@@ -5,14 +5,14 @@
 #pragma once
 
 #include "Event.h"
-#include <sstream>
+#include <src/rcpch.h>
 
 namespace RcEngine{
 
     class RC_API MouseMovedEvent: public Event{
     public:
         MouseMovedEvent(float x, float y)
-        : m_Mouse(x), m_Mouse(y){}
+        : m_MouseX(x), m_MouseY(y){}
         inline float GetX() const {return m_MouseX; }
         inline float GetY() const {return m_MouseY; }
 
@@ -49,7 +49,7 @@ namespace RcEngine{
     };
     class RC_API MouseButtonEvent: public Event{
     public:
-        inline int GetMouseButton() const {return m_Button}
+        inline int GetMouseButton() const {return m_Button;}
         EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
     protected:
         MouseButtonEvent(int button)
@@ -63,7 +63,7 @@ namespace RcEngine{
         std::string ToString() const override{
             std::stringstream stream;
             stream << "MouseButtonPressedEvent: " << m_Button;
-            return stream.str()
+            return stream.str();
         }
 
         EVENT_CLASS_TYPE(MouseButtonPress)

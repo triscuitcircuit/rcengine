@@ -1,7 +1,7 @@
 //
 // Created by Tristan Zippert on 5/21/21.
 //
-
+#include <src/rcpch.h>
 #include <spdlog/sinks/stdout_color_sinks-inl.h>
 #include "Log.h"
 
