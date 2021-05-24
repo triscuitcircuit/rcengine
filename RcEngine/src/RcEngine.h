@@ -27,5 +27,8 @@
 #include "RcEngine/Core/Application.h"
 #include "RcEngine/EntryPoint.h"
 #include "RcEngine/Log.h"
+#include "RcEngine/Layer.h"
+
+#include "RcEngine/ImGui/ImGuiLayer.h"
 
 

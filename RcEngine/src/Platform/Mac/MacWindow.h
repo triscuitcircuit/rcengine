@@ -5,6 +5,7 @@
 
 #include "RcEngine/Window.h"
 #include <external/GLFW/include/GLFW/glfw3.h>
+struct GLFWwindow;
 
 namespace RcEngine{
     class MacWindow: public Window{
@@ -22,6 +23,7 @@ namespace RcEngine{
         inline void SetEventCallback(const EventCallbackfn& callback) override {m_Data.EventCallback = callback; }
         void  SetVSync(bool enabled) override;
         bool IsVsync() const override ;
+        virtual void* GetNativeWindow() const { return m_Window; }
     private:
         virtual void Init(const WindowProps& props);
         virtual void Shutdown();

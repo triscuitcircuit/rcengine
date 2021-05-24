@@ -49,7 +49,6 @@ namespace RcEngine{
             return GetCategoryFlags() & category;
         }
 
-    protected:
         // check if event is already handled
         bool m_Handeled = false;
     };

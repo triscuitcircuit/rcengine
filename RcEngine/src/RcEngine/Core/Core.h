@@ -27,7 +27,6 @@
         #define RC_ASSERT(x, ...) {if(!(x)){RC_ERROR("Assertion Failed: {0}",__VA_ARGS__); raise(SIGTRAP); }}
         #define RC_CORE_ASSERT(x, ...) {if(!(x)) {RC_CORE_ERROR("Assertion failed: {0}",__VA_ARGS__); raise(SIGTRAP);} }
     #endif
-
 #else
     #define RC_ASSERT(x, ...)
     #define RC_CORE_ASSERT(x, ...)

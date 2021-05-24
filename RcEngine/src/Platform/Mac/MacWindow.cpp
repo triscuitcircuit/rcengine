@@ -8,6 +8,9 @@
 #include "RcEngine/Events/ApplicationEvent.h"
 #include "RcEngine/Events/KeyEvent.h"
 
+#include <include/glad/glad.h>
+//#include "external/GLFW/include/GLFW/glfw3.h"
+
 
 namespace RcEngine{
     static bool s_GLFWInitialized = false;
@@ -40,6 +43,8 @@ namespace RcEngine{
         }
         m_Window = glfwCreateWindow((int)props.Width,(int)props.Height,m_Data.Title.c_str(), nullptr, nullptr);
         glfwMakeContextCurrent(m_Window);
+        int status = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+        RC_CORE_ASSERT(status, "failed to init glad loader");
         glfwSetWindowUserPointer(m_Window,&m_Data);
         // Mac specific call
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Required on Mac

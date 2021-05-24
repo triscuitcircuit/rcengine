@@ -1,0 +1,8 @@
+//
+// Created by Tristan Zippert on 5/23/21.
+//
+
+#ifndef RCENGINE_CLION_WINDOWSWINDOW_H
+#define RCENGINE_CLION_WINDOWSWINDOW_H
+
+#endif //RCENGINE_CLION_WINDOWSWINDOW_H

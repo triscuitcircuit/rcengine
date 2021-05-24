@@ -1,7 +1,7 @@
 //
 // Created by Tristan Zippert on 5/22/21.
 //
-
+#pragma once
 #include "rcpch.h"
 
 #include "RcEngine/Core/Core.h"
@@ -35,5 +35,7 @@ namespace RcEngine{
         virtual bool IsVsync() const =0;
 
         static Window* Create(const WindowProps& props =WindowProps());
+
+        virtual void* GetNativeWindow() const = 0;
     };
 }

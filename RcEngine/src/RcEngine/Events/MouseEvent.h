@@ -18,7 +18,7 @@ namespace RcEngine{
 
         std::string ToString() const override{
             std::stringstream stream;
-            stream << "MouseMovedEvent(X,y): (" << m_MouseX << ", " << m_MouseY << ")";
+            stream << "MouseMovedEvent(X,Y): (" << m_MouseX << ", " << m_MouseY << ")";
             return stream.str();
         }
 
