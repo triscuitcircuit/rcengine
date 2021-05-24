@@ -41,14 +41,19 @@ namespace RcEngine{
             glfwSetErrorCallback(GLFWErrorCallback);
             s_GLFWInitialized = true;
         }
+
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Required on Mac
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,1);
+
+
         m_Window = glfwCreateWindow((int)props.Width,(int)props.Height,m_Data.Title.c_str(), nullptr, nullptr);
         glfwMakeContextCurrent(m_Window);
         int status = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
         RC_CORE_ASSERT(status, "failed to init glad loader");
         glfwSetWindowUserPointer(m_Window,&m_Data);
         // Mac specific call
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Required on Mac
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         SetVSync(true);
 
         //GLFW callbacks

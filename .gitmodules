@@ -3,8 +3,8 @@
 	url = https://github.com/glfw/glfw
 	branch = 3.3-stable
 [submodule "RcEngine/external/imgui"]
-    path = RcEngine/external/imgui
-    url = https://github.com/triscuitcircuit/imgui
+	path = RcEngine/external/imgui
+	url = https://github.com/triscuitcircuit/imgui
 [submodule "RcEngine/external/spdlog"]
 	path = RcEngine/external/spdlog
 	url = https://github.com/gabime/spdlog

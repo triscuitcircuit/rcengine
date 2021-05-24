@@ -4,6 +4,9 @@
 
 #include "rcpch.h"
 #include "ImGuiLayer.h"
+
+#include "external/glad/include/glad/glad.h"
+
 #include "Platform/OpenGL/imgui_impl_opengl3.h"
 #include "Platform/OpenGL/imgui_impl_glfw.h"
 
@@ -31,14 +34,14 @@ namespace RcEngine{
         io.DeltaTime = m_Time < 0.0 ? (time - m_Time): (1.0f / 60.0f);
         m_Time = time;
 
-        //ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
 
         static bool show = true;
         ImGui::ShowDemoWindow(&show);
 
         ImGui::Render();
-        //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     }
 
@@ -82,8 +85,8 @@ namespace RcEngine{
         GLFWwindow * window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
         ImGui_ImplGlfw_InitForOpenGL(window,true);
-//
-//        ImGui_ImplOpenGL3_Init("#version 410;");
+
+        ImGui_ImplOpenGL3_Init("#version 410");
     }
     void ImGuiLayer::OnDetach() {
 

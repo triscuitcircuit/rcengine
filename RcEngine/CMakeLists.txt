@@ -16,10 +16,11 @@ file(GLOB source_headers
         )
 
 include_directories("external/glm/glm")
-include_directories("external/imgui/")
+include_directories("external/imgui")
 include_directories("src")
 
 add_subdirectory(external/spdlog)
+add_subdirectory(external/imgui)
 
 #GLFW--------------------------------------------
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -64,7 +65,10 @@ set(SOURCE_FILES src/RcEngine.h src/rcpch.cpp src/rcpch.h
         src/RcEngine/Window.h ${WINDOW}
         src/RcEngine/LayerStack.cpp src/RcEngine/LayerStack.h
         src/RcEngine/Layer.cpp src/RcEngine/Layer.h src/RcEngine/ImGui/ImGuiLayer.cpp
-        src/RcEngine/ImGui/ImGuiLayer.h src/Platform/OpenGL/imgui_impl_glfw.h)
+        src/RcEngine/ImGui/ImGuiLayer.h
+        src/Platform/OpenGL/imgui_impl_glfw.cpp
+        src/Platform/OpenGL/imgui_impl_opengl3.cpp
+        )
 
 add_library(rcengine ${SOURCE_FILES} ${source_headers})
 
@@ -75,13 +79,16 @@ target_precompile_headers(rcengine PRIVATE src/rcpch.h)
 #link with libraries-------------------
 find_package(OpenGL REQUIRED)
 find_package(spdlog)
+find_package(imgui)
 find_package(GLFW)
+
 find_package(glad)
 target_link_libraries(rcengine
         glfw
         glad
         spdlog
         OpenGL::GL
+        imgui
         )
 #--------------------------------------
 
