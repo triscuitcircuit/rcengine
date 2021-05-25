@@ -29,6 +29,10 @@
 #include "RcEngine/Log.h"
 #include "RcEngine/Layer.h"
 
+#include "RcEngine/MouseButtonCodes.h"
+#include "RcEngine/keycodes.h"
+#include "RcEngine/Input.h"
+
 #include "RcEngine/ImGui/ImGuiLayer.h"
 
 

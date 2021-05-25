@@ -9,6 +9,7 @@ file(GLOB source_headers
         "*.hpp"
         "external/glm/glm/*.cpp"
         "external/glm/glm/*.hpp"
+        "external/glm/glm/*.inl"
         "external/GLFW/include/GLFW/*.h"
         "external/imgui/*.h"
         "external/imgui/*.cpp"
@@ -68,9 +69,11 @@ set(SOURCE_FILES src/RcEngine.h src/rcpch.cpp src/rcpch.h
         src/RcEngine/ImGui/ImGuiLayer.h
         src/Platform/OpenGL/imgui_impl_glfw.cpp
         src/Platform/OpenGL/imgui_impl_opengl3.cpp
-        )
+        src/RcEngine/Input.h src/Platform/Mac/MacInput.cpp
+        src/Platform/Mac/MacInput.h src/RcEngine/keycodes.h
+        src/RcEngine/MouseButtonCodes.h)
 
-add_library(rcengine ${SOURCE_FILES} ${source_headers})
+add_library(rcengine ${SOURCE_FILES} ${source_headers} ${GLOB})
 
 
 target_precompile_headers(rcengine PRIVATE src/rcpch.h)

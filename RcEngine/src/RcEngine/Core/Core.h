@@ -19,6 +19,10 @@
     #endif
 #endif
 
+#ifdef RC_DEBUG
+#define RC_ENABLE_ASSERTS
+#endif
+
 #ifdef RC_ENABLE_ASSERTS
     #ifdef RC_PLATFORM_WINDOWS
         #define RC_ASSERT(x, ...) {if(!(x)){RC_ERROR("Assertion Failed: {0}",__VA_ARGS__); __debugbreak(); }}
@@ -31,3 +35,5 @@
     #define RC_ASSERT(x, ...)
     #define RC_CORE_ASSERT(x, ...)
 #endif
+
+#define RC_BIND_EVENT_TO_FUNCTION(fn) std::bind(&fn, this, std::placeholders::_1)

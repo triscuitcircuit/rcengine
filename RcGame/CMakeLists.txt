@@ -14,5 +14,7 @@ endif(WIN32)
 add_executable (RcGame RcApp.cpp)
 
 include_directories ("${CMAKE_SOURCE_DIR}/RcEngine/src")
+include_directories ("${CMAKE_SOURCE_DIR}/RcEngine/external/glm/glm")
+
 
 target_link_libraries(RcGame rcengine)

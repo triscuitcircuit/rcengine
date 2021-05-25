@@ -13,7 +13,7 @@ namespace RcEngine{
 
     enum class EventType{
         None=0, WindowClose, WindowResize, WindowOnFocus,WindowOnLostFocus,WindowMoved,
-        ApplicationTick, AppUpdate, AppRender, OnKeyPressed, OnKeyRelease,
+        ApplicationTick, AppUpdate, AppRender, OnKeyPressed, OnKeyRelease, OnKeyTyped,
         MouseButtonPress, MouseButtonRelease, MouseMoved, MouseScrolled,
     };
 

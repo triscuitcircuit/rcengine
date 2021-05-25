@@ -4,7 +4,11 @@
 
 #include "Application.h"
 #include "RcEngine/Log.h"
-#include <external/glad/include/glad/glad.h>
+#include <include/glad/glad.h>
+
+#include "external/glm/glm/glm.hpp"
+
+#include "RcEngine/Input.h"
 
 namespace RcEngine{
 #define BIND_EVENT_FN(x) std::bind(&x,this, std::placeholders::_1)
@@ -54,6 +58,9 @@ namespace RcEngine{
 
             for(Layer* layer: m_LayerStack)
                 layer->OnUpdate();
+
+//            std::tuple<float, float> tuple = Input::GetMousePos();
+//            RC_CORE_TRACE("{0} {1}", std::get<0>(tuple), std::get<1>(tuple));
 
             m_Window->OnUpdate();
         }

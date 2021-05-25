@@ -32,6 +32,20 @@ namespace RcEngine{
     private:
         int m_RepeatCount;
     };
+    class RC_API KeyTypedEvent
+            : public KeyEvent{
+    public:
+        KeyTypedEvent(int keycode): KeyEvent(keycode){}
+
+
+        std::string ToString() const override{
+            std::stringstream stream;
+            stream << "Received KeyTypedEvent: " << m_KeyCode ;
+            return stream.str();
+        }
+
+        EVENT_CLASS_TYPE(OnKeyTyped);
+    };
     class RC_API KeyReleasedEvent: public KeyEvent{
 
     public:
