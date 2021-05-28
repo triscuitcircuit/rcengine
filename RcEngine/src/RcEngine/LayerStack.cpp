@@ -8,7 +8,6 @@
 namespace RcEngine{
 
     LayerStack::LayerStack(){
-        m_LayerInsert = m_Layers.begin();
     }
 
     LayerStack::~LayerStack(){
@@ -16,13 +15,14 @@ namespace RcEngine{
             delete layer;
     }
     void LayerStack::PushLayer(Layer* layer){
-        m_LayerInsert = m_Layers.emplace(m_LayerInsert, layer);
+        m_Layers.emplace(m_LayerInsertIndex + m_Layers.begin(), layer);
+        m_LayerInsertIndex++;
     }
     void LayerStack::PopLayer(Layer *layer) {
         auto deletion = std::find(m_Layers.begin(),m_Layers.end(),layer);
         if(deletion != m_Layers.end()){
             m_Layers.erase(deletion);
-            m_LayerInsert--;
+            m_LayerInsertIndex--;
         }
     }
     void LayerStack::PushOverlay(Layer *overlay) {

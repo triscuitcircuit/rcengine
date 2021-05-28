@@ -41,7 +41,7 @@ class RcGame: public RcEngine::Application{
 public:
     RcGame() {
         PushLayer(new ExampleLayer());
-        PushOverlay(new RcEngine::ImGuiLayer());
+//        PushOverlay(new RcEngine::ImGuiLayer());
 
     };
     ~RcGame() { };

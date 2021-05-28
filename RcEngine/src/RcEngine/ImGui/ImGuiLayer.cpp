@@ -5,15 +5,19 @@
 #include "rcpch.h"
 #include "ImGuiLayer.h"
 
+#include "imgui.h"
 
-#include "Platform/OpenGL/imgui_impl_opengl3.h"
-#include "Platform/OpenGL/imgui_impl_glfw.h"
+#define IMGUI_IMPL_OPENGL_LOADER_GLAD
+
+
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 
 #include "GLFW/glfw3.h"
 #include "RcEngine/Core/Application.h"
 
 //temp
-#include "external/glad/include/glad/glad.h"
+#include "include/glad/glad.h"
 
 
 
@@ -29,59 +33,29 @@ namespace RcEngine{
     }
 
 
-    void ImGuiLayer::OnUpdate() {
-
-        ImGuiIO& io = ImGui::GetIO();
-        Application& app = Application::Get();
-        io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
-
-        float time = (float)glfwGetTime();
-        io.DeltaTime = m_Time < 0.0 ? (time - m_Time): (1.0f / 60.0f);
-        m_Time = time;
-
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui::NewFrame();
-
-        static bool show = true;
-        ImGui::ShowDemoWindow(&show);
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    }
 
     void ImGuiLayer::OnAttach() {
+        //setup imgui context
+        IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // enables keyboard controls
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // enables keyboard controls
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+        //setup of imgui style
         ImGui::StyleColorsDark();
 
-        ImGuiIO& io = ImGui::GetIO();
+        ImGuiStyle& style = ImGui::GetStyle();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
 
-        io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-        io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-
-        //temp imgui keycodes
-        io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-        io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-        io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-        io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-        io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-        io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-        io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-        io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-        io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-        io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
-        io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-        io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-        io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
-        io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-        io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-        io.KeyMap[ImGuiKey_KeyPadEnter] = GLFW_KEY_KP_ENTER;
-        io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-        io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-        io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-        io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-        io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-        io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+		SetDarkThemeColors();
 
         Application& app = Application::Get();
         GLFWwindow * window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
@@ -91,100 +65,89 @@ namespace RcEngine{
         ImGui_ImplOpenGL3_Init("#version 410");
     }
     void ImGuiLayer::OnDetach() {
-
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
     }
-
-#define BIND_DIS(dispatcher,event,fn) dispatcher.Dispatch<event>(RC_BIND_EVENT_TO_FUNCTION(ImGuiLayer::fn))
-
-    void ImGuiLayer::OnEvent(Event &event) {
-        EventDispatcher dispatcher(event);
-
-        BIND_DIS(dispatcher,MouseButtonPressedEvent,OnMouseButtonPressedEvent);
-        BIND_DIS(dispatcher,MouseButtonReleasedEvent,OnMouseButtonReleasedEvent);
-        BIND_DIS(dispatcher, MouseScrolledEvent,OnMouseScrolledEvent);
-        BIND_DIS(dispatcher, MouseMovedEvent, OnMouseMoveEvent);
-
-
-        BIND_DIS(dispatcher,KeyPressedEvent,OnKeyPressedEvent);
-        BIND_DIS(dispatcher,KeyReleasedEvent,OnKeyReleased);
-        BIND_DIS(dispatcher,WindowResizeEvent,OnWindowResize);
-
-
+    void ImGuiLayer::Begin() {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
     }
-
-
-    // Actions
-#define KEY_CODE_MOD_RL(GUIio, fn, GLFW_L_KC, GLFW_R_KC) io.fn[GLFW_L_KC]||io.fn[GLFW_R_KC]
-
-    bool ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent &e) {
+    void ImGuiLayer::End() {
         ImGuiIO& io = ImGui::GetIO();
+        Application& app = Application::Get();
+        io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(),(float)app.GetWindow().GetHeight());
 
-        io.KeysDown[e.GetKeyCode()] = true;
+        //Rendering
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable){
+            GLFWwindow * backup_current_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_current_context);
+        }
+
+    }
+    void ImGuiLayer::OnImGuiRender() {
+        {
+            ImGui::Begin("Renderer");
+#ifdef IMGUI_IMPL_OPENGL_LOADER_GLAD
+            ImGui::Text(
+                    "Vendor: %s", glGetString(GL_VENDOR)
+            );
+            ImGui::Text(
+                    "Renderer: %s", glGetString(GL_RENDERER)
+            );
+            ImGui::Text(
+                    "Version: %s",glGetString(GL_VERSION)
+                    );
+            ImGui::Text("Max texture size: %s",glGetString(GL_MAX_3D_TEXTURE_SIZE));
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+                        1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+#elif CPPMetal
+#include <TargetConditionals.h>
+            id<MTLDevice> obj = MTLCreateSystemDefaultDevice();
+            ImGui::Text("Could not detect renderer");
+#else
+            ImGui::Text("Could not detect renderer");
+#endif
+            ImGui::End();
+        }
+
+        static bool show = true;
+        ImGui::ShowDemoWindow(&show);
+    }
+    void ImGuiLayer::SetDarkThemeColors(){
+        auto& colors = ImGui::GetStyle().Colors;
+        colors[ImGuiCol_WindowBg] = ImVec4{0.1f, 0.105f,0.11f, 1.0f};
 
 
+        //Header color
+        colors[ImGuiCol_Header] = ImVec4{0.2f,0.205f,0.201f,1.0f};
+        colors[ImGuiCol_ButtonHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
+        colors[ImGuiCol_ButtonActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
 
-        io.KeyCtrl = KEY_CODE_MOD_RL(io,KeysDown,GLFW_KEY_LEFT_CONTROL,GLFW_KEY_RIGHT_CONTROL);
-        io.KeyShift = KEY_CODE_MOD_RL(io,KeysDown,GLFW_KEY_LEFT_SHIFT,GLFW_KEY_RIGHT_SHIFT);
-        io.KeyAlt = KEY_CODE_MOD_RL(io,KeysDown,GLFW_KEY_LEFT_ALT,GLFW_KEY_RIGHT_ALT);
-        io.KeySuper = KEY_CODE_MOD_RL(io,KeysDown,GLFW_KEY_LEFT_SUPER,GLFW_KEY_RIGHT_SUPER);
-        return false;
+        //Frame Background
+        colors[ImGuiCol_FrameBg] = ImVec4{ 0.9f, 0.205f, 0.21f, 1.0f };
+        colors[ImGuiCol_FrameBgHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
+        colors[ImGuiCol_FrameBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+
+        //Tab colorization
+        colors[ImGuiCol_Tab] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+		colors[ImGuiCol_TabHovered] = ImVec4{ 0.38f, 0.3805f, 0.381f, 1.0f };
+		colors[ImGuiCol_TabActive] = ImVec4{ 0.28f, 0.2805f, 0.281f, 1.0f };
+		colors[ImGuiCol_TabUnfocused] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+		colors[ImGuiCol_TabUnfocusedActive] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
+
+		//Title Colorization
+        colors[ImGuiCol_TitleBg] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+        colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+        colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+
     }
 
-    bool ImGuiLayer::OnKeyReleased(KeyReleasedEvent &e) {
-        ImGuiIO& io = ImGui::GetIO();
-
-        io.KeysDown[e.GetKeyCode()] = false;
-
-
-        return false;
-    }
-
-    bool ImGuiLayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent &e) {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[e.GetMouseButton()] = true;
-
-        return false;
-    }
-
-    bool ImGuiLayer::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent &e) {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[e.GetMouseButton()] = false;
-
-        return false;
-    }
-
-    bool ImGuiLayer::OnMouseMoveEvent(MouseMovedEvent &e){
-        ImGuiIO& io = ImGui::GetIO();
-        io.MousePos = ImVec2(e.GetX(),e.GetY());
-
-        return false;
-    }
-
-    bool ImGuiLayer::OnMouseScrolledEvent(MouseScrolledEvent &e) {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseWheelH += e.GetXOffset();
-        io.MouseWheel += e.GetYOffset();
-
-        return false;
-    }
-    bool ImGuiLayer::OnKeyTyped(KeyTypedEvent &e){
-        ImGuiIO& io = ImGui::GetIO();
-
-        int keycode = e.GetKeyCode();
-
-        io.AddInputCharacter((unsigned short)keycode);
-
-        return false;
-    }
-
-    bool ImGuiLayer::OnWindowResize(WindowResizeEvent &e) {
-        ImGuiIO& io = ImGui::GetIO();
-        io.DisplaySize = ImVec2(e.GetWidth(),e.GetHeight());
-
-        io.DisplayFramebufferScale = ImVec2(1.0f,1.0f);
-
-        glViewport(0,0,e.GetWidth(),e.GetHeight());
-
-        return false;
-    }
 }

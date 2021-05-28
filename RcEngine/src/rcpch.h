@@ -17,6 +17,11 @@
 #include "RcEngine/Log.h"
 #include "RcEngine/Core/Core.h"
 
+///Renderer////////////////////////////
+#include "RcEngine/Renderer/Renderer.h"
+#include "RcEngine/Renderer/Buffer.h"
+#include "RcEngine/Renderer/Shader.h"
+
 #ifdef RC_PLATFORM_WINDOWS
     #include <Windows.h>
 #endif

@@ -22,6 +22,7 @@ include_directories("src")
 
 add_subdirectory(external/spdlog)
 add_subdirectory(external/imgui)
+add_subdirectory(external/corrosion)
 
 #GLFW--------------------------------------------
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -67,13 +68,17 @@ set(SOURCE_FILES src/RcEngine.h src/rcpch.cpp src/rcpch.h
         src/RcEngine/LayerStack.cpp src/RcEngine/LayerStack.h
         src/RcEngine/Layer.cpp src/RcEngine/Layer.h src/RcEngine/ImGui/ImGuiLayer.cpp
         src/RcEngine/ImGui/ImGuiLayer.h
-        src/Platform/OpenGL/imgui_impl_glfw.cpp
-        src/Platform/OpenGL/imgui_impl_opengl3.cpp
         src/RcEngine/Input.h src/Platform/Mac/MacInput.cpp
+#        src/Platform/OpenGL/imgui_impl_glfw.cpp
+#        src/Platform/OpenGL/imgui_impl_opengl3.cpp
+        src/RcEngine/ImGui/ImGuiBuild.cpp
         src/Platform/Mac/MacInput.h src/RcEngine/keycodes.h
-        src/RcEngine/MouseButtonCodes.h)
+        src/RcEngine/MouseButtonCodes.h src/RcEngine/ImGui/ImGuiBuild.cpp src/RcEngine/Renderer/GraphicsContext.h
+        src/Platform/OpenGL/OpenGLContext.h src/Platform/OpenGL/OpenGLContext.cpp src/RcEngine/Renderer/GraphicsContext.cpp
+        src/RcEngine/Renderer/Shader.h src/RcEngine/Renderer/Shader.cpp src/RcEngine/Renderer/Buffer.h
+        src/RcEngine/Renderer/Buffer.cpp src/Platform/OpenGL/OpenGLBuffer.h src/Platform/OpenGL/OpenGLBuffer.cpp src/RcEngine/Renderer/Renderer.h src/RcEngine/Renderer/Renderer.cpp src/RcEngine/Utils/Util.h)
 
-add_library(rcengine ${SOURCE_FILES} ${source_headers} ${GLOB})
+add_library(rcengine STATIC ${SOURCE_FILES} ${source_headers} ${GLOB})
 
 
 target_precompile_headers(rcengine PRIVATE src/rcpch.h)
@@ -85,6 +90,10 @@ find_package(spdlog)
 find_package(imgui)
 find_package(GLFW)
 
+#Rust library link---------------------
+corrosion_import_crate(MANIFEST_PATH external/RcNetwork/Cargo.toml)
+#--------------------------------------
+
 find_package(glad)
 target_link_libraries(rcengine
         glfw
@@ -92,6 +101,7 @@ target_link_libraries(rcengine
         spdlog
         OpenGL::GL
         imgui
+#        rc_network
         )
 #--------------------------------------
 
