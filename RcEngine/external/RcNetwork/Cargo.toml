@@ -8,7 +8,12 @@ edition = "2018"
 [dependencies]
 tokio = "1.6.0"
 libc = "0.2.0"
+#steamworks = "0.7.0"
+simplelog = "0.7.5"
+serde = "1.0.126"
 
 [lib]
-name="rc_network"
-crate-type = ["dylib"]
+crate-type = ["staticlib"]
+
+[profile.dev]
+opt-level = 3

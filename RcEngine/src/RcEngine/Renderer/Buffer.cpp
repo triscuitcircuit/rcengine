@@ -12,13 +12,13 @@
 namespace RcEngine{
     VertexBuffer* VertexBuffer::Create(float* vertices, uint32_t size){
         switch (Renderer::GetAPI()) {
-            case RendererAPI::None:
-                RC_CORE_ASSERT(false, "No Render API");
+            case RenderAPI::API::None:
+                RC_CORE_ASSERT(false, "No Render API")
                 return nullptr;
-            case RendererAPI::OpenGL:
+            case RenderAPI::API::OpenGL:
                 //TODO: check OpenGL version
                 return new OpenGLVertexBuffer(vertices,size);
-            case RendererAPI::Vulkan:
+            case RenderAPI::API::Vulkan:
                 RC_CORE_ASSERT(false, "Vulkan not currently supported");
                 return nullptr;
         }
@@ -27,12 +27,12 @@ namespace RcEngine{
     }
     IndexBuffer* IndexBuffer::Create(uint32_t* indices, uint32_t size){
         switch (Renderer::GetAPI()) {
-            case RendererAPI::None:
+            case RenderAPI::API::None:
                 RC_CORE_ASSERT(false, "No Render API");
                 return nullptr;
-            case RendererAPI::OpenGL:
+            case RenderAPI::API::OpenGL:
                 return new OpenGLIndexBuffer(indices,size);
-            case RendererAPI::Vulkan:
+            case RenderAPI::API::Vulkan:
                 RC_CORE_ASSERT(false, "Vulkan not currently supported");
                 return nullptr;
         }

@@ -2,27 +2,25 @@
 // Created by Tristan Zippert on 5/21/21.
 //
 
-//extern "C" void hello();
-
+extern "C" void rc_tcp_server();
+#include "rcpch.h"
 #include "Application.h"
 #include "RcEngine/Log.h"
 #include "include/glad/glad.h"
+#include "RcEngine/Renderer/Renderer.h"
 
 #include "external/GLFW/include/GLFW/glfw3.h"
 
 
 #include "RcEngine/Input.h"
 
-#define numVAOs 1
-GLuint renderingProgram;
-GLuint vao[numVAOs];
 
-//struct GLFWwindow;
 namespace RcEngine{
 #define BIND_EVENT_FN(x) std::bind(&x,this, std::placeholders::_1)
 
     Application* Application::s_Instance = nullptr;
     Application::Application() {
+        rc_tcp_server();
 
         RC_CORE_ASSERT(!s_Instance,"Application already open");
         s_Instance = this;
@@ -32,38 +30,54 @@ namespace RcEngine{
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
 
-        glGenVertexArrays(1,&m_VertexArray);
-        glBindVertexArray(m_VertexArray);
+        m_VertexArray.reset(VertexArray::Create());
 
-        float vertices[3*3]={
-                -0.5f,-0.5f,0.0f,
-                0.5f,-0.5f,0.0f,
-                0.0f, 0.5f, 0.0f
+
+        float vertices[3*7]={
+                -0.5f,-0.5f,0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
+                0.5f,-0.5f,0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
+                0.0f, 0.5f, 0.0f, 0.0f, 0.7f, 0.2f, 1.0f
         };
 
-        m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+        std::shared_ptr<VertexBuffer> vertexBuffer;
 
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, 3 * sizeof(float), nullptr);
-
+        vertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+        BufferLayout layout = {
+                {ShaderDataType::Float3, "a_Position"},
+                {ShaderDataType::Float4, "a_Color"},
+//                {ShaderDataType::Float3, "a_Normal"},
+        };
+        vertexBuffer->SetLayout(layout);
+        m_VertexArray->AddVertexBuffer(vertexBuffer);
 
 
         uint32_t indices[3] = {0,1,2};
-        m_IndexBuffer.reset(
+        std::shared_ptr<IndexBuffer> indexBuffer;
+        indexBuffer.reset(
                 IndexBuffer::Create(indices,sizeof(indices)/sizeof(uint32_t))
                 );
+        m_VertexArray->SetIndexBuffer(indexBuffer);
+
+
+//        m_SquareVA.reset(VertexArray::Create());
+//        std::shared_ptr<VertexBuffer> squareVB;
+//        squareVB.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
         std::string vertShaderStr = R"(
         #version 410
 
         layout(location =0) in vec3 a_Position;
+        layout(location =1) in vec4 a_Color;
 
-        out vec4 varyingColor;
+        out vec3 v_Position;
+        out vec4 v_Color;
 
         void main(void)
         {
-            varyingColor = vec4(a_Position, 1.0) * 0.5 + vec4(0.5, 0.5, 0.5, 0.5);
+            v_Position = a_Position;
+            v_Color= vec4(a_Position, 1.0) * 0.5 + vec4(0.5, 0.5, 0.5, 0.5);
+
+            v_Color = a_Color;
             gl_Position = vec4(a_Position,1);
         }
         )";
@@ -71,16 +85,15 @@ namespace RcEngine{
             #version 410
 
             layout(location=0) out vec4 color;
-            in vec4 varyingColor;
+
+            in vec4 v_Color;
 
             void main(void)
             {
-                color = varyingColor;
+                color = v_Color;
 
             }
         )";
-
-
 
         m_Shader.reset(new Shader(vertShaderStr,fragShaderStr));
 
@@ -117,19 +130,17 @@ namespace RcEngine{
 
 
     void Application::Run() {
- //       hello();
         while (m_Running){
-            glClearColor(0.1f,0.1f,0.1f,1);
-            glClear(GL_COLOR_BUFFER_BIT);
+
+            RenderCommand::SetClearColor({0.1f,0.1f,0.1f,0.1f});
+            RenderCommand::Clear();
+
+            Renderer::BeginScene();
+
             m_Shader->Bind();
+            Renderer::Submit(m_VertexArray);
 
-            glBindVertexArray(m_VertexArray);
-            glDrawElements(GL_TRIANGLES,m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
-
-
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LEQUAL);
-
+            Renderer::EndScene();
 
             for(Layer* layer: m_LayerStack)
                 layer->OnUpdate();

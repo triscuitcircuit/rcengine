@@ -4,9 +4,9 @@
 #pragma once
 #include <string>
 
-#define RendererID uint32_t
 
 namespace RcEngine{
+    typedef uint32_t RendererID;
     class Shader{
     public:
         Shader(const std::string& vertexSrc, const std::string& fragmentSrc);

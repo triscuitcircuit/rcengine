@@ -12,6 +12,7 @@
 
 #include "RcEngine/Renderer/Shader.h"
 #include "RcEngine/Renderer/Buffer.h"
+#include "RcEngine/Renderer/VertexArray.h"
 
 namespace RcEngine{
     class RC_API Application{
@@ -38,11 +39,15 @@ namespace RcEngine{
         bool m_Running = true;
         LayerStack m_LayerStack;
 
-        unsigned int m_VertexArray;
+        //unsigned int m_VertexArray;
 
-        std::unique_ptr<Shader> m_Shader;
-        std::unique_ptr<VertexBuffer> m_VertexBuffer;
-        std::unique_ptr<IndexBuffer> m_IndexBuffer;
+        std::shared_ptr<VertexArray> m_VertexArray;
+
+        std::shared_ptr<Shader> m_Shader;
+        std::shared_ptr<VertexBuffer> m_VertexBuffer;
+        std::shared_ptr<IndexBuffer> m_IndexBuffer;
+
+        std::shared_ptr<VertexArray> m_SquareVA;
     };
     // Client defined
     Application* CreateApplication();

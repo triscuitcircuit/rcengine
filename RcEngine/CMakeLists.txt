@@ -4,6 +4,7 @@ project(RcEngine)
 
 
 set(CMAKE_CXX_STANDARD 17)
+
 file(GLOB source_headers
         "*.h"
         "*.hpp"
@@ -76,7 +77,10 @@ set(SOURCE_FILES src/RcEngine.h src/rcpch.cpp src/rcpch.h
         src/RcEngine/MouseButtonCodes.h src/RcEngine/ImGui/ImGuiBuild.cpp src/RcEngine/Renderer/GraphicsContext.h
         src/Platform/OpenGL/OpenGLContext.h src/Platform/OpenGL/OpenGLContext.cpp src/RcEngine/Renderer/GraphicsContext.cpp
         src/RcEngine/Renderer/Shader.h src/RcEngine/Renderer/Shader.cpp src/RcEngine/Renderer/Buffer.h
-        src/RcEngine/Renderer/Buffer.cpp src/Platform/OpenGL/OpenGLBuffer.h src/Platform/OpenGL/OpenGLBuffer.cpp src/RcEngine/Renderer/Renderer.h src/RcEngine/Renderer/Renderer.cpp src/RcEngine/Utils/Util.h)
+        src/RcEngine/Renderer/Buffer.cpp src/Platform/OpenGL/OpenGLBuffer.h src/Platform/OpenGL/OpenGLBuffer.cpp src/RcEngine/Renderer/Renderer.h
+        src/RcEngine/Renderer/Renderer.cpp src/RcEngine/Utils/Util.h src/RcEngine/Renderer/VertexArray.h src/RcEngine/Renderer/VertexArray.cpp src/Platform/OpenGL/OpenGLVertexArray.cpp
+        src/Platform/OpenGL/OpenGLVertexArray.h src/RcEngine/Renderer/RenderAPI.h src/RcEngine/Renderer/RenderAPI.cpp src/RcEngine/Renderer/RenderCommand.h src/RcEngine/Renderer/RenderCommand.cpp
+        src/Platform/OpenGL/OpenGLRenderAPI.h src/Platform/OpenGL/OpenGLRenderAPI.cpp)
 
 add_library(rcengine STATIC ${SOURCE_FILES} ${source_headers} ${GLOB})
 
@@ -92,6 +96,13 @@ find_package(GLFW)
 
 #Rust library link---------------------
 corrosion_import_crate(MANIFEST_PATH external/RcNetwork/Cargo.toml)
+set(SDK_LOC /Volumes/MacStorage/sdk)
+set_property(
+        TARGET rc_network
+        APPEND
+        PROPERTY CORROSION_ENVIRONMENT_VARIABLES
+        "STEAM_SDK_LOCATION=${SDK_LOC}"
+)
 #--------------------------------------
 
 find_package(glad)
@@ -101,7 +112,7 @@ target_link_libraries(rcengine
         spdlog
         OpenGL::GL
         imgui
-#        rc_network
+        rc_network
         )
 #--------------------------------------
 

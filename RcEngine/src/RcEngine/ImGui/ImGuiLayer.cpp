@@ -95,6 +95,7 @@ namespace RcEngine{
         {
             ImGui::Begin("Renderer");
 #ifdef IMGUI_IMPL_OPENGL_LOADER_GLAD
+            ImGui::Text("OpenGL");
             ImGui::Text(
                     "Vendor: %s", glGetString(GL_VENDOR)
             );
