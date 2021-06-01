@@ -11,6 +11,8 @@ libc = "0.2.0"
 #steamworks = "0.7.0"
 simplelog = "0.7.5"
 serde = "1.0.126"
+log = "0.4.14"
+chrono = "0.4.19"
 
 [lib]
 crate-type = ["staticlib"]

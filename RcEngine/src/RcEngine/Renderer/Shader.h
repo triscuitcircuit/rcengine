@@ -4,9 +4,9 @@
 #pragma once
 #include <string>
 
-
+typedef uint32_t RendererID;
 namespace RcEngine{
-    typedef uint32_t RendererID;
+
     class Shader{
     public:
         Shader(const std::string& vertexSrc, const std::string& fragmentSrc);
@@ -15,5 +15,5 @@ namespace RcEngine{
         void Unbind() const;
 private:
         RendererID m_RendererID;
-};
+    };
 }

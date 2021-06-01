@@ -115,7 +115,9 @@ checksum = "dc0e1f259c92177c30a4c9d177246edd0a3568b25756a977d0632cf8fa37e905"
 name = "rc_network"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "libc",
+ "log",
  "serde",
  "simplelog",
  "tokio",
