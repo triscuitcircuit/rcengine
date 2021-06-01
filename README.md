@@ -14,7 +14,7 @@ Work in progress
 
 1.Clone the project with git clone recursive
 ```shell
-git clone --recurse-submodules -j8 git:///github.com/triscuitcircuit/rcengine.git
+git clone --recurse-submodules -j8 https:///github.com/triscuitcircuit/rcengine.git
 cd rcengine
 ```
 2. make a "build" directory within the main directory
