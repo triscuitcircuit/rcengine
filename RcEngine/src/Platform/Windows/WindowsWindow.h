@@ -7,11 +7,13 @@
 
 
 #include "RcEngine/Window.h"
-#include <external/GLFW/include/GLFW/glfw3.h>
-struct GLFWwindow;
+#include "RcEngine/Renderer//GraphicsContext.h"
+
+#include <GLFW/glfw3.h>
+#include <include/glad/glad.h>
 
 namespace RcEngine{
-    class MacWindow: public Window{
+    class WindowsWindow: public Window{
     public:
         WindowsWindow(const WindowProps & props);
         virtual ~WindowsWindow();
@@ -32,6 +34,7 @@ namespace RcEngine{
         virtual void Shutdown();
     private:
         GLFWwindow* m_Window;
+        GraphicsContext* m_Context;
 
         struct WindowData{
             std::string Title;

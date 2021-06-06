@@ -43,6 +43,8 @@ if(WIN32)
             )
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+    include_directories(GL)
+
 endif(WIN32)
 if(APPLE)
     set(WINDOW
@@ -93,16 +95,17 @@ find_package(OpenGL REQUIRED)
 find_package(spdlog)
 find_package(imgui)
 find_package(GLFW)
+find_package(glad)
 
 #Rust library link---------------------
-corrosion_import_crate(MANIFEST_PATH external/RcNetwork/Cargo.toml)
-set(SDK_LOC /Volumes/MacStorage/sdk)
-set_property(
-        TARGET rc_network
-        APPEND
-        PROPERTY CORROSION_ENVIRONMENT_VARIABLES
-        "STEAM_SDK_LOCATION=${SDK_LOC}"
-)
+#corrosion_import_crate(MANIFEST_PATH external/RcNetwork/Cargo.toml)
+#set(SDK_LOC /Volumes/MacStorage/sdk)
+#set_property(
+#        TARGET rc_network
+#        APPEND
+#        PROPERTY CORROSION_ENVIRONMENT_VARIABLES
+#        "STEAM_SDK_LOCATION=${SDK_LOC}"
+#)
 #--------------------------------------
 
 find_package(glad)
@@ -112,8 +115,9 @@ target_link_libraries(rcengine
         spdlog
         OpenGL::GL
         imgui
-        rc_network
+#        rc_network
         )
+
 #--------------------------------------
 
 
