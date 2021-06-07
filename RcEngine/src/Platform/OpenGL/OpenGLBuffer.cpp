@@ -34,13 +34,13 @@ namespace RcEngine{
     :m_Count(count){
         glGenBuffers(1, &m_RendererID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,m_RendererID);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count* sizeof(uint32_t), indices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
     }
     OpenGLIndexBuffer::~OpenGLIndexBuffer() {
         glDeleteBuffers(1, &m_RendererID);
     }
     void OpenGLIndexBuffer::Bind() const {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
     }
     void OpenGLIndexBuffer::Unbind() const {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
