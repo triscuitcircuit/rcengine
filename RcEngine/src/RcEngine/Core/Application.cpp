@@ -15,11 +15,13 @@ extern "C" void rc_tcp_server();
 #include "RcEngine/Input.h"
 
 
+
 namespace RcEngine{
 #define BIND_EVENT_FN(x) std::bind(&x,this, std::placeholders::_1)
 
     Application* Application::s_Instance = nullptr;
-    Application::Application() {
+    Application::Application()
+    : m_Camera(){
         rc_tcp_server();
 
         RC_CORE_ASSERT(!s_Instance,"Application already open");
@@ -45,7 +47,7 @@ namespace RcEngine{
         BufferLayout layout = {
                 {ShaderDataType::Float3, "a_Position"},
                 {ShaderDataType::Float4, "a_Color"},
-//                {ShaderDataType::Float3, "a_Normal"},
+//               {ShaderDataType::Float3, "a_Normal"},
         };
         vertexBuffer->SetLayout(layout);
         m_VertexArray->AddVertexBuffer(vertexBuffer);
@@ -59,15 +61,16 @@ namespace RcEngine{
         m_VertexArray->SetIndexBuffer(indexBuffer);
 
 
-//        m_SquareVA.reset(VertexArray::Create());
-//        std::shared_ptr<VertexBuffer> squareVB;
-//        squareVB.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
-
         std::string vertShaderStr = R"(
-        #version 410
+        #version 410 core
+
+        out vec4 color;
+
 
         layout(location =0) in vec3 a_Position;
         layout(location =1) in vec4 a_Color;
+
+        uniform mat4 u_ViewProjection;
 
         out vec3 v_Position;
         out vec4 v_Color;
@@ -78,11 +81,11 @@ namespace RcEngine{
             v_Color= vec4(a_Position, 1.0) * 0.5 + vec4(0.5, 0.5, 0.5, 0.5);
 
             v_Color = a_Color;
-            gl_Position = vec4(a_Position,1);
+            gl_Position = u_ViewProjection * vec4(v_Position,1.0);
         }
         )";
         std::string fragShaderStr = R"(
-            #version 410
+            #version 410 core
 
             layout(location=0) out vec4 color;
 
@@ -138,6 +141,7 @@ namespace RcEngine{
             Renderer::BeginScene();
 
             m_Shader->Bind();
+            m_Shader->UploadUniformMat4("u_ViewProjection",m_Camera.m_ProjectionMatrix);
             Renderer::Submit(m_VertexArray);
 
             Renderer::EndScene();

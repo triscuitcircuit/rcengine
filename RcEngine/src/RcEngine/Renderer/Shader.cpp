@@ -5,6 +5,8 @@
 #include "Shader.h"
 
 #include <external/glad/include/glad/glad.h>
+#include <gtc/type_ptr.hpp>
+#include "RcEngine/Utils/Utils.h"
 
 namespace RcEngine{
     Shader::Shader(const std::string &vertexSource, const std::string &fragmentSource) {
@@ -52,9 +54,11 @@ namespace RcEngine{
 
 // Compile the fragment shader
         glCompileShader(fragmentShader);
+        Utils::CheckOpenGLError();
 
         glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &isCompiled);
-        if (isCompiled == GL_FALSE)
+        Utils::PrintShaderLog(fragmentShader);
+        if (isCompiled != 1)
         {
             GLint maxLength = 0;
             glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &maxLength);
@@ -90,7 +94,8 @@ namespace RcEngine{
 // Note the different functions here: glGetProgram* instead of glGetShader*.
         GLint isLinked = 0;
         glGetProgramiv(program, GL_LINK_STATUS, (int *)&isLinked);
-        if (isLinked == GL_FALSE)
+        Utils::PrintShaderLog(vertexShader);
+        if (isLinked != 1)
         {
             GLint maxLength = 0;
             glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
@@ -126,5 +131,10 @@ namespace RcEngine{
     }
     Shader::~Shader() {
         glDeleteProgram(m_RendererID);
+    }
+    void Shader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix) {
+        //glUseProgram(m_RendererID);
+        GLint location = glGetUniformLocation(m_RendererID,name.c_str());
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 }

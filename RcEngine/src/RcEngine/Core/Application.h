@@ -14,6 +14,8 @@
 #include "RcEngine/Renderer/Buffer.h"
 #include "RcEngine/Renderer/VertexArray.h"
 
+#include "RcEngine/Renderer/OrthoCamera.h"
+
 namespace RcEngine{
     class RC_API Application{
     public:
@@ -48,6 +50,8 @@ namespace RcEngine{
         std::shared_ptr<IndexBuffer> m_IndexBuffer;
 
         std::shared_ptr<VertexArray> m_SquareVA;
+
+        OrthoCamera m_Camera;
     };
     // Client defined
     Application* CreateApplication();

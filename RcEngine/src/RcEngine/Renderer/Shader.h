@@ -3,6 +3,7 @@
 //
 #pragma once
 #include <string>
+#include <glm.hpp>
 
 typedef uint32_t RendererID;
 namespace RcEngine{
@@ -13,6 +14,8 @@ namespace RcEngine{
         ~Shader();
         void Bind() const;
         void Unbind() const;
+
+        void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
 private:
         RendererID m_RendererID;
     };

@@ -38,21 +38,21 @@ add_subdirectory(external/glad/)
 if(WIN32)
     add_definitions(-DRC_PLATFORM_WINDOWS)
     set(WINDOW
-            src/Platform/Windows/WindowsWindow.cpp
-            src/Platform/Windows/WindowsWindow.h
-            )
+        src/Platform/Windows/WindowsWindow.cpp
+        src/Platform/Windows/WindowsWindow.h
+        )
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
     include_directories(GL)
 
-endif(WIN32)
+endif()
 if(APPLE)
     set(WINDOW
-            src/Platform/Mac/MacWindow.cpp
-            src/Platform/Mac/MacWindow.h
-            )
+        src/Platform/Mac/MacWindow.cpp
+        src/Platform/Mac/MacWindow.h
+        )
+endif()
 
-endif(APPLE)
 add_definitions(-DRC_BUILD_DLL)
 add_definitions(-DGLFW_INCLUDE_NONE)
 
@@ -61,30 +61,56 @@ if (CMAKE_BUILD_TYPE EQUAL "Debug")
 endif()
 #------------------------------------------------------------------
 
-set(SOURCE_FILES src/RcEngine.h src/rcpch.cpp src/rcpch.h
-        src/RcEngine/Core/Assert.h src/RcEngine/Core/Core.h
-        src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
+set(SOURCE_FILES
         src/RcEngine/EntryPoint.h src/RcEngine/Log.cpp
         src/RcEngine/Log.h src/RcEngine/Events/Event.h
-        src/RcEngine/Events/ApplicationEvent.h src/RcEngine/Events/KeyEvent.h src/RcEngine/Events/MouseEvent.h
+        src/RcEngine/Events/ApplicationEvent.h src/RcEngine/Events/KeyEvent.h
+        src/RcEngine/Events/MouseEvent.h
         src/RcEngine/Window.h ${WINDOW}
         src/RcEngine/LayerStack.cpp src/RcEngine/LayerStack.h
-        src/RcEngine/Layer.cpp src/RcEngine/Layer.h src/RcEngine/ImGui/ImGuiLayer.cpp
-        src/RcEngine/ImGui/ImGuiLayer.h
+        src/RcEngine/Layer.cpp src/RcEngine/Layer.h
         src/RcEngine/Input.h src/Platform/Mac/MacInput.cpp
-#        src/Platform/OpenGL/imgui_impl_glfw.cpp
-#        src/Platform/OpenGL/imgui_impl_opengl3.cpp
-        src/RcEngine/ImGui/ImGuiBuild.cpp
         src/Platform/Mac/MacInput.h src/RcEngine/keycodes.h
-        src/RcEngine/MouseButtonCodes.h src/RcEngine/ImGui/ImGuiBuild.cpp src/RcEngine/Renderer/GraphicsContext.h
-        src/Platform/OpenGL/OpenGLContext.h src/Platform/OpenGL/OpenGLContext.cpp src/RcEngine/Renderer/GraphicsContext.cpp
+        src/RcEngine/MouseButtonCodes.h
+        )
+set(GUI
+        src/RcEngine/ImGui/ImGuiLayer.cpp
+        src/RcEngine/ImGui/ImGuiLayer.h
+        src/RcEngine/ImGui/ImGuiBuild.cpp
+)
+set(RENDERER
         src/RcEngine/Renderer/Shader.h src/RcEngine/Renderer/Shader.cpp src/RcEngine/Renderer/Buffer.h
-        src/RcEngine/Renderer/Buffer.cpp src/Platform/OpenGL/OpenGLBuffer.h src/Platform/OpenGL/OpenGLBuffer.cpp src/RcEngine/Renderer/Renderer.h
-        src/RcEngine/Renderer/Renderer.cpp src/RcEngine/Utils/Util.h src/RcEngine/Renderer/VertexArray.h src/RcEngine/Renderer/VertexArray.cpp src/Platform/OpenGL/OpenGLVertexArray.cpp
-        src/Platform/OpenGL/OpenGLVertexArray.h src/RcEngine/Renderer/RenderAPI.h src/RcEngine/Renderer/RenderAPI.cpp src/RcEngine/Renderer/RenderCommand.h src/RcEngine/Renderer/RenderCommand.cpp
-        src/Platform/OpenGL/OpenGLRenderAPI.h src/Platform/OpenGL/OpenGLRenderAPI.cpp)
+        src/RcEngine/Renderer/Buffer.cpp src/RcEngine/Renderer/Renderer.h
+        src/RcEngine/Renderer/Renderer.cpp src/RcEngine/Utils/Utils.h
+        src/RcEngine/Renderer/VertexArray.h src/RcEngine/Renderer/VertexArray.cpp
+        src/RcEngine/Renderer/RenderAPI.h src/RcEngine/Renderer/RenderAPI.cpp
+        src/RcEngine/Renderer/RenderCommand.h src/RcEngine/Renderer/RenderCommand.cpp
+        src/RcEngine/Renderer/Camera.h src/RcEngine/Renderer/OrthoCamera.cpp src/RcEngine/Renderer/OrthoCamera.h
+        src/RcEngine/Renderer/GraphicsContext.h
+        src/RcEngine/Renderer/GraphicsContext.cpp
+        src/RcEngine/Utils/Utils.cpp)
 
-add_library(rcengine STATIC ${SOURCE_FILES} ${source_headers} ${GLOB})
+set(CORE
+        src/RcEngine.h src/rcpch.cpp src/rcpch.h
+        src/RcEngine/Core/Assert.h src/RcEngine/Core/Core.h
+        src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
+        )
+set(OPENGL_CXT
+        src/Platform/OpenGL/OpenGLContext.h src/Platform/OpenGL/OpenGLContext.cpp
+        src/Platform/OpenGL/OpenGLBuffer.h src/Platform/OpenGL/OpenGLBuffer.cpp
+        src/Platform/OpenGL/OpenGLVertexArray.h src/Platform/OpenGL/OpenGLRenderAPI.h
+        src/Platform/OpenGL/OpenGLRenderAPI.cpp src/Platform/OpenGL/OpenGLVertexArray.cpp
+)
+
+add_library(rcengine STATIC
+        ${CORE}
+        ${RENDERER}
+        ${OPENGL_CXT}
+        ${SOURCE_FILES}
+        ${GUI}
+        ${source_headers}
+        ${GLOB}
+        )
 
 
 target_precompile_headers(rcengine PRIVATE src/rcpch.h)
@@ -98,14 +124,14 @@ find_package(GLFW)
 find_package(glad)
 
 #Rust library link---------------------
-#corrosion_import_crate(MANIFEST_PATH external/RcNetwork/Cargo.toml)
-#set(SDK_LOC /Volumes/MacStorage/sdk)
-#set_property(
-#        TARGET rc_network
-#        APPEND
-#        PROPERTY CORROSION_ENVIRONMENT_VARIABLES
-#        "STEAM_SDK_LOCATION=${SDK_LOC}"
-#)
+corrosion_import_crate(MANIFEST_PATH external/RcNetwork/Cargo.toml)
+set(SDK_LOC /Volumes/MacStorage/sdk)
+set_property(
+        TARGET rc_network
+        APPEND
+        PROPERTY CORROSION_ENVIRONMENT_VARIABLES
+        "STEAM_SDK_LOCATION=${SDK_LOC}"
+)
 #--------------------------------------
 
 find_package(glad)
@@ -115,7 +141,7 @@ target_link_libraries(rcengine
         spdlog
         OpenGL::GL
         imgui
-#        rc_network
+        rc_network
         )
 
 #--------------------------------------
