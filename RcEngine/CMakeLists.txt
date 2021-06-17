@@ -79,13 +79,15 @@ set(GUI
         src/RcEngine/ImGui/ImGuiBuild.cpp
 )
 set(RENDERER
-        src/RcEngine/Renderer/Shader.h src/RcEngine/Renderer/Shader.cpp src/RcEngine/Renderer/Buffer.h
+        src/RcEngine/Renderer/Shader.h src/RcEngine/Renderer/Shader.cpp
+        src/RcEngine/Renderer/Buffer.h
         src/RcEngine/Renderer/Buffer.cpp src/RcEngine/Renderer/Renderer.h
         src/RcEngine/Renderer/Renderer.cpp src/RcEngine/Utils/Utils.h
         src/RcEngine/Renderer/VertexArray.h src/RcEngine/Renderer/VertexArray.cpp
         src/RcEngine/Renderer/RenderAPI.h src/RcEngine/Renderer/RenderAPI.cpp
         src/RcEngine/Renderer/RenderCommand.h src/RcEngine/Renderer/RenderCommand.cpp
-        src/RcEngine/Renderer/Camera.h src/RcEngine/Renderer/OrthoCamera.cpp src/RcEngine/Renderer/OrthoCamera.h
+        src/RcEngine/Renderer/Camera.h src/RcEngine/Renderer/OrthoCamera.cpp
+        src/RcEngine/Renderer/OrthoCamera.h
         src/RcEngine/Renderer/GraphicsContext.h
         src/RcEngine/Renderer/GraphicsContext.cpp
         src/RcEngine/Utils/Utils.cpp)
@@ -94,7 +96,7 @@ set(CORE
         src/RcEngine.h src/rcpch.cpp src/rcpch.h
         src/RcEngine/Core/Assert.h src/RcEngine/Core/Core.h
         src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
-        )
+        src/RcEngine/Core/Timestep.h)
 set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLContext.h src/Platform/OpenGL/OpenGLContext.cpp
         src/Platform/OpenGL/OpenGLBuffer.h src/Platform/OpenGL/OpenGLBuffer.cpp

@@ -7,7 +7,7 @@
 namespace RcEngine{
     OrthoCamera::OrthoCamera(float left, float right, float bottom, float top)
     : m_ProjectionMatrix(glm::ortho(left,right,bottom,top,-1.0f, 1.0f)),m_ViewMatrix(1.0f){
-        m_ProjectionMatrix = m_ProjectionMatrix* m_ViewMatrix;
+        m_ViewProjectMatrix = m_ProjectionMatrix * m_ViewMatrix;
     }
     void OrthoCamera::RecalculateView() {
 
@@ -16,6 +16,6 @@ namespace RcEngine{
                             glm::vec3(0,0,1));
 
         m_ViewMatrix = glm::inverse(transform);
-        m_ProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+        m_ViewProjectMatrix = m_ProjectionMatrix * m_ViewMatrix;
     }
 }

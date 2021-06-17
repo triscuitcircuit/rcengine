@@ -12,20 +12,38 @@ put the source sdk folder for  [steamworks sdk](https://partner.steamgames.com/d
 
 Work in progress
 
-1.Clone the project with git clone recursive
+Clone the project with git clone recursive
 ```shell
 git clone --recurse-submodules -j8 https:///github.com/triscuitcircuit/rcengine.git
 cd rcengine
 ```
-2. make a "build" directory within the main directory
+<details> <summary> Standard Cmake build</summary>
+1. make a "build" directory within the main directory
+
 ```shell
  mkdir build
  cd build
 ```
-3. run cmake within the build directory
+2. run cmake within the build directory
 ```shell
 cmake ..
 ```
+</details>
+
+<details>
+<summary>Xcode build from script
+</summary>
+
+1. Go the the scripts directory and run the "generate-xcode.sh" script
+
+OR
+2. Run the script through the MacOS terminal
+```shell
+bash generate-xcode.sh
+```
+Then open up the Xcode project that was generated in the "xcode-build" folder
+</details>
+
 # Contributions
 While very early in development, feel free to comment changes you would
 want in a simple game engine. This engine isn't meant to be a AAA engine by any means, and the scope

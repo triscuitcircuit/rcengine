@@ -16,6 +16,8 @@
 
 #include "RcEngine/Renderer/OrthoCamera.h"
 
+#include "RcEngine/Core/Timestep.h"
+
 namespace RcEngine{
     class RC_API Application{
     public:
@@ -41,17 +43,9 @@ namespace RcEngine{
         bool m_Running = true;
         LayerStack m_LayerStack;
 
-        //unsigned int m_VertexArray;
+        float m_LastFrameTime= 0.0f;
 
-        std::shared_ptr<VertexArray> m_VertexArray;
 
-        std::shared_ptr<Shader> m_Shader;
-        std::shared_ptr<VertexBuffer> m_VertexBuffer;
-        std::shared_ptr<IndexBuffer> m_IndexBuffer;
-
-        std::shared_ptr<VertexArray> m_SquareVA;
-
-        OrthoCamera m_Camera;
     };
     // Client defined
     Application* CreateApplication();

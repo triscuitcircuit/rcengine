@@ -14,7 +14,10 @@ namespace RcEngine{
         const glm::vec3& GetPosition() const{return m_Position;}
 
 
-        void SetPosition(const glm::vec3& position){m_Position = position;}
+        void SetPosition(const glm::vec3& position){
+            m_Position = position;
+            RecalculateView();
+        }
 
 
         float GetRotation() const {return m_Rotation;}
@@ -31,12 +34,12 @@ namespace RcEngine{
         void RecalculateView();
 
     public:
-        glm::mat4 m_ProjectionMatrix = glm::mat4(1.0f);
+        glm::mat4 m_ProjectionMatrix;
     private:
         glm::mat4 m_ViewMatrix;
         glm::mat4 m_ViewProjectMatrix;
 
-        glm::vec3 m_Position = {0.0f,0.0f,0.0f};
+        glm::vec3 m_Position;
         float m_Rotation = 0.0f;
     };
 }
