@@ -17,3 +17,6 @@
 [submodule "RcEngine/external/RcNetwork/external/corrosion"]
 	path = RcEngine/external/corrosion
 	url = https://github.com/AndrewGaspar/corrosion.git
+[submodule "RcEngine/external/SOIL2"]
+	path = RcEngine/external/SOIL2
+	url = https://github.com/triscuitcircuit/SOIL2

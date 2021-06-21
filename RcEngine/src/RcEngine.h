@@ -44,4 +44,9 @@
 #include "RcEngine/Renderer/VertexArray.h"
 #include "RcEngine/Renderer/GraphicsContext.h"
 #include "RcEngine/Renderer/OrthoCamera.h"
+#include "RcEngine/Renderer/Texture.h"
+///////////////////////////////////////
+
+///OPENGL//////////////////////////////
+//#include "Platform/OpenGL/OpenGLUtils.h"
 ///////////////////////////////////////

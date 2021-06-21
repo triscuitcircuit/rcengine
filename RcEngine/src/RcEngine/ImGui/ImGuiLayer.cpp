@@ -119,8 +119,8 @@ namespace RcEngine{
             ImGui::End();
         }
 
-        static bool show = true;
-        ImGui::ShowDemoWindow(&show);
+        static bool show = false;
+        //ImGui::ShowDemoWindow(&show);
     }
     void ImGuiLayer::SetDarkThemeColors(){
         auto& colors = ImGui::GetStyle().Colors;
@@ -133,7 +133,7 @@ namespace RcEngine{
         colors[ImGuiCol_ButtonActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
 
         //Frame Background
-        colors[ImGuiCol_FrameBg] = ImVec4{ 0.9f, 0.205f, 0.21f, 1.0f };
+        colors[ImGuiCol_FrameBg] = ImVec4{ 0.5f, 0.205f, 0.505f, 1.0f };
         colors[ImGuiCol_FrameBgHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
         colors[ImGuiCol_FrameBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
 

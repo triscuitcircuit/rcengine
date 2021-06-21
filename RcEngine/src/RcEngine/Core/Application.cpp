@@ -2,12 +2,12 @@
 // Created by Tristan Zippert on 5/21/21.
 //
 
-extern "C" void rc_tcp_server();
 #include "rcpch.h"
 #include "Application.h"
 #include "RcEngine/Log.h"
 #include "include/glad/glad.h"
 #include "RcEngine/Renderer/Renderer.h"
+#include "RcEngine/Network/Network.h"
 
 #include "RcEngine/Input.h"
 #include <external/GLFW/include/GLFW/glfw3.h>
@@ -19,8 +19,6 @@ namespace RcEngine{
     Application* Application::s_Instance = nullptr;
     Application::Application()
 {
-        rc_tcp_server();
-
         RC_CORE_ASSERT(!s_Instance,"Application already open");
         s_Instance = this;
         m_Window = std::unique_ptr<Window>(Window::Create());

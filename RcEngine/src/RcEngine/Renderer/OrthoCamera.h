@@ -26,6 +26,7 @@ namespace RcEngine{
             m_Rotation = rotation;
             RecalculateView();
         }
+
     public:
         const glm::mat4& GetProjectionMatrix() const {return m_ProjectionMatrix;}
         const glm::mat4& GetViewMatrix() const{return m_ViewMatrix;}

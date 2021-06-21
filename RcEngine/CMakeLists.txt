@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.19)
 
 project(RcEngine)
 
-
 set(CMAKE_CXX_STANDARD 17)
 
 file(GLOB source_headers
@@ -19,10 +18,12 @@ file(GLOB source_headers
 
 include_directories("external/glm/glm")
 include_directories("external/imgui")
+include_directories("external/SOIL2")
 include_directories("src")
 
 add_subdirectory(external/spdlog)
 add_subdirectory(external/imgui)
+add_subdirectory(external/SOIL2)
 add_subdirectory(external/corrosion)
 
 #GLFW--------------------------------------------
@@ -47,6 +48,7 @@ if(WIN32)
 
 endif()
 if(APPLE)
+    add_definitions(-DRC_PLATFORM_UNIX)
     set(WINDOW
         src/Platform/Mac/MacWindow.cpp
         src/Platform/Mac/MacWindow.h
@@ -59,7 +61,7 @@ add_definitions(-DGLFW_INCLUDE_NONE)
 if (CMAKE_BUILD_TYPE EQUAL "Debug")
     add_definitions(-DRC_ENABLE_ASSERTS)
 endif()
-#------------------------------------------------------------------
+#SOURCE-------------------------------------------------------------
 
 set(SOURCE_FILES
         src/RcEngine/EntryPoint.h src/RcEngine/Log.cpp
@@ -73,16 +75,18 @@ set(SOURCE_FILES
         src/Platform/Mac/MacInput.h src/RcEngine/keycodes.h
         src/RcEngine/MouseButtonCodes.h
         )
+#GUI---------------------------------------------------------------
 set(GUI
         src/RcEngine/ImGui/ImGuiLayer.cpp
         src/RcEngine/ImGui/ImGuiLayer.h
         src/RcEngine/ImGui/ImGuiBuild.cpp
 )
+#RENDERER----------------------------------------------------------
 set(RENDERER
         src/RcEngine/Renderer/Shader.h src/RcEngine/Renderer/Shader.cpp
         src/RcEngine/Renderer/Buffer.h
         src/RcEngine/Renderer/Buffer.cpp src/RcEngine/Renderer/Renderer.h
-        src/RcEngine/Renderer/Renderer.cpp src/RcEngine/Utils/Utils.h
+        src/RcEngine/Renderer/Renderer.cpp
         src/RcEngine/Renderer/VertexArray.h src/RcEngine/Renderer/VertexArray.cpp
         src/RcEngine/Renderer/RenderAPI.h src/RcEngine/Renderer/RenderAPI.cpp
         src/RcEngine/Renderer/RenderCommand.h src/RcEngine/Renderer/RenderCommand.cpp
@@ -90,20 +94,26 @@ set(RENDERER
         src/RcEngine/Renderer/OrthoCamera.h
         src/RcEngine/Renderer/GraphicsContext.h
         src/RcEngine/Renderer/GraphicsContext.cpp
-        src/RcEngine/Utils/Utils.cpp)
-
+        src/RcEngine/Renderer/Texture.cpp src/RcEngine/Renderer/Texture.h)
+#CORE--------------------------------------------------------------
 set(CORE
         src/RcEngine.h src/rcpch.cpp src/rcpch.h
         src/RcEngine/Core/Assert.h src/RcEngine/Core/Core.h
         src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
         src/RcEngine/Core/Timestep.h)
+#------------------------------------------------------------------
 set(OPENGL_CXT
+        src/Platform/OpenGL/OpenGLUtils.cpp src/Platform/OpenGL/OpenGLUtils.h
         src/Platform/OpenGL/OpenGLContext.h src/Platform/OpenGL/OpenGLContext.cpp
         src/Platform/OpenGL/OpenGLBuffer.h src/Platform/OpenGL/OpenGLBuffer.cpp
         src/Platform/OpenGL/OpenGLVertexArray.h src/Platform/OpenGL/OpenGLRenderAPI.h
         src/Platform/OpenGL/OpenGLRenderAPI.cpp src/Platform/OpenGL/OpenGLVertexArray.cpp
-)
+        src/Platform/OpenGL/OpenGLShader.cpp src/Platform/OpenGL/OpenGLShader.h
+        src/Platform/OpenGL/OpenGLTexture.cpp src/Platform/OpenGL/OpenGLTexture.h)
 
+#------------------------------------------------------------------
+set(NETWORK src/RcEngine/Network/Network.h)
+#------------------------------------------------------------------
 add_library(rcengine STATIC
         ${CORE}
         ${RENDERER}
@@ -112,9 +122,10 @@ add_library(rcengine STATIC
         ${GUI}
         ${source_headers}
         ${GLOB}
+        ${STB_IMAGE}
+        ${NETWORK}
         )
-
-
+#------------------------------------------------------------------
 target_precompile_headers(rcengine PRIVATE src/rcpch.h)
 
 
@@ -122,6 +133,7 @@ target_precompile_headers(rcengine PRIVATE src/rcpch.h)
 find_package(OpenGL REQUIRED)
 find_package(spdlog)
 find_package(imgui)
+find_package(soil2)
 find_package(GLFW)
 find_package(glad)
 
@@ -135,7 +147,6 @@ set_property(
         "STEAM_SDK_LOCATION=${SDK_LOC}"
 )
 #--------------------------------------
-
 find_package(glad)
 target_link_libraries(rcengine
         glfw
@@ -143,9 +154,9 @@ target_link_libraries(rcengine
         spdlog
         OpenGL::GL
         imgui
+        soil2
         rc_network
         )
-
 #--------------------------------------
 
 
