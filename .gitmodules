@@ -15,7 +15,7 @@
 [submodule "RcEngine/external/GL"]
 	path = RcEngine/external/GL
 	url = https://github.com/nigels-com/glew.git
-[submodule "RcEngine/external/RcNetwork/external/corrosion"]
+[submodule "RcEngine/external/corrosion"]
 	path = RcEngine/external/corrosion
 	url = https://github.com/AndrewGaspar/corrosion.git
 [submodule "RcEngine/external/SOIL2"]
