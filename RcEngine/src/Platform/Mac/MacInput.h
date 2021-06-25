@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "RcEngine/Input.h"
+#include "RcEngine/Core/Input.h"
 namespace RcEngine{
     class MacInput: public Input{
     protected:

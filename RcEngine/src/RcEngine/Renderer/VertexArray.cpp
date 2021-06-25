@@ -11,14 +11,14 @@
 #include "Platform/OpenGL/OpenGLVertexArray.h"
 
 namespace RcEngine{
-     VertexArray * VertexArray::Create() {
+     Ref<VertexArray> VertexArray::Create() {
          switch (Renderer::GetAPI()) {
              case RenderAPI::API::None:
                  RC_CORE_ASSERT(false, "No Render API");
                  return nullptr;
              case RenderAPI::API::OpenGL:
                  //TODO: check OpenGL version
-                 return new OpenGLVertexArray();
+                 return std::make_shared<OpenGLVertexArray>();
              case RenderAPI::API::Vulkan:
                  RC_CORE_ASSERT(false, "Vulkan not currently supported");
                  return nullptr;

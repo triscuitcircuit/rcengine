@@ -4,6 +4,27 @@
 #pragma once
 #include <memory>
 
+#ifdef _WIN32
+    #ifdef _WIN64
+        #define RC_PLATFORM_WINDOWS
+    #else
+        #error "x32-86 bit builds not supported"
+    #endif
+#elif defined(__APPLE__) || defined(__MACH__)
+    #include <TargetConditionals.h>
+
+    #if TARGET_IPHONE_SIMULATOR == 1
+        #error "IOS/IPHONE not supported"
+    #elif TARGET_OS_IPHONE
+        #define RC_PLATFORM_IOS
+        #error "IOS not supported"
+    #elif  TARGET_OS_MAC
+        #define RC_PLATFORM_MAC
+    #else
+        #error "Unknown APPLE"
+    #endif
+#endif
+
 #ifdef RC_PLATFORM_WINDOWS
     #ifdef RC_BUILD_DLL
         #define RC_API __declspec(dllexport)
@@ -25,7 +46,7 @@
 #endif
 
 #ifdef RC_ENABLE_ASSERTS
-    #if defined(RC_PLATFORM_WINDOW) || defined(RC_PLATFORM_UNIX)
+    #if defined(RC_PLATFORM_WINDOW) || defined(RC_PLATFORM_UNIX) ||defined(RC_PLATFORM_MAC)
         #define RC_ASSERT(x, ...) {if(!(x)){RC_ERROR("Assertion Failed: {0}",__VA_ARGS__); __debugbreak(); }}
         #define RC_CORE_ASSERT(x, ...) {if(!(x)) {RC_CORE_ERROR("Assertion failed: {0}",__VA_ARGS__); __debugbreak();} }
     #else

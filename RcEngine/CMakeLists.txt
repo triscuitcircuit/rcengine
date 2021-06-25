@@ -18,6 +18,7 @@ file(GLOB source_headers
 
 include_directories("external/glm/glm")
 include_directories("external/imgui")
+include_directories(SYSTEM "external/glad/include")
 include_directories("external/SOIL2")
 include_directories("src")
 
@@ -59,21 +60,21 @@ add_definitions(-DRC_BUILD_DLL)
 add_definitions(-DGLFW_INCLUDE_NONE)
 
 if (CMAKE_BUILD_TYPE EQUAL "Debug")
-    add_definitions(-DRC_ENABLE_ASSERTS)
+    add_definitions(-DRC_DEBUG)
 endif()
 #SOURCE-------------------------------------------------------------
 
 set(SOURCE_FILES
-        src/RcEngine/EntryPoint.h src/RcEngine/Log.cpp
-        src/RcEngine/Log.h src/RcEngine/Events/Event.h
+        src/RcEngine/Core/EntryPoint.h src/RcEngine/Core/Log.cpp
+        src/RcEngine/Core/Log.h src/RcEngine/Events/Event.h
         src/RcEngine/Events/ApplicationEvent.h src/RcEngine/Events/KeyEvent.h
         src/RcEngine/Events/MouseEvent.h
-        src/RcEngine/Window.h ${WINDOW}
-        src/RcEngine/LayerStack.cpp src/RcEngine/LayerStack.h
-        src/RcEngine/Layer.cpp src/RcEngine/Layer.h
-        src/RcEngine/Input.h src/Platform/Mac/MacInput.cpp
-        src/Platform/Mac/MacInput.h src/RcEngine/keycodes.h
-        src/RcEngine/MouseButtonCodes.h
+        src/RcEngine/Core/Window.h ${WINDOW}
+        src/RcEngine/Core/LayerStack.cpp src/RcEngine/Core/LayerStack.h
+        src/RcEngine/Core/Layer.cpp src/RcEngine/Core/Layer.h
+        src/RcEngine/Core/Input.h src/Platform/Mac/MacInput.cpp
+        src/Platform/Mac/MacInput.h src/RcEngine/Core/keycodes.h
+        src/RcEngine/Core/MouseButtonCodes.h
         )
 #GUI---------------------------------------------------------------
 set(GUI
@@ -94,7 +95,10 @@ set(RENDERER
         src/RcEngine/Renderer/OrthoCamera.h
         src/RcEngine/Renderer/GraphicsContext.h
         src/RcEngine/Renderer/GraphicsContext.cpp
-        src/RcEngine/Renderer/Texture.cpp src/RcEngine/Renderer/Texture.h)
+        src/RcEngine/Renderer/Texture.cpp src/RcEngine/Renderer/Texture.h
+        src/RcEngine/Renderer/OrthoCameraController.h src/RcEngine/Renderer/OrthoCameraController.cpp
+        src/RcEngine/Renderer/ProjectionCamera.cpp src/RcEngine/Renderer/ProjectionCamera.h
+        src/RcEngine/Renderer/Renderer2D.cpp src/RcEngine/Renderer/Renderer2D.h)
 #CORE--------------------------------------------------------------
 set(CORE
         src/RcEngine.h src/rcpch.cpp src/rcpch.h
@@ -112,7 +116,9 @@ set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLTexture.cpp src/Platform/OpenGL/OpenGLTexture.h)
 
 #------------------------------------------------------------------
-set(NETWORK src/RcEngine/Network/Network.h)
+if(APPLE)
+    set(NETWORK src/RcEngine/Network/Network.h)
+endif()
 #------------------------------------------------------------------
 add_library(rcengine STATIC
         ${CORE}
@@ -122,7 +128,6 @@ add_library(rcengine STATIC
         ${GUI}
         ${source_headers}
         ${GLOB}
-        ${STB_IMAGE}
         ${NETWORK}
         )
 #------------------------------------------------------------------
@@ -138,14 +143,16 @@ find_package(GLFW)
 find_package(glad)
 
 #Rust library link---------------------
-corrosion_import_crate(MANIFEST_PATH external/RcNetwork/Cargo.toml)
-set(SDK_LOC /Volumes/MacStorage/sdk)
-set_property(
-        TARGET rc_network
-        APPEND
-        PROPERTY CORROSION_ENVIRONMENT_VARIABLES
-        "STEAM_SDK_LOCATION=${SDK_LOC}"
-)
+if(APPLE)
+    corrosion_import_crate(MANIFEST_PATH external/RcNetwork/Cargo.toml)
+    set(SDK_LOC /Volumes/MacStorage/sdk)
+    set_property(
+            TARGET rc_network
+            APPEND
+            PROPERTY CORROSION_ENVIRONMENT_VARIABLES
+            "STEAM_SDK_LOCATION=${SDK_LOC}"
+    )
+endif()
 #--------------------------------------
 find_package(glad)
 target_link_libraries(rcengine
@@ -155,8 +162,12 @@ target_link_libraries(rcengine
         OpenGL::GL
         imgui
         soil2
-        rc_network
         )
+if(APPLE)
+    target_link_libraries(rcengine
+            rc_network
+            )
+endif()
 #--------------------------------------
 
 

@@ -4,12 +4,12 @@
 
 #include "rcpch.h"
 #include "Application.h"
-#include "RcEngine/Log.h"
+#include "Log.h"
 #include "include/glad/glad.h"
 #include "RcEngine/Renderer/Renderer.h"
 #include "RcEngine/Network/Network.h"
 
-#include "RcEngine/Input.h"
+#include "Input.h"
 #include <external/GLFW/include/GLFW/glfw3.h>
 
 
@@ -21,10 +21,12 @@ namespace RcEngine{
 {
         RC_CORE_ASSERT(!s_Instance,"Application already open");
         s_Instance = this;
+
         m_Window = std::unique_ptr<Window>(Window::Create());
         m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
         m_Window->SetVSync(false);
 
+        Renderer::Init();
 
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
@@ -44,6 +46,7 @@ namespace RcEngine{
 
         EventDispatcher dispatcher(e);
         dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClosed));
+        dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(Application::OnWindowResize));
 
         RC_CORE_INFO("{0}",e);
 
@@ -57,6 +60,20 @@ namespace RcEngine{
         m_Running = false;
         return true;
     }
+    bool Application::OnWindowResize(WindowResizeEvent &e) {
+
+        if(e.GetWidth() == 0|| e.GetHeight() == 0)
+        {
+            m_Minimized = true;
+            return false;
+        }
+        m_Minimized = false;
+
+        // Windows specific
+        //Renderer::OnWindowResize(e.GetHeight(), e.GetHeight());
+
+        return false;
+    }
 
 
 
@@ -66,8 +83,10 @@ namespace RcEngine{
             Timestep timestep = time- m_LastFrameTime;
             m_LastFrameTime = time;
 
-            for(Layer* layer: m_LayerStack)
-                layer->OnUpdate(timestep);
+            if(!m_Minimized){
+                for(Layer* layer: m_LayerStack)
+                    layer->OnUpdate(timestep);
+            }
 
             m_ImGuiLayer->Begin();
             for(Layer* layer: m_LayerStack)

@@ -17,7 +17,7 @@ if(APPLE)
 endif()
 
 if(APPLE)
-        add_executable (RcGame MACOSX_BUNDLE ${RcGame_ICON} RcApp.cpp)
+        add_executable (RcGame MACOSX_BUNDLE ${RcGame_ICON} RcApp.cpp RcGame2D.cpp RcGame2D.h)
     else()
         add_executable (RcGame RcApp.cpp)
 endif()

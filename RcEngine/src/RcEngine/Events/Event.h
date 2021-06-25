@@ -60,10 +60,10 @@ namespace RcEngine{
         EventDispatcher(Event& event)
             :m_Event(event){}
 
-        template<typename A>
-        bool Dispatch(EventFn<A> func){
-            if(m_Event.GetEventType() == A::GetStaticType()){
-                m_Event.m_Handeled = func(*(A*)&m_Event);
+        template<typename T,typename A>
+        bool Dispatch(const A& func){
+            if(m_Event.GetEventType() == T::GetStaticType()){
+                m_Event.m_Handeled = func(static_cast<T&>(m_Event));
                 return true;
             }
             return false;

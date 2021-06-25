@@ -1,19 +1,20 @@
 [submodule "RcEngine/external/GLFW"]
 	path = RcEngine/external/GLFW
-	url = https://github.com/glfw/glfw
+	url = https://github.com/glfw/glfw.git
 	branch = 3.3-stable
 [submodule "RcEngine/external/imgui"]
 	path = RcEngine/external/imgui
 	url = https://github.com/triscuitcircuit/imgui.git
+	branch = docking
 [submodule "RcEngine/external/spdlog"]
 	path = RcEngine/external/spdlog
-	url = https://github.com/gabime/spdlog
+	url = https://github.com/gabime/spdlog.git
 [submodule "RcEngine/external/glm"]
 	path = RcEngine/external/glm
-	url = https://github.com/g-truc/glm
+	url = https://github.com/g-truc/glm.git
 [submodule "RcEngine/external/GL"]
 	path = RcEngine/external/GL
-	url = https://github.com/nigels-com/glew
+	url = https://github.com/nigels-com/glew.git
 [submodule "RcEngine/external/RcNetwork/external/corrosion"]
 	path = RcEngine/external/corrosion
 	url = https://github.com/AndrewGaspar/corrosion.git

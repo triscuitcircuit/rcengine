@@ -11,6 +11,7 @@ namespace RcEngine{
     class OrthoCamera{
     public:
         OrthoCamera(float left=-1.0f, float right=1.0f, float bottom=-1.0f, float top=1.0f);
+        void SetProjection(float left, float right, float bottom, float top);
         const glm::vec3& GetPosition() const{return m_Position;}
 
 
@@ -18,7 +19,6 @@ namespace RcEngine{
             m_Position = position;
             RecalculateView();
         }
-
 
         float GetRotation() const {return m_Rotation;}
 
@@ -34,13 +34,12 @@ namespace RcEngine{
     private:
         void RecalculateView();
 
-    public:
-        glm::mat4 m_ProjectionMatrix;
     private:
+        glm::mat4 m_ProjectionMatrix;
         glm::mat4 m_ViewMatrix;
         glm::mat4 m_ViewProjectMatrix;
 
-        glm::vec3 m_Position;
+        glm::vec3 m_Position = {0.0f, 0.0f, 0.0f};
         float m_Rotation = 0.0f;
     };
 }

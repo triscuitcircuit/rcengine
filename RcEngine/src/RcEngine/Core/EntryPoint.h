@@ -3,7 +3,7 @@
 //
 #pragma once
 //#include "RcEngine.h"
-#include "Log.h"
+#include "RcEngine/Core/Log.h"
 
 #ifdef RC_PLATFORM_WINDOWS
 extern RcEngine::Application* RcEngine::CreateApplication();

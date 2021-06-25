@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "Core/Core.h"
+#include "Core.h"
 #include <spdlog/spdlog.h>
 #include "spdlog/fmt/ostr.h"
 

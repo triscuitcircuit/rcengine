@@ -17,7 +17,7 @@ namespace RcEngine{
         if(len> 0){
             log = (char*)malloc(len);
             glGetShaderInfoLog(shader,len,&chwritten,log);
-            std::cout << "Shader log info: " << log << std::endl;
+            RC_CORE_INFO("Shader log info: {0}",log);
             free(log);
         }
     }
@@ -25,8 +25,7 @@ namespace RcEngine{
         bool found_Err = false;
         int glErr = glGetError();
         while(glErr != GL_NO_ERROR){
-            std::cout << "glError: "<< glErr << std::endl;
-//            std::cout << "GLStrinError: " <<
+            RC_CORE_ERROR("OpenGL error: {0}", glErr);
             found_Err = true;
             glErr = glGetError();
         }
@@ -39,7 +38,7 @@ namespace RcEngine{
         if (len > 0){
             log = (char*)malloc(len);
             glGetProgramInfoLog(prog,len,&chWritten,log);
-            std::cout << "Program Log: " << log << std::endl;
+            RC_CORE_INFO("Program Log: {0}",log);
             free(log);
         }
     }
@@ -54,9 +53,15 @@ namespace RcEngine{
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_siz[1]);
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_siz[2]);
         glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &work_grp_inv);
-        printf("maximum number of workgroups is: %i  %i  %i\n", work_grp_cnt[0], work_grp_cnt[1], work_grp_cnt[2]);
-        printf("maximum size of workgroups is: %i  %i  %i\n", work_grp_siz[0], work_grp_siz[1], work_grp_siz[2]);
-        printf("max local work group invocations %i\n", work_grp_inv);
+
+        RC_CORE_INFO("maximum number of workgroups is:{0} {1} {2}",
+                     work_grp_cnt[0], work_grp_cnt[1], work_grp_cnt[2]
+                     );
+        RC_CORE_INFO("maximum size of workgroups is:{0} {1} {2}",
+                     work_grp_siz[0], work_grp_siz[1], work_grp_siz[2]
+        );
+
+        RC_CORE_INFO("max local work group invocations:{0}",work_grp_inv);
     }
     std::string OpenGLUtils::readShaderFile(const char *filepath) {
         using namespace std;
@@ -64,7 +69,7 @@ namespace RcEngine{
         ifstream fileStream(filepath, ios::in);
         string line = "";
         if(!fileStream){
-            cout << "Couldn't find file: " << filepath<< endl;
+            RC_CORE_WARN("Couldnt find file: {0}",filepath);
             return "";
         }else{
             while (!fileStream.ios_base::eof()) {

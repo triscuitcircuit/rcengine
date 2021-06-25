@@ -4,15 +4,10 @@
 
 #pragma once
 
-#include <string>
-#include <optional>
+#include "rcpch.h"
 #include <glm.hpp>
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <external/GLFW/include/GLFW/glfw3.h>
-//#include <include/glad/glad.h>
 
+#include <external/GLFW/include/GLFW/glfw3.h>
 
 namespace RcEngine{
     class FileDialog{
