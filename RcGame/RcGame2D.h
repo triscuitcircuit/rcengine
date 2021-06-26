@@ -29,5 +29,11 @@ private:
 
     RcEngine::Ref<RcEngine::Texture2D> m_BaseTexture;
 
+    struct ProfileResult{
+        const char* Name;
+        float time;
+    };
+    std::vector<ProfileResult> m_Profiler;
+
 };
 #endif //RCENGINE_CLION_RCGAME2D_H

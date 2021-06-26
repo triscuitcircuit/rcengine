@@ -96,7 +96,8 @@ set(RENDERER
         src/RcEngine/Renderer/GraphicsContext.h
         src/RcEngine/Renderer/GraphicsContext.cpp
         src/RcEngine/Renderer/Texture.cpp src/RcEngine/Renderer/Texture.h
-        src/RcEngine/Renderer/OrthoCameraController.h src/RcEngine/Renderer/OrthoCameraController.cpp
+        src/RcEngine/Renderer/OrthoCameraController.h
+        src/RcEngine/Renderer/OrthoCameraController.cpp
         src/RcEngine/Renderer/ProjectionCamera.cpp src/RcEngine/Renderer/ProjectionCamera.h
         src/RcEngine/Renderer/Renderer2D.cpp src/RcEngine/Renderer/Renderer2D.h)
 #CORE--------------------------------------------------------------
@@ -115,6 +116,9 @@ set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLShader.cpp src/Platform/OpenGL/OpenGLShader.h
         src/Platform/OpenGL/OpenGLTexture.cpp src/Platform/OpenGL/OpenGLTexture.h)
 
+#DEBUG-------------------------------------------------------------
+set(DEBUG_FILE
+        src/RcEngine/Debug/Instrumentor.h)
 #------------------------------------------------------------------
 if(APPLE)
     set(NETWORK src/RcEngine/Network/Network.h)
@@ -130,6 +134,13 @@ add_library(rcengine STATIC
         ${GLOB}
         ${NETWORK}
         )
+#------------------------------------------------------------------
+if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
+    message("DEBUG BUILD")
+    add_library(rcengine STATIC
+            ${DEBUG_FILE}
+            )
+endif()
 #------------------------------------------------------------------
 target_precompile_headers(rcengine PRIVATE src/rcpch.h)
 

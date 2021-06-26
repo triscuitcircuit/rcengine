@@ -15,7 +15,7 @@ namespace RcEngine{
         GLuint  textureRef;
 
         unsigned char* data = SOIL_load_image(path,&width,&height,&channels,SOIL_LOAD_AUTO);
-        textureRef = SOIL_create_OGL_texture(data,&width,&height,channels,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y| SOIL_FLAG_GL_MIPMAPS);
+        textureRef = SOIL_create_OGL_texture(data,&width,&height,channels,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y | SOIL_FLAG_GL_MIPMAPS);
 
         GLenum internalFormat =0, dataformat =0;
         if(channels == 4){
@@ -25,6 +25,9 @@ namespace RcEngine{
             internalFormat = GL_RGB8;
             dataformat = GL_RGB;
         }
+
+        m_InternalFormat = internalFormat;
+        m_DataFormat = dataformat;
 
         RC_CORE_ASSERT(textureRef == 1, "Failed to load image!");
         if (textureRef == 0){
@@ -54,11 +57,31 @@ namespace RcEngine{
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY,&filter_anx);
         glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY,filter_anx);
 
-
+        SOIL_free_image_data(data);
     }
     OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height)
     : m_Width(width),m_Height(height){
+        int channels;
+        GLenum m_InternalFormat =GL_RGBA8, m_DataFormat =GL_RGBA;
 
+        // -- minmap / sampling quality section
+
+        //glBindTexture(GL_TEXTURE_2D,textureRef);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    }
+    void OpenGLTexture2D::SetData(void* data, uint32_t size, uint32_t slot) const{
+        uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
+        RC_CORE_ASSERT(size == m_Width* m_Height * bpp, "Data must be entire texture");
+        glBindTexture(slot,m_RendererID);
+        glTexSubImage2D(GL_TEXTURE_2D,0,0,0,m_Width,m_Height,bpp,GL_UNSIGNED_BYTE,data);
     }
     void OpenGLTexture2D::Bind(uint32_t slot) const {
         glBindTexture(slot, m_RendererID);
