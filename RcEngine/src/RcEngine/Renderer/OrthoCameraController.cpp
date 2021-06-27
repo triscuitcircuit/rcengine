@@ -23,6 +23,7 @@ namespace RcEngine{
 
     }
     void OrthoCameraController::OnUpdate(Timestep ts) {
+        RC_PROFILE_FUNCTION();
         if(Input::IsKeyPressed(RC_KEY_A)){
             m_CameraPosition.x -= cos(glm::radians(m_CameraRotation)) *
                     m_CameraTranslationSpeed*ts;

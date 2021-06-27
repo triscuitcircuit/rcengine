@@ -28,6 +28,8 @@
 #include "RcEngine/Renderer/Shader.h"
 ///////////////////////////////////////
 
+#include "RcEngine/Debug/Instrumentor.h"
+
 #ifdef RC_PLATFORM_WINDOWS
     #include <Windows.h>
 #endif
