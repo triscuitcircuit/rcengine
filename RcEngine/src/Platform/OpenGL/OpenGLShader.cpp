@@ -21,6 +21,7 @@ namespace RcEngine{
     }
 
     OpenGLShader::OpenGLShader(const std::string &filepath) {
+        RC_PROFILE_FUNCTION();
 
         std::string source = ReadFile(filepath);
         auto shaderSources = PreProcess(source);
@@ -72,12 +73,16 @@ namespace RcEngine{
 
     OpenGLShader::OpenGLShader(const std::string& name, const std::string &vertexSource, const std::string &fragmentSource)
     : m_Name(name){
+        RC_PROFILE_FUNCTION();
+
         std::unordered_map<GLenum, std::string> sources;
         sources[GL_VERTEX_SHADER] = vertexSource;
         sources[GL_FRAGMENT_SHADER] = fragmentSource;
         Compile(sources);
     }
     void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string> &shaderSource) {
+        RC_PROFILE_FUNCTION();
+
         GLuint program = glCreateProgram();
         RC_CORE_ASSERT(shaderSource.size() <= 2, "Only 3 shaders are supported");
         std::array<GLenum,3> glShaderIDs;
@@ -145,31 +150,50 @@ namespace RcEngine{
         m_RendererID = program;
     }
     void OpenGLShader::Bind() const {
+        RC_PROFILE_FUNCTION();
+
         glUseProgram(m_RendererID);
     }
     void OpenGLShader::Unbind() const {
+        RC_PROFILE_FUNCTION();
+
         glUseProgram(0);
     }
     OpenGLShader::~OpenGLShader() {
         glDeleteProgram(m_RendererID);
     }
     void OpenGLShader::SetInt(const std::string &name, const int value) {
+        RC_PROFILE_FUNCTION();
         UploadUniformInt(name,value);
     }
+    void OpenGLShader::SetIntArray(const std::string &name, int *values, uint32_t count) {
+        UploadUniformIntArray(name, values, count);
+    }
     void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3 &value) {
+        RC_PROFILE_FUNCTION();
         UploadUniformFloat3(name,value);
     }
     void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4 &value) {
+        RC_PROFILE_FUNCTION();
         UploadUniformFloat4(name,value);
     }
     void OpenGLShader::SetMat4(const std::string& name, const glm::mat4 value) {
+        RC_PROFILE_FUNCTION();
         UploadUniformMat4(name,value);
     }
+    void OpenGLShader::SetFloat(const std::string& name, const float value){
+        RC_PROFILE_FUNCTION();
+        UploadUniformFloat(name, value);
+    };
 
     void OpenGLShader::UploadUniformInt(const std::string& name, const int value){
         glUseProgram(m_RendererID);
         GLint location = glGetUniformLocation(m_RendererID,name.c_str());
         glUniform1i(location,value);
+    }
+    void OpenGLShader::UploadUniformIntArray(const std::string &name, int* values, uint32_t count) {
+        GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+        glUniform1iv(location, count, values);
     }
 
     void OpenGLShader::UploadUniformMat3(const std::string& name, const glm::mat3& matrix){

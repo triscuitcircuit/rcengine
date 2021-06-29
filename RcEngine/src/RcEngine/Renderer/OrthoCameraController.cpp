@@ -15,6 +15,7 @@ namespace RcEngine{
 
     }
     void OrthoCameraController::OnEvent(Event &e) {
+        RC_PROFILE_FUNCTION();
         EventDispatcher dispatcher(e);
         dispatcher.Dispatch<MouseScrolledEvent>(
                 RC_BIND_EVENT_TO_FUNCTION(OrthoCameraController::OnMouseScrolled));

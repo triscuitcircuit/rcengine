@@ -9,7 +9,6 @@
 
 #include <gtc/type_ptr.hpp>
 
-#include <chrono>
 #include <external/glm/glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 RcGame2D::RcGame2D():
@@ -32,12 +31,14 @@ void RcGame2D::OnUpdate(RcEngine::Timestep ts) {
     RcEngine::RenderCommand::Clear();
 
 
-    RcEngine::Renderer2D::DrawQuad({0.0f,0.0f,-1.0f},{10.0f,10.0f},
-                                   m_TextureColor,m_BaseTexture);
 
     RcEngine::Renderer2D::BeginScene(m_CameraController.GetCamera());
 
-    RcEngine::Renderer2D::DrawQuad({-1.0f,0.0f},{0.8f,0.8f},{0.8f,0.2f,0.3f,1.0f});
+    RcEngine::Renderer2D::DrawQuad({0.0f,0.0f},{10.0f,10.0f},
+                                   m_TextureColor,m_BaseTexture, m_TextureTile);
+
+    RcEngine::Renderer2D::DrawQuad({-1.0f,0.0f},{0.8f,0.8f},m_SquareColor);
+    //RcEngine::Renderer2D::DrawRotatedQuad({-1.0f,1.0f},{0.8f,0.8f},glm::radians(45.0f),m_SquareColor);
 
 
     RcEngine::Renderer2D::EndScene();
@@ -47,6 +48,7 @@ void RcGame2D::OnImGuiRender() {
     ImGui::Begin("Settings");
     ImGui::ColorEdit4("Square color", glm::value_ptr(m_SquareColor) );
     ImGui::ColorEdit4("Texture color",glm::value_ptr(m_TextureColor));
+    ImGui::SliderFloat("Texture Tiling: ", &m_TextureTile, -5.0f, 20.0f);
 
     ImGui::Text("X: %f, Y: %f", m_CameraController.GetCamera().GetPosition().x,
                 m_CameraController.GetCamera().GetPosition().y);
@@ -59,5 +61,5 @@ void RcGame2D::OnAttach() {
 
 }
 void RcGame2D::OnDetach() {
-
+    RC_PROFILE_FUNCTION();
 }

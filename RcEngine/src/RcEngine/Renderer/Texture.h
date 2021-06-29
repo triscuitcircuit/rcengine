@@ -25,6 +25,8 @@ public:
     public:
         static Ref<Texture2D> Create(const char* path);
         static Ref<Texture2D> Create(uint32_t width, uint32_t height);
+
+        virtual bool operator==(const Texture2D& otherTexture) const = 0;
     };
 }
 

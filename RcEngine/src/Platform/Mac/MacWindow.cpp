@@ -11,7 +11,6 @@
 #include "Platform/OpenGL/OpenGLContext.h"
 
 
-
 namespace RcEngine{
     static bool s_GLFWInitialized = false;
     static uint8_t s_GLFW_Win_Count = 0;
@@ -25,11 +24,18 @@ namespace RcEngine{
     }
 
     MacWindow::MacWindow(const WindowProps &props) {
+        RC_PROFILE_FUNCTION();
         Init(props);
     }
-    MacWindow::~MacWindow(){}
+    MacWindow::~MacWindow(){
+        RC_PROFILE_FUNCTION();
+
+        Shutdown();
+    }
 
     void MacWindow::Init(const WindowProps &props) {
+        RC_PROFILE_FUNCTION();
+
         m_Data.Title = props.Title;
         m_Data.Width = props.Width;
         m_Data.Height = props.Height;
@@ -38,6 +44,8 @@ namespace RcEngine{
         RC_CORE_INFO("Creating window {0} ({1} {2})", props.Title, props.Width, props.Height);
 
         if (!s_GLFWInitialized){
+            RC_PROFILE_SCOPE("glfwCreateWindow");
+
             int success = glfwInit();
             RC_ASSERT(success, "could not init GLFW");
             glfwSetErrorCallback(GLFWErrorCallback);
@@ -151,6 +159,7 @@ namespace RcEngine{
     }
 
     void MacWindow::Shutdown() {
+        RC_PROFILE_FUNCTION();
         glfwDestroyWindow(m_Window);
         --s_GLFW_Win_Count;
 

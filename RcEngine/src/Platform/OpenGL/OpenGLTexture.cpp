@@ -11,12 +11,15 @@
 namespace RcEngine{
     OpenGLTexture2D::OpenGLTexture2D(const char* path)
     :m_Path(path){
+        RC_PROFILE_FUNCTION();
         int width,channels,height;
-        GLuint  textureRef;
-
-        unsigned char* data = SOIL_load_image(path,&width,&height,&channels,SOIL_LOAD_AUTO);
-        textureRef = SOIL_create_OGL_texture(data,&width,&height,channels,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y | SOIL_FLAG_GL_MIPMAPS);
-
+        unsigned char* data = nullptr;
+        {
+            RC_PROFILE_SCOPE("SOIL Load - OpenGLTexture2D::OpenGLTexture2D(const char* path)");
+            unsigned char *data = SOIL_load_image(path, &width, &height, &channels, SOIL_LOAD_AUTO);
+            m_RendererID = SOIL_create_OGL_texture(data, &width, &height, channels, SOIL_CREATE_NEW_ID,
+                                                   SOIL_FLAG_INVERT_Y | SOIL_FLAG_GL_MIPMAPS);
+        }
         GLenum internalFormat =0, dataformat =0;
         if(channels == 4){
             internalFormat = GL_RGBA8;
@@ -30,8 +33,8 @@ namespace RcEngine{
         m_DataFormat = dataformat;
 
         RC_CORE_ASSERT(textureRef == 1, "Failed to load image!");
-        if (textureRef == 0){
-            RC_CORE_ERROR("Couldn't find requested texture file: {0}", path);
+        if (m_RendererID == 0){
+            RC_CORE_ERROR("Couldn't find requested texture file: {0}", m_Path);
             namespace fs = std::filesystem;
             RC_CORE_INFO("System is searching here: {0}", fs::current_path());
         }
@@ -40,7 +43,7 @@ namespace RcEngine{
 
         // -- minmap / sampling quality section
 
-        glBindTexture(GL_TEXTURE_2D,textureRef);
+        glBindTexture(GL_TEXTURE_2D,m_RendererID);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -61,14 +64,14 @@ namespace RcEngine{
     }
     OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height)
     : m_Width(width),m_Height(height){
-        int channels;
-        GLenum m_InternalFormat =GL_RGBA8, m_DataFormat =GL_RGBA;
+        RC_PROFILE_FUNCTION();
+        m_InternalFormat =GL_RGBA8, m_DataFormat =GL_RGBA;
 
         // -- minmap / sampling quality section
+        glGenTextures(1, & m_RendererID);
 
-        //glBindTexture(GL_TEXTURE_2D,textureRef);
+        glBindTexture(GL_TEXTURE_2D,m_RendererID);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-        glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -78,18 +81,22 @@ namespace RcEngine{
 
     }
     void OpenGLTexture2D::SetData(void* data, uint32_t size, uint32_t slot) const{
+        RC_PROFILE_FUNCTION();
         uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
         RC_CORE_ASSERT(size == m_Width* m_Height * bpp, "Data must be entire texture");
-        glBindTexture(slot,m_RendererID);
-        glTexSubImage2D(GL_TEXTURE_2D,0,0,0,m_Width,m_Height,bpp,GL_UNSIGNED_BYTE,data);
+
+        glBindTexture(GL_TEXTURE_2D,m_RendererID);
+        glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data);
     }
     void OpenGLTexture2D::Bind(uint32_t slot) const {
-        glBindTexture(slot, m_RendererID);
+        RC_PROFILE_FUNCTION();
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_2D, m_RendererID);
     }
 
     OpenGLTexture2D::~OpenGLTexture2D(){
+        RC_PROFILE_FUNCTION();
         glDeleteTextures(1,&m_RendererID);
     }
-
 }
 

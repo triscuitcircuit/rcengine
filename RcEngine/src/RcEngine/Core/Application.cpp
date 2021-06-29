@@ -19,6 +19,8 @@ namespace RcEngine{
     Application* Application::s_Instance = nullptr;
     Application::Application()
 {
+        RC_PROFILE_FUNCTION();
+
         RC_CORE_ASSERT(!s_Instance,"Application already open");
         s_Instance = this;
 
@@ -35,14 +37,19 @@ namespace RcEngine{
 
     }
     void Application::PushLayer(Layer *layer) {
+        RC_PROFILE_FUNCTION();
+
         m_LayerStack.PushLayer(layer);
         layer->OnAttach();
     }
     void Application::PushOverlay(Layer *layer) {
+        RC_PROFILE_FUNCTION();
+
         m_LayerStack.PushOverlay(layer);
         layer->OnAttach();
     }
     void Application::OnEvent(Event& e){
+        RC_PROFILE_FUNCTION();
 
         EventDispatcher dispatcher(e);
         dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClosed));
@@ -75,24 +82,28 @@ namespace RcEngine{
         return false;
     }
 
-
-
     void Application::Run() {
+        RC_PROFILE_FUNCTION();
         while (m_Running){
+            RC_PROFILE_SCOPE("Application Run Loop");
             float time = (float)glfwGetTime();
             Timestep timestep = time- m_LastFrameTime;
             m_LastFrameTime = time;
 
             if(!m_Minimized){
-                for(Layer* layer: m_LayerStack)
-                    layer->OnUpdate(timestep);
+                {
+                    RC_PROFILE_SCOPE("LayerStack OnUpdate");
+                    for (Layer *layer: m_LayerStack)
+                        layer->OnUpdate(timestep);
+                }
+                m_ImGuiLayer->Begin();
+                {
+                    RC_PROFILE_SCOPE("LayerStack OnImGUIRender");
+                    for (Layer *layer: m_LayerStack)
+                        layer->OnImGuiRender();
+                }
+                m_ImGuiLayer->End();
             }
-
-            m_ImGuiLayer->Begin();
-            for(Layer* layer: m_LayerStack)
-                layer->OnImGuiRender();
-            m_ImGuiLayer->End();
-
             m_Window->OnUpdate();
         }
     }

@@ -57,6 +57,7 @@ namespace RcEngine{
         RC_CORE_INFO("maximum number of workgroups is:{0} {1} {2}",
                      work_grp_cnt[0], work_grp_cnt[1], work_grp_cnt[2]
                      );
+
         RC_CORE_INFO("maximum size of workgroups is:{0} {1} {2}",
                      work_grp_siz[0], work_grp_siz[1], work_grp_siz[2]
         );

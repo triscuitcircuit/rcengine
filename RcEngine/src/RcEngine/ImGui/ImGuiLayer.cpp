@@ -1,14 +1,12 @@
 //
 // Created by Tristan Zippert on 5/23/21.
 //
-
 #include "rcpch.h"
 #include "ImGuiLayer.h"
 
 #include "imgui.h"
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
-
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -18,8 +16,6 @@
 
 //temp
 #include "include/glad/glad.h"
-
-
 
 namespace RcEngine{
 
@@ -32,9 +28,9 @@ namespace RcEngine{
 
     }
 
-
-
     void ImGuiLayer::OnAttach() {
+        RC_PROFILE_FUNCTION();
+
         //setup imgui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -65,11 +61,15 @@ namespace RcEngine{
         ImGui_ImplOpenGL3_Init("#version 410");
     }
     void ImGuiLayer::OnDetach() {
+        RC_PROFILE_FUNCTION();
+
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     }
     void ImGuiLayer::Begin() {
+        RC_PROFILE_FUNCTION();
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();

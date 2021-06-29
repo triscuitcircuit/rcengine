@@ -15,12 +15,38 @@ namespace RcEngine{
 
         static void BeginScene(const OrthoCamera& camera );
         static void EndScene();
+        static void Flush();
         // DRAWING PRIMITIVE SHAPES
-        static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
-        static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
-        // Overloaded rotation Quad draw
-        static void DrawQuad(const glm::vec2& position, const glm::vec2& size,const glm::vec4& color, const Ref<Texture2D>& texture);
-        static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, const Ref<Texture2D>& texture);
+        static void DrawQuad(const glm::vec2& position, const glm::vec2& size,
+                             const glm::vec4& color, float tilingfactor=1.0f);
+
+        static void DrawQuad(const glm::vec3& position, const glm::vec2& size,
+                             const glm::vec4& color,float tilingfactor=1.0f);
+        // overloaded position functions
+        static void DrawQuad(const glm::vec2& position, const glm::vec2& size,const glm::vec4& color,
+                             const Ref<Texture2D>& texture, float tilingfactor=1.0f);
+
+        static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color,
+                             const Ref<Texture2D>& texture,float tilingfactor=1.0f);
+
+        // Rotated Quad draw functions to avoid non-warranted matrix math
+
+        static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size,
+                             float rotation,
+                             const glm::vec4& color, float tilingfactor=1.0f);
+
+        static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size,
+                             float rotation,
+                             const glm::vec4& color,float tilingfactor=1.0f);
+
+        static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size,const glm::vec4& color,
+                                    float rotation,
+                             const Ref<Texture2D>& texture, float tilingfactor=1.0f);
+
+        static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color,
+                                    float rotation,
+                             const Ref<Texture2D>& texture,float tilingfactor=1.0f);
+
     };
 }
 #endif //RCENGINE_CLION_RENDERER2D_H

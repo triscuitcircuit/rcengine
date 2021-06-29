@@ -39,7 +39,7 @@ public:
 
         RcEngine::Ref<RcEngine::VertexBuffer> vertexBuffer;
 
-        vertexBuffer.reset(RcEngine::VertexBuffer::Create(vertices, sizeof(vertices)));
+        vertexBuffer = RcEngine::VertexBuffer::Create(vertices, sizeof(vertices));
         RcEngine::BufferLayout layout = {
                 {RcEngine::ShaderDataType::Float3, "a_Position"},
                 {RcEngine::ShaderDataType::Float4, "a_Color"},
@@ -49,9 +49,8 @@ public:
 
         uint32_t indices[3] = {0,1,2};
         RcEngine::Ref<RcEngine::IndexBuffer> indexBuffer;
-        indexBuffer.reset(
-                RcEngine::IndexBuffer::Create(indices,sizeof(indices)/sizeof(uint32_t))
-        );
+        indexBuffer =
+                RcEngine::IndexBuffer::Create(indices,sizeof(indices)/sizeof(uint32_t));
         m_VertexArray->SetIndexBuffer(indexBuffer);
 
 
@@ -65,7 +64,7 @@ public:
         };
 
         RcEngine::Ref<RcEngine::VertexBuffer> squareVB;
-        squareVB.reset(RcEngine::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+        squareVB = RcEngine::VertexBuffer::Create(squareVertices, sizeof(squareVertices));
         squareVB->SetLayout({
                                     { RcEngine::ShaderDataType::Float3, "a_Position" },
                                     { RcEngine::ShaderDataType::Float2, "a_TexCord" }
@@ -74,7 +73,7 @@ public:
 
         uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
         RcEngine::Ref<RcEngine::IndexBuffer> squareIB;
-        squareIB.reset(RcEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+        squareIB = RcEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
         m_SquareVA->SetIndexBuffer(squareIB);
 
         std::string vertShaderStr = RcEngine::OpenGLUtils::readShaderFile("Assets/Shaders/VertShader.glsl");
@@ -176,7 +175,7 @@ class RcGame:
         public RcEngine::Application{
 public:
     RcGame(): RcEngine::Application() {
-        PushLayer(new ExampleLayer());
+        //PushLayer(new ExampleLayer());
         PushLayer(new RcGame2D());
     };
     ~RcGame() { };

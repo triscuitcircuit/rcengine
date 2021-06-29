@@ -9,6 +9,8 @@
 
 namespace RcEngine{
     void OpenGLRenderAPI::Init() {
+        RC_PROFILE_FUNCTION();
+
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -24,8 +26,10 @@ namespace RcEngine{
     void OpenGLRenderAPI::Clear() {
         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
     }
-    void OpenGLRenderAPI::DrawIndexed(const Ref<VertexArray>& vertexArray) {
+    void OpenGLRenderAPI::DrawIndexed(const Ref<VertexArray>&  vertexArray, uint32_t indexCount) {
+        uint32_t count = indexCount ? vertexArray->GetIndexBuffer()->GetCount() : indexCount;
         glDrawElements(GL_TRIANGLES,
-                       vertexArray->GetIndexBuffer()->GetCount(),GL_UNSIGNED_INT,nullptr);
+                       count,GL_UNSIGNED_INT,nullptr);
+        glBindTexture(GL_TEXTURE_2D,0);
     }
 }

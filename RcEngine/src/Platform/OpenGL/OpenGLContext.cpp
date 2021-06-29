@@ -16,6 +16,8 @@ namespace RcEngine{
 
     }
     void OpenGLContext::Init() {
+        RC_PROFILE_FUNCTION();
+
         glfwMakeContextCurrent(m_WindowHandle);
         int status = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
         RC_CORE_ASSERT(status, "failed to init glad loader");
@@ -24,6 +26,7 @@ namespace RcEngine{
         RC_CORE_INFO(" Vendor {0}", glGetString(GL_VERSION));
     }
     void OpenGLContext::SwapBuffers() {
+        RC_PROFILE_FUNCTION();
         glfwSwapBuffers(m_WindowHandle);
     }
 }

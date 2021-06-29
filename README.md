@@ -1,4 +1,6 @@
-# RC-Engine
+
+RC-Engine
+=============================
 A game engine made using both Rust and C++.
 The Rust language is used for the networking side of the engine, while C++ is used for standard rendering
 
@@ -17,7 +19,7 @@ Clone the project with git clone recursive
 git clone --recurse-submodules -j8 https:///github.com/triscuitcircuit/rcengine.git
 cd rcengine
 ```
-<details> <summary> Standard Cmake build</summary>
+<details> <summary>Standard Cmake build</summary>
 1. make a "build" directory within the main directory
 
 ```shell
@@ -34,7 +36,7 @@ cmake ..
 <summary>Xcode build from script
 </summary>
 
-1. Go the the scripts directory and run the "generate-xcode.sh" script
+1. Go to the scripts directory and run the "generate-xcode.sh" script
 
 OR
 2. Run the script through the MacOS terminal
@@ -44,9 +46,18 @@ bash generate-xcode.sh
 Then open up the Xcode project that was generated in the "xcode-build" folder
 </details>
 
-# Contributions
+<details>
+<summary>Visual Studio build from .bat
+</summary>
+On Windows, you can run the "generate-VSproj.bat" file located in the "scripts" folder. 
+
+This will generate a Visual Studio project within a Visual Studio 2019 project within a folder called "visual-studio-build". 
+
+</details>
+
 While very early in development, feel free to comment changes you would
 want in a simple game engine. This engine isn't meant to be a AAA engine by any means, and the scope
 is to make a 2.5D editor and engine with network capabilities. 
 # Special Thanks
-Special thanks to TheCherno for his guide on game engine design!
+- Special thanks to TheCherno for his guide on game engine design!
+- A special shout-out to 0x (https://github.com/0xworks) for helping with my OpenGL questions (And help with `OpenGLTexture.cpp`)!! 

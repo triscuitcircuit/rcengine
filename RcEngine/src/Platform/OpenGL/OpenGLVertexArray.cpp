@@ -24,19 +24,23 @@ namespace RcEngine{
     }
 
     OpenGLVertexArray::OpenGLVertexArray() {
+        RC_PROFILE_FUNCTION();
         glGenVertexArrays(1,&m_RendererID);
 
     }
     OpenGLVertexArray::~OpenGLVertexArray() {
+        RC_PROFILE_FUNCTION();
         glDeleteVertexArrays(1,&m_RendererID);
     }
     void OpenGLVertexArray::Bind() const {
+        RC_PROFILE_FUNCTION();
         glBindVertexArray(m_RendererID);
     }
     void OpenGLVertexArray::Unbind() const {
         glBindVertexArray(0);
     }
     void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer> &vertexBuffer) {
+        RC_PROFILE_FUNCTION();
         RC_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(),"Vertex Buffer has no layout");
         glBindVertexArray(m_RendererID);
         vertexBuffer->Bind();
@@ -55,6 +59,7 @@ namespace RcEngine{
 
     }
     void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer> &indexBuffer){
+        RC_PROFILE_FUNCTION();
         glBindVertexArray(m_RendererID);
         indexBuffer->Bind();
 

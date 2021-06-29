@@ -10,14 +10,16 @@ extern RcEngine::Application* RcEngine::CreateApplication();
 
     int main(int argc, char** argv){
         RcEngine::Log::Init();
-
         RC_CORE_WARN("Init log");
-        int a =5;
-        RC_INFO("Init log from client var:{0}", a);
-
-        auto app = RcEngine::CreateApplication();
-        app->Run();
-        delete app;
+            RC_PROFILE_BEGIN_SESSION("Startup","RCENGINE-Startup.json");
+            auto app = RcEngine::CreateApplication();
+        RC_PROFILE_END_SESSION();
+        RC_PROFILE_BEGIN_SESSION("Runtime","RCENGINE-runtime.json");
+            app->Run();
+        RC_PROFILE_END_SESSION();
+        RC_PROFILE_BEGIN_SESSION("Shutdown","RCENGINE-Shutdown.json");
+            delete app;
+        RC_PROFILE_END_SESSION();
         return 0;
     }
 #else
@@ -27,13 +29,13 @@ extern RcEngine::Application* RcEngine::CreateApplication();
         RcEngine::Log::Init();
         RC_CORE_WARN("Init log");
         RC_PROFILE_BEGIN_SESSION("Startup","RCENGINE-Startup.json");
-        auto app = RcEngine::CreateApplication();
+            auto app = RcEngine::CreateApplication();
         RC_PROFILE_END_SESSION();
         RC_PROFILE_BEGIN_SESSION("Runtime","RCENGINE-runtime.json");
-        app->Run();
+            app->Run();
         RC_PROFILE_END_SESSION();
         RC_PROFILE_BEGIN_SESSION("Shutdown","RCENGINE-Shutdown.json");
-        delete app;
+            delete app;
         RC_PROFILE_END_SESSION();
         return 0;
     }
