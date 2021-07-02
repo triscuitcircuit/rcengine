@@ -47,12 +47,16 @@ namespace RcEngine{
 
         uint32_t index =0;
         const auto& layout = vertexBuffer->GetLayout();
+        RC_CORE_INFO("___VERTEX ATTRIB____");
         for(const auto& element: layout){
             glEnableVertexAttribArray(index);
             glVertexAttribPointer(index,element.GetCompCount(),
                                   ShaderDataTypeToGLBase(element.Type)
                     , element.Normalized? GL_TRUE: GL_FALSE
                     , layout.GetStride(), (const void*)element.Offset);
+            RC_CORE_INFO("index {}: comp count:{}, Type:{}, layout:{} ,offset {}",
+                         index, element.GetCompCount(), ShaderDataTypeToGLBase(element.Type),
+                         layout.GetStride(),  element.Offset);
             index++;
         }
         m_VertexBuffers.push_back(vertexBuffer);

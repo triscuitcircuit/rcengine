@@ -16,7 +16,7 @@ namespace RcEngine{
         unsigned char* data = nullptr;
         {
             RC_PROFILE_SCOPE("SOIL Load - OpenGLTexture2D::OpenGLTexture2D(const char* path)");
-            unsigned char *data = SOIL_load_image(path, &width, &height, &channels, SOIL_LOAD_AUTO);
+            data = SOIL_load_image(path, &width, &height, &channels, SOIL_LOAD_AUTO);
             m_RendererID = SOIL_create_OGL_texture(data, &width, &height, channels, SOIL_CREATE_NEW_ID,
                                                    SOIL_FLAG_INVERT_Y | SOIL_FLAG_GL_MIPMAPS);
         }

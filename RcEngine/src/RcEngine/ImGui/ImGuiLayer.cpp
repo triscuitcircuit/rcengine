@@ -105,7 +105,9 @@ namespace RcEngine{
             ImGui::Text(
                     "Version: %s",glGetString(GL_VERSION)
                     );
-            ImGui::Text("Max texture size: %s",glGetString(GL_MAX_3D_TEXTURE_SIZE));
+            int max_size;
+            glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max_size);
+            ImGui::Text("Max texture size: %i x %i",max_size, max_size);
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
                         1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 

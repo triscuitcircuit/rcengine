@@ -34,12 +34,10 @@ namespace RcEngine{
                     m_CameraTranslationSpeed*ts;
         }
         if(Input::IsKeyPressed(RC_KEY_W)){
-            m_CameraPosition.y -= -sin(glm::radians(m_CameraRotation))*
-                    m_CameraTranslationSpeed*ts;
+            m_CameraPosition.y += m_CameraTranslationSpeed*ts;
         }
         if(Input::IsKeyPressed(RC_KEY_S))
-            m_CameraPosition.y += -sin(glm::radians(m_CameraRotation))*
-                                  m_CameraTranslationSpeed*ts;
+            m_CameraPosition.y -= m_CameraTranslationSpeed*ts;
 
 
         if(m_Rotation) {

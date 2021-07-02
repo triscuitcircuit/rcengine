@@ -37,7 +37,7 @@ namespace RcEngine{
 
         bool m_Rotation;
         glm::vec3 m_CameraPosition = {0.0f,0.0f,0.0f};
-        float m_CameraRotation = 18.0f;
+        float m_CameraRotation = 1.0f; //18.0f before
 
         float m_CameraTranslationSpeed =5.0f, m_CameraRotationSpeed = 9.0f;
 

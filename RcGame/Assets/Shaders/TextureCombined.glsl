@@ -34,8 +34,60 @@ in float v_TexIndex;
 in float v_TilingFactor;
 
 uniform sampler2D u_Textures[16];
+//16 is compatible with more devices, but results in more draw calls
 
 void main()
 {
-    color = texture(u_Textures[int(v_TexIndex)], v_TexCoord * v_TilingFactor) * v_Color;
-}
+    //if statements used to avoid GLSL compiler error on some machines
+    // ie no "int(float)" can be used
+    // Thanks, Apple
+
+    	if(v_TexIndex == 0.0){
+            color = texture(u_Textures[0], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 1.0) {
+            color = texture(u_Textures[1], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 2.0){
+            color = texture(u_Textures[2], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 3.0){
+            color = texture(u_Textures[3], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 4.0){
+            color = texture(u_Textures[4], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 5.0){
+            color = texture(u_Textures[5], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 6.0){
+            color = texture(u_Textures[6], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 7.0){
+            color = texture(u_Textures[7], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 8.0){
+            color = texture(u_Textures[8], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 9.0){
+            color = texture(u_Textures[9], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 10.0){
+            color = texture(u_Textures[10], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 11.0){
+            color = texture(u_Textures[11], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 12.0){
+            color = texture(u_Textures[12], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 13.0){
+            color = texture(u_Textures[13], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 14.0){
+            color = texture(u_Textures[14], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+        if (v_TexIndex == 15.0){
+            color = texture(u_Textures[15], v_TexCoord * v_TilingFactor) * v_Color;
+        }
+    }

@@ -61,3 +61,4 @@ is to make a 2.5D editor and engine with network capabilities.
 # Special Thanks
 - Special thanks to TheCherno for his guide on game engine design!
 - A special shout-out to 0x (https://github.com/0xworks) for helping with my OpenGL questions (And help with `OpenGLTexture.cpp`)!! 
+- A special thanks to [Light3039](https://github.com/Light3039) on github for texture debug help( and for the `Tiles.png` debug texture)!!!! 
