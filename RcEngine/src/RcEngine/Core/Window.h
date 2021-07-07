@@ -33,7 +33,7 @@ namespace RcEngine{
         virtual void SetEventCallback(const EventCallbackfn& callback) =0;
         virtual void SetVSync(bool enabled) =0;
         virtual bool IsVsync() const =0;
-        static Window* Create(const WindowProps& props =WindowProps());
+        static Scope<Window> Create(const WindowProps& props =WindowProps());
 
         virtual void* GetNativeWindow() const = 0;
     };

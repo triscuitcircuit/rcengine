@@ -8,7 +8,7 @@
 #include "RcEngine/Events/ApplicationEvent.h"
 #include "RcEngine/Events/KeyEvent.h"
 
-#include "platform/OpenGL/OpenGLContext.h"
+#include "Platform/OpenGL/OpenGLContext.h"
 
 
 namespace RcEngine{
@@ -28,6 +28,8 @@ namespace RcEngine{
     WindowsWindow::~WindowsWindow(){}
 
     void WindowsWindow::Init(const WindowProps &props) {
+        RC_PROFILE_FUNCTION();
+
         m_Data.Title = props.Title;
         m_Data.Width = props.Width;
         m_Data.Height = props.Height;
@@ -46,8 +48,10 @@ namespace RcEngine{
 
         m_Window = glfwCreateWindow((int)props.Width,(int)props.Height,m_Data.Title.c_str(), nullptr, nullptr);
 
-        m_Context = new OpenGLContext(m_Window);
+        m_Context = GraphicsContext::Create(m_Window);
         m_Context->Init();
+
+        glfwGetFramebufferSize(m_Window,&actualScreenWidth,&actualScreenHeight);
 
         glfwSetWindowUserPointer(m_Window,&m_Data);
         // Windows specific call
@@ -133,8 +137,12 @@ namespace RcEngine{
     }
 
     void WindowsWindow::Shutdown() {
+        RC_PROFILE_FUNCTION();
         glfwDestroyWindow(m_Window);
         --s_GLFW_Win_Count;
+
+        if(s_GLFW_Win_Count)
+            glfwTerminate();
     }
 
     void WindowsWindow::OnUpdate() {
@@ -143,8 +151,8 @@ namespace RcEngine{
     }
 
     void WindowsWindow::SetVSync(bool enabled) {
-        if(enabled)
-            glfwSwapInterval(1);
+        glfwSwapInterval((int)enabled);
+        m_Data.VSync = enabled;
     }
     bool WindowsWindow::IsVsync() const {
         return m_Data.VSync;

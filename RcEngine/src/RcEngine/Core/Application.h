@@ -21,7 +21,7 @@
 namespace RcEngine{
     class RC_API Application{
     public:
-        Application();
+        Application(const std::string& name = "RcEngine");
         virtual  ~Application();
 
         void Run();
@@ -35,12 +35,14 @@ namespace RcEngine{
 
         inline static Application& Get() {return *s_Instance;}
         inline Window& GetWindow(){return *m_Window;}
+
+        void Close();
     private:
         static Application* s_Instance;
 
         ImGuiLayer* m_ImGuiLayer;
 
-        std::unique_ptr<Window> m_Window;
+        Ref<Window> m_Window;
         bool m_Running = true;
         LayerStack m_LayerStack;
         bool m_Minimized = false;

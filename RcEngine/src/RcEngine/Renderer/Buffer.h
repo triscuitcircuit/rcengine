@@ -4,7 +4,7 @@
 
 #pragma once
 
-
+#include "RcEngine/Core/Core.h"
 
 namespace RcEngine{
     enum class ShaderDataType: uint8_t {

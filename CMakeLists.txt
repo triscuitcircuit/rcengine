@@ -4,3 +4,4 @@ project(rcengine_clion)
 
 add_subdirectory(RcEngine)
 add_subdirectory(RcGame)
+add_subdirectory(RcEditor)

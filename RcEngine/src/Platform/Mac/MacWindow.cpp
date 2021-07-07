@@ -19,9 +19,7 @@ namespace RcEngine{
     static void GLFWErrorCallback(int error, const char* desc){
         RC_CORE_ERROR("GLFW Error {{0}}: {1}", error, desc);
     }
-    Window* Window::Create(const WindowProps &props) {
-        return new MacWindow(props);
-    }
+
 
     MacWindow::MacWindow(const WindowProps &props) {
         RC_PROFILE_FUNCTION();
@@ -67,12 +65,12 @@ namespace RcEngine{
 
         m_Window = glfwCreateWindow((int)props.Width,(int)props.Height,m_Data.Title.c_str(), nullptr, nullptr);
 
-        m_Context = new OpenGLContext(m_Window);
+        m_Context = GraphicsContext::Create(m_Window);
+        m_Context->Init();
 
         glfwGetFramebufferSize(m_Window,&actualScreenWidth,&actualScreenHeight);
 
 
-        m_Context->Init();
         glViewport(0,0,actualScreenWidth,actualScreenHeight);
 
         glfwSetWindowUserPointer(m_Window,&m_Data);

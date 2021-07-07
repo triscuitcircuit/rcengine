@@ -49,6 +49,7 @@ if(WIN32)
 
 endif()
 if(APPLE)
+    add_definitions(-DRC_PLATFORM_MAC)
     add_definitions(-DRC_PLATFORM_UNIX)
     set(WINDOW
         src/Platform/Mac/MacWindow.cpp
@@ -59,6 +60,7 @@ endif()
 add_definitions(-DRC_BUILD_DLL)
 add_definitions(-DGLFW_INCLUDE_NONE)
 
+add_definitions(-DRC_DEBUG)
 if (CMAKE_BUILD_TYPE EQUAL "Debug")
     add_definitions(-DRC_DEBUG)
 endif()
@@ -99,13 +101,16 @@ set(RENDERER
         src/RcEngine/Renderer/OrthoCameraController.h
         src/RcEngine/Renderer/OrthoCameraController.cpp
         src/RcEngine/Renderer/ProjectionCamera.cpp src/RcEngine/Renderer/ProjectionCamera.h
-        src/RcEngine/Renderer/Renderer2D.cpp src/RcEngine/Renderer/Renderer2D.h)
+        src/RcEngine/Renderer/Renderer2D.cpp src/RcEngine/Renderer/Renderer2D.h
+        src/RcEngine/Renderer/IsoCameraController.cpp src/RcEngine/Renderer/IsoCameraController.h
+        src/RcEngine/Renderer/SubTexture2D.h src/RcEngine/Renderer/SubTexture2D.cpp
+        src/RcEngine/Renderer/FrameBuffer.cpp src/RcEngine/Renderer/FrameBuffer.h)
 #CORE--------------------------------------------------------------
 set(CORE
         src/RcEngine.h src/rcpch.cpp src/rcpch.h
         src/RcEngine/Core/Assert.h src/RcEngine/Core/Core.h
         src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
-        src/RcEngine/Core/Timestep.h)
+        src/RcEngine/Core/Timestep.h src/RcEngine/Core/Window.cpp)
 #------------------------------------------------------------------
 set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLUtils.cpp src/Platform/OpenGL/OpenGLUtils.h
@@ -114,7 +119,8 @@ set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLVertexArray.h src/Platform/OpenGL/OpenGLRenderAPI.h
         src/Platform/OpenGL/OpenGLRenderAPI.cpp src/Platform/OpenGL/OpenGLVertexArray.cpp
         src/Platform/OpenGL/OpenGLShader.cpp src/Platform/OpenGL/OpenGLShader.h
-        src/Platform/OpenGL/OpenGLTexture.cpp src/Platform/OpenGL/OpenGLTexture.h)
+        src/Platform/OpenGL/OpenGLTexture.cpp src/Platform/OpenGL/OpenGLTexture.h
+        src/Platform/OpenGL/OpenGLFrameBuffer.cpp src/Platform/OpenGL/OpenGLFrameBuffer.h)
 
 #DEBUG-------------------------------------------------------------
 set(DEBUG_FILE

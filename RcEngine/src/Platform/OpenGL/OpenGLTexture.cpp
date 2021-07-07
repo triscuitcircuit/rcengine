@@ -32,7 +32,7 @@ namespace RcEngine{
         m_InternalFormat = internalFormat;
         m_DataFormat = dataformat;
 
-        RC_CORE_ASSERT(textureRef == 1, "Failed to load image!");
+        //RC_CORE_ASSERT(textureref == 1, "Failed to load image!");
         if (m_RendererID == 0){
             RC_CORE_ERROR("Couldn't find requested texture file: {0}", m_Path);
             namespace fs = std::filesystem;

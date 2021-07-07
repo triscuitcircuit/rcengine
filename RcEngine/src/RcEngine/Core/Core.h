@@ -4,6 +4,20 @@
 #pragma once
 #include <memory>
 
+#ifdef _MSC_VER
+    #define DEBUG_BREAK __debugbreak()
+#elif defined( __clang__ )
+    #if __has_builtin(__builtin_debugtrap)
+    #define DEBUG_BREAK __builtin_debugtrap()
+#else
+    #define DEBUG_BREAK __builtin_trap()
+#endif
+    #elif defined( __GNUC__ )
+        #define DEBUG_BREAK __builtin_trap()
+    #else
+        #error "OS not recognized"
+        #endif
+
 #ifdef _WIN32
     #ifdef _WIN64
         #define RC_PLATFORM_WINDOWS
@@ -42,17 +56,12 @@
 #endif
 
 #ifdef RC_DEBUG
-#define RC_ENABLE_ASSERTS
+    #define RC_ENABLE_ASSERTS
 #endif
 
 #ifdef RC_ENABLE_ASSERTS
-    #if defined(RC_PLATFORM_WINDOW) || defined(RC_PLATFORM_UNIX) ||defined(RC_PLATFORM_MAC)
-        #define RC_ASSERT(x, ...) {if(!(x)){RC_ERROR("Assertion Failed: {0}",__VA_ARGS__); __debugbreak(); }}
-        #define RC_CORE_ASSERT(x, ...) {if(!(x)) {RC_CORE_ERROR("Assertion failed: {0}",__VA_ARGS__); __debugbreak();} }
-    #else
-        #define RC_ASSERT(x, ...) {if(!(x)){RC_ERROR("Assertion Failed: {0}",__VA_ARGS__); raise(SIGTRAP); }}
-        #define RC_CORE_ASSERT(x, ...) {if(!(x)) {RC_CORE_ERROR("Assertion failed: {0}",__VA_ARGS__); raise(SIGTRAP);} }
-    #endif
+     #define RC_ASSERT(x, ...) {if(!(x)){RC_ERROR("Assertion Failed: {0}",__VA_ARGS__); DEBUG_BREAK; }}
+     #define RC_CORE_ASSERT(x, ...) {if(!(x)) {RC_CORE_ERROR("Assertion failed: {0}",__VA_ARGS__); DEBUG_BREAK;} }
 #else
     #define RC_ASSERT(x, ...)
     #define RC_CORE_ASSERT(x, ...)
@@ -63,6 +72,10 @@
 namespace RcEngine{
     template<typename T>
     using Scope = std::unique_ptr<T>;
+    template<typename T, typename ... Args>
+    constexpr Scope<T> CreateScope(Args&& ...args){
+        return std::make_unique<T>(std::forward<Args>(args)...);
+    }
     template<typename T>
     using Ref = std::shared_ptr<T>;
     template<typename T>

@@ -10,8 +10,8 @@
 
 namespace RcEngine{
     OrthoCameraController::OrthoCameraController(float aspect, bool rotation)
-    : m_AspectRatio(aspect), m_Camera(-m_AspectRatio * m_ZoomLevel,m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel),
-    m_Rotation(rotation){
+    : m_AspectRatio(aspect),m_Bounds({-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel,m_ZoomLevel}),
+    m_Rotation(rotation), m_Camera({m_Bounds.Left, m_Bounds.Right, m_Bounds.Bottom,m_Bounds.Top }){
 
     }
     void OrthoCameraController::OnEvent(Event &e) {
@@ -53,18 +53,24 @@ namespace RcEngine{
         m_CameraTranslationSpeed = m_ZoomLevel * 1.25f;
 
     }
+    void OrthoCameraController::ResizeBounds(float width, float height) {
+        m_AspectRatio = width/height;
+        m_Bounds = {-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel,m_ZoomLevel};
+        m_Camera.SetProjection(m_Bounds.Left,m_Bounds.Right,m_Bounds.Bottom,m_Bounds.Top);
+    }
     bool OrthoCameraController::OnMouseScrolled(MouseScrolledEvent &e) {
         m_ZoomLevel -= e.GetYOffset() * 0.1f;
         m_ZoomLevel = std::max(m_ZoomLevel, 0.04f);
-        m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel,m_AspectRatio * m_ZoomLevel,
-                               -m_ZoomLevel, m_ZoomLevel);
-
+        CalulateView();
         return false;
     }
     bool OrthoCameraController::OnWindowResized(WindowResizeEvent &e) {
-        m_AspectRatio = (float)e.GetWidth()/ e.GetHeight();
-        m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio* m_ZoomLevel,-m_ZoomLevel, m_ZoomLevel);
+        ResizeBounds((float)e.GetWidth(),(float)e.GetHeight());
         return false;
+    }
+    void OrthoCameraController::CalulateView() {
+        m_Bounds = {-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel,m_ZoomLevel};
+        m_Camera.SetProjection(m_Bounds.Left,m_Bounds.Right,m_Bounds.Bottom,m_Bounds.Top);
     }
 
 

@@ -4,7 +4,7 @@
 
 #include "OpenGLShader.h"
 #include "rcpch.h"
-
+#include <filesystem>
 
 #include <external/glad/include/glad/glad.h>
 #include <gtc/type_ptr.hpp>
@@ -66,7 +66,9 @@ namespace RcEngine{
             in.seekg(0,std::ios::beg);
             in.read(&result[0],result.size());
         }else{
+
             RC_CORE_ERROR("Could not open file {0}", filepath);
+            RC_CORE_INFO("Current working dir: {0}",std::filesystem::current_path());
         }
         return result;
     }

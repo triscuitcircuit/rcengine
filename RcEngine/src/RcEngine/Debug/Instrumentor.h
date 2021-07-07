@@ -102,7 +102,7 @@ namespace RcEngine{
         bool m_Stopped;
     };
 }
-#define RC_PROFILE 1
+#define RC_PROFILE 0
 
 #if RC_PROFILE
     #define RC_PROFILE_BEGIN_SESSION(name, filepath) ::RcEngine::Instrumentor::Get().BeginSession(name, filepath)
