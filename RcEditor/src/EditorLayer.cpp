@@ -11,14 +11,14 @@
 
 namespace RcEngine{
 
-    static const char* s_MapTiles = "SSSSSSSSSSSSSSSSSSSS"
+    static const char* s_MapTiles = "SSSSSDDDDSSSSSSSSSSS"
+                                    "SSSDDDDDDDDDDDDDSSSS"
+                                    "SSSDDDDDDDDDDDDDSSSS"
+                                    "SSSDDDDDSDDDDDDDSSSS"
                                     "SSSDDDDDDDDDDDDDSSSS"
                                     "SSSDDDDDDDDDDDDDSSSS"
                                     "SSSDDDDDDDDDDDDDSSSS"
-                                    "SSSDDDDDDDDDDDDDSSSS"
-                                    "SSSDDDDDDDDDDDDDSSSS"
-                                    "SSSDDDDDDDDDDDDDSSSS"
-                                    "SSSSSSSSSSSSSSSSSSSS"
+                                    "SSSSSSSSDDDDDDSSSSSS"
     ;
 
     EditorLayer::EditorLayer():
@@ -28,6 +28,58 @@ namespace RcEngine{
     }
     void EditorLayer::OnAttach() {
         RC_PROFILE_FUNCTION();
+
+        // Entity
+        m_ActiveScene = CreateRef<Scene>();
+
+
+        auto square = m_ActiveScene->CreateEntity("Square");
+        square.AddComponent<SpriteRendererComponent>(glm::vec4{0.0f,1.0f,0.0f,1.0f});
+
+        auto redsquare = m_ActiveScene->CreateEntity("Red");
+        redsquare.AddComponent<SpriteRendererComponent>(glm::vec4{1.0f,0.0f,0.0f,1.0f});
+
+
+        m_SquareEntity = square;
+
+        m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
+        m_CameraEntity.AddComponent<CameraComponent>();
+
+        m_SecondCamera = m_ActiveScene->CreateEntity("Second Camera");
+        auto& cc = m_SecondCamera.AddComponent<CameraComponent>();
+        cc.Primary = false;
+
+        class CameraController: public ScriptableEntity{
+        public:
+            void OnCreate(){
+                std::cout << "Entity Created" << std::endl;
+            }
+            void OnDestroy(){
+
+            }
+            void OnUpdate(Timestep ts){
+                auto& translation = GetComponent<TransformComponent>().Translation;
+                float speed = 5.0f;
+
+                if(Input::IsKeyPressed(Key::A)){
+                    translation.x -= speed * ts;
+                }
+                if(Input::IsKeyPressed(Key::D)){
+                    translation.x += speed * ts;
+                }
+                if(Input::IsKeyPressed(Key::W)){
+                    translation.y += speed * ts;
+                }
+                if(Input::IsKeyPressed(Key::S)){
+                    translation.y -= speed * ts;
+                }
+            }
+        };
+
+        m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+
+
+
         m_BaseTexture = RcEngine::Texture2D::Create("Assets/textures/Default.jpg");
         m_SpriteSheet = RcEngine::Texture2D::Create("Assets/Game/Textures/CC_City_Exterior_B.png");
         m_BackgroundSheet = RcEngine::Texture2D::Create("Assets/Game/Textures/CC_City_Exterior_A2.png");
@@ -52,6 +104,8 @@ namespace RcEngine{
         fbSpec.Height = 720;
         m_FrameBuffer = RcEngine::FrameBuffer::Create(fbSpec);
 
+        m_Panel.SetContext(m_ActiveScene);
+
         RcEngine::TcpServer();
 
     }
@@ -60,7 +114,17 @@ namespace RcEngine{
     }
     void EditorLayer::OnUpdate(RcEngine::Timestep ts) {
 
+
+
         RC_PROFILE_FUNCTION();
+
+        if(FrameBufferSpec spec = m_FrameBuffer->GetSpecification();
+        m_ViewPortSize.x > 0.0f && m_ViewPortSize.y > 0.0f &&
+                (spec.Width != m_ViewPortSize.x || spec.Height != m_ViewPortSize.y)){
+            m_FrameBuffer->Resize((uint32_t)m_ViewPortSize.x,(uint32_t)m_ViewPortSize.y);
+
+            m_ActiveScene->OnViewportReSize(m_ViewPortSize.x, m_ViewPortSize.y);
+        }
 
         //Update function
         m_CameraController.OnUpdate(ts);
@@ -71,61 +135,19 @@ namespace RcEngine{
             RcEngine::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 0.1f});
             RcEngine::RenderCommand::Clear();
         }
-
         float rotation = ts*(1000000.0f);
 
-        RcEngine::Renderer2D::BeginScene(m_CameraController.GetCamera());
+        // Update Scene
+        m_ActiveScene->OnUpdate(ts);
 
 
-        RcEngine::Renderer2D::DrawQuad({0.0f,0.0f},{10.0f,10.0f},
-                                       m_TextureColor,m_BaseTexture, m_TextureTile);
 
-        RcEngine::Renderer2D::DrawQuad({-1.0f,0.0f,1.0f},{0.5f,0.5f},m_SquareColor);
-        RcEngine::Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f },
-                                              m_SquareColor, glm::radians(rotation), m_BaseTexture, m_TextureTile);
-
-
-        RcEngine::Renderer2D::EndScene();
-
-//    RcEngine::Renderer2D::BeginScene(m_CameraController.GetCamera());
-//    for(float y = -5.0f; y < 5.0f; y+= 0.5f){
-//        for(float x = -5.0f; x < 5.0f; x+= 0.5f){
-//            glm::vec4 color = {(x+5.0f)/10.0f,0.4f,(y+5.0f)/10.0f,0.5f};
-//            RcEngine::Renderer2D::DrawQuad({x,y},{0.45f,0.45f},color,1.0f);
-//        }
-//    }
-//    RcEngine::Renderer2D::EndScene();
-
-        RcEngine::Renderer2D::BeginScene(m_CameraController.GetCamera());
-//    RcEngine::Renderer2D::DrawQuad({-1.0f,2.0f},{1.0f,1.0f},
-//                                          {1.0f,1.0f,1.0f,1.0f},
-//                                          m_Background);
-        for(uint32_t y =0; y< m_MapHeight; ++y){
-            for (int x = 0; x < m_MapWidth; ++x) {
-                char tileType = s_MapTiles[x+y*m_MapWidth];
-                RcEngine::Ref<RcEngine::SubTexture2D> defaultTexture;
-                if(s_TextureMap.find(tileType) != s_TextureMap.end()){
-                    defaultTexture = s_TextureMap[tileType];
-                }else{
-                    defaultTexture = m_Sprite;
-                }
-                RcEngine::Renderer2D::DrawQuad({x-m_MapWidth/2,y-m_MapHeight/2},{1.0,1.0},
-                                               {1.0f,1.0f,1.0f,1.0f},defaultTexture);
-            }
-        }
-        RcEngine::Renderer2D::DrawQuad({-1.0f,2.0f},{1.0f,1.0f},
-                                       {1.0f,1.0f,1.0f,1.0f},
-                                       m_Sprite);
-
-        RcEngine::Renderer2D::EndScene();
         m_FrameBuffer->UnBind();
 
     }
     void EditorLayer::OnImGuiRender() {
         RC_PROFILE_FUNCTION();
 
-        static bool dockingEnabled = true;
-        if (dockingEnabled) {
             static bool dockspaceOpen = true;
             static bool opt_fullscreen_persistant = true;
             bool opt_fullscreen = opt_fullscreen_persistant;
@@ -194,17 +216,13 @@ namespace RcEngine{
 
             }
             uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
-            ImGui::Image((void *)textureID, ImVec2{1280, 720},ImVec2{0,1}, ImVec2{1,0});
+            ImGui::Image((void *) textureID, ImVec2{1280, 720},ImVec2{0,1}, ImVec2{1,0});
             ImGui::End();
             ImGui::PopStyleVar();
+            m_Panel.OnImGuiRender();
 
             ImGui::Begin("Settings");
-            ImGui::ColorEdit4("Square color", glm::value_ptr(m_SquareColor) );
-            ImGui::ColorEdit4("Texture color",glm::value_ptr(m_TextureColor));
-            ImGui::SliderFloat("Texture Tiling: ", &m_TextureTile, -5.0f, 20.0f);
-            ImGui::SliderFloat("Rotation control: ", &m_Rotation, -180.0f, 1000.0f);
-            ImGui::Text("X: %f, Y: %f", m_CameraController.GetCamera().GetPosition().x,
-                        m_CameraController.GetCamera().GetPosition().y);
+
             //uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
             //ImGui::Image((void*)textureID,ImVec2{320.0f,180.0f});
 
@@ -220,7 +238,7 @@ namespace RcEngine{
             ImGui::End();
 
             ImGui::End();
-        }
+
     }
     void EditorLayer::OnDetach() {
         RC_PROFILE_FUNCTION();

@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "RcEngine/Renderer/OrthoCamera.h"
+#include "RcEngine/Renderer/Camera.h"
 #include "RcEngine/Renderer/Texture.h"
 #include "RcEngine/Renderer/SubTexture2D.h"
 
@@ -11,10 +12,12 @@
 namespace RcEngine{
     class Renderer2D{
     public:
+
         static void Init();
         static void Shutdown();
 
         static void BeginScene(const OrthoCamera& camera );
+        static void BeginScene(const Camera& camera, const glm::mat4& transform);
         static void EndScene();
         static void Flush();
         // DRAWING PRIMITIVE SHAPES
@@ -23,11 +26,17 @@ namespace RcEngine{
 
         static void DrawQuad(const glm::vec3& position, const glm::vec2& size,
                              const glm::vec4& color,float tilingfactor=1.0f);
+
+        static void DrawQuad(const glm::mat4 transform, const glm::vec4 color,
+                             float tilingfactor=1.0f);
         // overloaded position functions
         static void DrawQuad(const glm::vec2& position, const glm::vec2& size,const glm::vec4& color,
                              const Ref<Texture2D>& texture, float tilingfactor=1.0f);
 
         static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color,
+                             const Ref<Texture2D>& texture,float tilingfactor=1.0f);
+
+        static void DrawQuad(const glm::mat4 transform, const glm::vec4 color,
                              const Ref<Texture2D>& texture,float tilingfactor=1.0f);
 
         //Sprite-Sheet and Sub texture calls-------------------------

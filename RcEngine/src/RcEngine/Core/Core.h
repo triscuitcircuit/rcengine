@@ -67,7 +67,7 @@
     #define RC_CORE_ASSERT(x, ...)
 #endif
 
-#define RC_BIND_EVENT_TO_FUNCTION(fn) std::bind(&fn, this, std::placeholders::_1)
+#define RC_BIND_EVENT_TO_FUNCTION(fn) [this](auto&&... args) -> decltype(auto){return this->fn(std::forward<decltype(args)>(args)...);}
 
 namespace RcEngine{
     template<typename T>

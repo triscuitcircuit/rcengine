@@ -4,6 +4,7 @@ project(RcEditor)
 set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCE_FILES src/RcEditorApp.cpp src/EditorLayer.h src/EditorLayer.cpp)
+set(PANELS src/Panels/SceneHierarchyPanel.cpp src/Panels/SceneHierarchyPanel.h)
 
 if(APPLE)
     set(MACOSX_BUNDLE_ICON_FILE AppImage.icns )
@@ -23,14 +24,22 @@ if(APPLE)
     set(CPACK_BUNDLE_APPLE_CERT_APP ${RCGAME_MACOSX_CODESIGN_CERT})
 
 
-    add_executable (RcEditor MACOSX_BUNDLE ${RCEDITOR_ICON} ${SOURCE_FILES})
+    add_executable (RcEditor MACOSX_BUNDLE
+            ${RCEDITOR_ICON}
+            ${SOURCE_FILES}
+            ${PANELS}
+            )
 else()
-    add_executable (RcEditor ${SOURCE_FILES})
+    add_executable (RcEditor
+            ${SOURCE_FILES}
+            ${PANELS})
 
 endif(APPLE)
 
 
 include_directories ("${CMAKE_SOURCE_DIR}/RcEngine/src")
 include_directories ("${CMAKE_SOURCE_DIR}/RcEngine/external/glm/glm")
+include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/RcEngine/entt/include")
+
 
 target_link_libraries(RcEditor rcengine)

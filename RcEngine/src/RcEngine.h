@@ -26,6 +26,11 @@
 #include "RcEngine/Core/Log.h"
 #include "RcEngine/Core/Layer.h"
 
+#include "RcEngine/Scene/Scene.h"
+#include "RcEngine/Scene/Entity.h"
+#include "RcEngine/Scene/ScriptableEntity.h"
+#include "RcEngine/Scene/Component.h"
+
 #include "RcEngine/Core/Timestep.h"
 
 #include "RcEngine/Core/MouseButtonCodes.h"

@@ -42,6 +42,7 @@ endif(APPLE)
 
 include_directories ("${CMAKE_SOURCE_DIR}/RcEngine/src")
 include_directories ("${CMAKE_SOURCE_DIR}/RcEngine/external/glm/glm")
+include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/RcEngine/entt/include")
 
 
 target_link_libraries(RcGame rcengine)

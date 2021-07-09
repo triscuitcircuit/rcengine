@@ -41,8 +41,12 @@ namespace RcEngine{
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
+        io.Fonts->AddFontFromFileTTF("Assets/Fonts/FiraSans/FiraSans-Bold.ttf",16.0f);
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/FiraSans/FiraSans-Regular.ttf",16.0f);
+
         //setup of imgui style
         ImGui::StyleColorsDark();
+
 
         ImGuiStyle& style = ImGui::GetStyle();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

@@ -14,12 +14,14 @@ file(GLOB source_headers
         "external/imgui/*.h"
         "external/imgui/*.cpp"
         "external/spdlog/*.h"
+        "external/entt/include/*.hpp"
         )
 
 include_directories("external/glm/glm")
 include_directories("external/imgui")
 include_directories(SYSTEM "external/glad/include")
 include_directories("external/SOIL2")
+include_directories(SYSTEM "external/entt/include")
 include_directories("src")
 
 add_subdirectory(external/spdlog)
@@ -111,7 +113,7 @@ set(CORE
         src/RcEngine/Core/Assert.h src/RcEngine/Core/Core.h
         src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
         src/RcEngine/Core/Timestep.h src/RcEngine/Core/Window.cpp)
-#------------------------------------------------------------------
+#OPENGL------------------------------------------------------------
 set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLUtils.cpp src/Platform/OpenGL/OpenGLUtils.h
         src/Platform/OpenGL/OpenGLContext.h src/Platform/OpenGL/OpenGLContext.cpp
@@ -121,7 +123,13 @@ set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLShader.cpp src/Platform/OpenGL/OpenGLShader.h
         src/Platform/OpenGL/OpenGLTexture.cpp src/Platform/OpenGL/OpenGLTexture.h
         src/Platform/OpenGL/OpenGLFrameBuffer.cpp src/Platform/OpenGL/OpenGLFrameBuffer.h)
-
+#SCENE-------------------------------------------------------------
+set(SCENE
+        src/RcEngine/Scene/Scene.h
+        src/RcEngine/Scene/Scene.cpp
+        src/RcEngine/Scene/Component.h src/RcEngine/Scene/Entity.h
+        src/RcEngine/Scene/Entity.cpp src/RcEngine/Scene/SceneCamera.h
+        src/RcEngine/Scene/SceneCamera.cpp src/RcEngine/Scene/ScriptableEntity.h)
 #DEBUG-------------------------------------------------------------
 set(DEBUG_FILE
         src/RcEngine/Debug/Instrumentor.h)
@@ -139,6 +147,7 @@ add_library(rcengine STATIC
         ${source_headers}
         ${GLOB}
         ${NETWORK}
+        ${SCENE}
         )
 #------------------------------------------------------------------
 if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
@@ -158,6 +167,7 @@ find_package(imgui)
 find_package(soil2)
 find_package(GLFW)
 find_package(glad)
+find_package(entt)
 
 #Rust library link---------------------
 if(APPLE)

@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "RcEngine.h"
+#include "Panels/SceneHierarchyPanel.h"
 
 #ifndef RCENGINE_CLION_EDITORLAYER_H
 #define RCENGINE_CLION_EDITORLAYER_H
@@ -36,6 +37,11 @@ namespace RcEngine{
         RcEngine::Ref<RcEngine::Texture2D> m_BackgroundSheet;
         RcEngine::Ref<RcEngine::SubTexture2D> m_Sprite, m_Background;
 
+        Entity m_SquareEntity;
+        Entity m_CameraEntity;
+        Entity m_SecondCamera;
+        Ref<Scene> m_ActiveScene;
+
         struct ProfileResult{
             const char* Name;
             float time;
@@ -47,6 +53,9 @@ namespace RcEngine{
         glm::vec2 m_ViewPortSize = {1264,666};
 
         std::unordered_map<char,RcEngine::Ref<RcEngine::SubTexture2D>> s_TextureMap;
+
+        //panels
+        SceneHierarchyPanel m_Panel;
 
     };
 }
