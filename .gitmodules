@@ -22,3 +22,6 @@
 [submodule "RcEngine/external/SOIL2"]
 	path = RcEngine/external/SOIL2
 	url = https://github.com/triscuitcircuit/SOIL2
+[submodule "RcEngine/external/yaml-cpp"]
+	path = RcEngine/external/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp

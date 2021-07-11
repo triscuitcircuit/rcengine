@@ -4,6 +4,11 @@
 #include "EditorLayer.h"
 
 #include "external/imgui/imgui.h"
+#include "RcEngine/Scene/SceneSerializer.h"
+
+#if defined (RC_PLATFORM_MAC)
+    #include "Platform/Mac/MacUtils.h"
+#endif
 
 #include <gtc/type_ptr.hpp>
 
@@ -75,6 +80,9 @@ namespace RcEngine{
                 }
             }
         };
+        SceneSerializer serializer(m_ActiveScene);
+        std::cout << std::filesystem::current_path() << std::endl;
+        serializer.Serialize("Assets/Scenes/Example.rc");
 
         m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 
@@ -196,6 +204,19 @@ namespace RcEngine{
                     // Disabling fullscreen would allow the window to be moved to the front of other windows,
                     // which we can't undo at the moment without finer window depth/z control.
                     //ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
+
+                    if(ImGui::MenuItem("Save")){
+                        std::string file = FileDialogs::SaveFile("test");
+                        RC_CORE_INFO("file selected: {0}", file);
+                        SceneSerializer serializer(m_ActiveScene);
+                        serializer.Serialize(file);
+                    }
+                    if(ImGui::MenuItem("Load")){
+                        std::string file = FileDialogs::OpenFile("");
+                        RC_CORE_INFO("Path Selected: {0}", file);
+                        SceneSerializer serializer(m_ActiveScene);
+                        serializer.DeSerialize(file);
+                    }
 
                     if (ImGui::MenuItem("Exit")) RcEngine::Application::Get().Close();
                     ImGui::EndMenu();

@@ -18,7 +18,7 @@ if(APPLE)
     set_source_files_properties(${RCEDITOR_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
     file( COPY ${ASSETS} DESTINATION "RcEditor.app/Contents/Resources/" )
 
-    # code signing---------------------------------------------
+    #CODE SIGN-----------------------------------------------
     set(RCGAME_MACOSX_CODESIGN_CERT "" CACHE STRING "Name of the Apple Developer to sign application")
     MARK_AS_ADVANCED(RCGAME_MACOSX_CODESIGN_CERT)
     set(CPACK_BUNDLE_APPLE_CERT_APP ${RCGAME_MACOSX_CODESIGN_CERT})
@@ -37,9 +37,9 @@ else()
 endif(APPLE)
 
 
-include_directories ("${CMAKE_SOURCE_DIR}/RcEngine/src")
-include_directories ("${CMAKE_SOURCE_DIR}/RcEngine/external/glm/glm")
+include_directories("${CMAKE_SOURCE_DIR}/RcEngine/src")
+include_directories("${CMAKE_SOURCE_DIR}/RcEngine/external/glm/glm")
 include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/RcEngine/entt/include")
-
+include_directories("${CMAKE_SOURCE_DIR}/RcEngine/yaml-cpp/include")
 
 target_link_libraries(RcEditor rcengine)

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.19)
 
-project(RcEngine)
+project(RcEngine LANGUAGES C CXX OBJC OBJCXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -15,6 +15,8 @@ file(GLOB source_headers
         "external/imgui/*.cpp"
         "external/spdlog/*.h"
         "external/entt/include/*.hpp"
+        "external/yaml-cpp/include/*.h"
+        "external/yaml-cpp/include/*.cpp"
         )
 
 include_directories("external/glm/glm")
@@ -22,11 +24,13 @@ include_directories("external/imgui")
 include_directories(SYSTEM "external/glad/include")
 include_directories("external/SOIL2")
 include_directories(SYSTEM "external/entt/include")
+include_directories("external/yaml-cpp/include")
 include_directories("src")
 
 add_subdirectory(external/spdlog)
 add_subdirectory(external/imgui)
 add_subdirectory(external/SOIL2)
+add_subdirectory(external/yaml-cpp)
 add_subdirectory(external/corrosion)
 
 #GLFW--------------------------------------------
@@ -44,20 +48,23 @@ if(WIN32)
     set(WINDOW
         src/Platform/Windows/WindowsWindow.cpp
         src/Platform/Windows/WindowsWindow.h
+        src/Platform/Mac/MacUtils.h
         )
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
     include_directories(GL)
 
-endif()
+endif(WIN32)
 if(APPLE)
     add_definitions(-DRC_PLATFORM_MAC)
     add_definitions(-DRC_PLATFORM_UNIX)
     set(WINDOW
         src/Platform/Mac/MacWindow.cpp
         src/Platform/Mac/MacWindow.h
-        )
-endif()
+        src/Platform/Mac/MacUtils.mm
+            )
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit")
+endif(APPLE)
 
 add_definitions(-DRC_BUILD_DLL)
 add_definitions(-DGLFW_INCLUDE_NONE)
@@ -129,14 +136,18 @@ set(SCENE
         src/RcEngine/Scene/Scene.cpp
         src/RcEngine/Scene/Component.h src/RcEngine/Scene/Entity.h
         src/RcEngine/Scene/Entity.cpp src/RcEngine/Scene/SceneCamera.h
-        src/RcEngine/Scene/SceneCamera.cpp src/RcEngine/Scene/ScriptableEntity.h)
+        src/RcEngine/Scene/SceneCamera.cpp src/RcEngine/Scene/ScriptableEntity.h
+        src/RcEngine/Scene/SceneSerializer.cpp src/RcEngine/Scene/SceneSerializer.h)
+#UTILS-------------------------------------------------------------
+set(UTILS
+        src/RcEngine/Utils/PlatformUtils.h)
 #DEBUG-------------------------------------------------------------
 set(DEBUG_FILE
         src/RcEngine/Debug/Instrumentor.h)
 #------------------------------------------------------------------
 if(APPLE)
     set(NETWORK src/RcEngine/Network/Network.h)
-endif()
+endif(APPLE)
 #------------------------------------------------------------------
 add_library(rcengine STATIC
         ${CORE}
@@ -148,6 +159,7 @@ add_library(rcengine STATIC
         ${GLOB}
         ${NETWORK}
         ${SCENE}
+        ${UTILS}
         )
 #------------------------------------------------------------------
 if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
@@ -157,6 +169,8 @@ if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
             )
 endif()
 #------------------------------------------------------------------
+
+
 target_precompile_headers(rcengine PRIVATE src/rcpch.h)
 
 
@@ -168,6 +182,7 @@ find_package(soil2)
 find_package(GLFW)
 find_package(glad)
 find_package(entt)
+find_package(yaml-cpp)
 
 #Rust library link---------------------
 if(APPLE)
@@ -181,7 +196,6 @@ if(APPLE)
     )
 endif()
 #--------------------------------------
-find_package(glad)
 target_link_libraries(rcengine
         glfw
         glad
@@ -189,6 +203,7 @@ target_link_libraries(rcengine
         OpenGL::GL
         imgui
         soil2
+        yaml-cpp
         )
 if(APPLE)
     target_link_libraries(rcengine
