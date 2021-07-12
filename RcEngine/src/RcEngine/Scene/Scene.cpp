@@ -16,7 +16,7 @@ namespace RcEngine{
     Scene::~Scene() {
 
     }
-    void Scene::OnUpdate(Timestep ts) {
+    void Scene::OnUpdateRuntime(Timestep ts) {
 
         {
             m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc){
@@ -108,6 +108,27 @@ namespace RcEngine{
     template<>
     void Scene::OnAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& comp){
 
+    }
+    Entity Scene::GetPrimaryCameraEntity() {
+        auto view = m_Registry.view<CameraComponent>();
+        for(auto entity: view){
+            const auto& camera = view.get<CameraComponent>(entity);
+            if(camera.Primary)
+                return Entity{entity, this};
+        }
+        return {};
+    }
+    void Scene::OnUpdateEditor(Timestep ts, EditorCamera &camera) {
+
+        Renderer2D::BeginScene(camera);
+
+        auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+        for (auto entity: group) {
+            auto [sprite, transform] = group.get<SpriteRendererComponent,TransformComponent>(entity);
+
+            Renderer2D::DrawQuad(transform.GetTransform(), sprite.Color);
+        }
+        Renderer2D::EndScene();
     }
 
 }

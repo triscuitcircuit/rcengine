@@ -20,22 +20,34 @@ namespace RcEngine{
         virtual void OnImGuiRender() override;
         void OnEvent(Event& e) override;
     private:
-        RcEngine::OrthoCameraController m_CameraController;
+        bool OnKeyPressed(KeyPressedEvent& e );
 
-        RcEngine::Ref<RcEngine::Shader> m_FlatColorShader;
-        RcEngine::Ref<RcEngine::VertexArray> m_SquareVA;
-        RcEngine::Ref<RcEngine::FrameBuffer> m_FrameBuffer;
+        void NewScene();
+        void OpenScene();
+        void SaveAs();
+    private:
+        OrthoCameraController m_CameraController;
+
+        Ref<RcEngine::Shader> m_FlatColorShader;
+        Ref<RcEngine::VertexArray> m_SquareVA;
+        Ref<RcEngine::FrameBuffer> m_FrameBuffer;
 
         float m_TextureTile = 1.0f, m_Rotation =0.0f;
 
         glm::vec4  m_SquareColor = {0.8f,0.0f,0.0f,1.0f};
         glm::vec4  m_TextureColor = {0.2f,0.3f,0.8f,1.0f};
 
+        EditorCamera m_EditorCamera;
 
-        RcEngine::Ref<RcEngine::Texture2D> m_BaseTexture;
-        RcEngine::Ref<RcEngine::Texture2D> m_SpriteSheet;
-        RcEngine::Ref<RcEngine::Texture2D> m_BackgroundSheet;
-        RcEngine::Ref<RcEngine::SubTexture2D> m_Sprite, m_Background;
+        bool m_ViewportFocused = false, m_ViewportHovered = false;
+        glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
+        glm::vec2 m_ViewportBounds[2];
+
+
+        Ref<RcEngine::Texture2D> m_BaseTexture;
+        Ref<RcEngine::Texture2D> m_SpriteSheet;
+        Ref<RcEngine::Texture2D> m_BackgroundSheet;
+        Ref<RcEngine::SubTexture2D> m_Sprite, m_Background;
 
         Entity m_SquareEntity;
         Entity m_CameraEntity;
@@ -56,6 +68,11 @@ namespace RcEngine{
 
         //panels
         SceneHierarchyPanel m_Panel;
+
+        //Script
+        std::string m_ScriptString;
+
+        int m_GizmoType = -1;
 
     };
 }

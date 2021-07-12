@@ -17,8 +17,11 @@ file(GLOB source_headers
         "external/entt/include/*.hpp"
         "external/yaml-cpp/include/*.h"
         "external/yaml-cpp/include/*.cpp"
+        "external/imguizmo/*.cpp"
+        "external/imguizmo/*.h"
         )
 
+include_directories("external/imguizmo")
 include_directories("external/glm/glm")
 include_directories("external/imgui")
 include_directories(SYSTEM "external/glad/include")
@@ -27,6 +30,7 @@ include_directories(SYSTEM "external/entt/include")
 include_directories("external/yaml-cpp/include")
 include_directories("src")
 
+add_subdirectory(external/imguizmo)
 add_subdirectory(external/spdlog)
 add_subdirectory(external/imgui)
 add_subdirectory(external/SOIL2)
@@ -113,13 +117,15 @@ set(RENDERER
         src/RcEngine/Renderer/Renderer2D.cpp src/RcEngine/Renderer/Renderer2D.h
         src/RcEngine/Renderer/IsoCameraController.cpp src/RcEngine/Renderer/IsoCameraController.h
         src/RcEngine/Renderer/SubTexture2D.h src/RcEngine/Renderer/SubTexture2D.cpp
-        src/RcEngine/Renderer/FrameBuffer.cpp src/RcEngine/Renderer/FrameBuffer.h)
+        src/RcEngine/Renderer/FrameBuffer.cpp src/RcEngine/Renderer/FrameBuffer.h
+        src/RcEngine/Renderer/EditorCamera.cpp src/RcEngine/Renderer/EditorCamera.h)
 #CORE--------------------------------------------------------------
 set(CORE
         src/RcEngine.h src/rcpch.cpp src/rcpch.h
         src/RcEngine/Core/Assert.h src/RcEngine/Core/Core.h
         src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
-        src/RcEngine/Core/Timestep.h src/RcEngine/Core/Window.cpp)
+        src/RcEngine/Core/Timestep.h src/RcEngine/Core/Window.cpp src/RcEngine/Math/Math.cpp
+        src/RcEngine/Math/Math.h)
 #OPENGL------------------------------------------------------------
 set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLUtils.cpp src/Platform/OpenGL/OpenGLUtils.h
@@ -182,6 +188,7 @@ find_package(soil2)
 find_package(GLFW)
 find_package(glad)
 find_package(entt)
+find_package(imguizmo)
 find_package(yaml-cpp)
 
 #Rust library link---------------------
@@ -204,7 +211,9 @@ target_link_libraries(rcengine
         imgui
         soil2
         yaml-cpp
+        imguizmo
         )
+
 if(APPLE)
     target_link_libraries(rcengine
             rc_network

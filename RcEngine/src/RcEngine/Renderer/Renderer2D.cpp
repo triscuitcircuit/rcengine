@@ -553,5 +553,16 @@ namespace RcEngine{
         return s_Data.Stats;
     }
 
+    void Renderer2D::BeginScene(const EditorCamera &camera) {
+        RC_PROFILE_FUNCTION();
+
+        glm::mat4 viewproj = camera.GetViewProjection();
+
+        s_Data.TextureShader->Bind();
+        s_Data.TextureShader->SetMat4("u_ViewProjection",viewproj);
+
+        StartNewBatch();
+    }
+
 
 }

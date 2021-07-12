@@ -200,7 +200,7 @@ namespace RcEngine{
         if(!data["Scene"])
             return false;
 
-        std::string sceneName = data["Scene"].as<std::string>();
+        auto sceneName = data["Scene"].as<std::string>();
         RC_CORE_TRACE("Deserializing Scene {0}",sceneName);
 
         auto entities = data["Entities"];
@@ -225,6 +225,34 @@ namespace RcEngine{
                     tc.Scale = transformComponent["Scale"].as<glm::vec3>();
 
                 }
+
+                auto cameraComponent = entity["CameraComponent"];
+                if (cameraComponent)
+                {
+                    auto& cc = deserializedEntity.AddComponent<CameraComponent>();
+
+                    auto cameraProps = cameraComponent["Camera"];
+                    cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
+
+                    cc.Camera.SetPerspectiveVerticalFov(cameraProps["PerspectiveFOV"].as<float>());
+                    cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
+                    cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
+
+                    cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
+                    cc.Camera.SetOrthoNearClip(cameraProps["OrthographicNear"].as<float>());
+                    cc.Camera.SetOrthoFarClip(cameraProps["OrthographicFar"].as<float>());
+
+                    cc.Primary = cameraComponent["Primary"].as<bool>();
+                    cc.FixedAspectRatio = cameraComponent["FixedAspect"].as<bool>();
+                }
+
+                auto spriteRendererComponent = entity["SpriteRendererComp"];
+                if (spriteRendererComponent)
+                {
+                    auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
+                    src.Color = spriteRendererComponent["Color"].as<glm::vec4>();
+                }
+
             }
         }
 

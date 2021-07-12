@@ -5,6 +5,8 @@
 #include "RcEngine/Core/Timestep.h"
 #include "external/entt/include/entt.hpp"
 
+#include "RcEngine/Renderer/EditorCamera.h"
+
 
 #ifndef RCENGINE_CLION_SCENE_H
 #define RCENGINE_CLION_SCENE_H
@@ -18,9 +20,12 @@ namespace RcEngine{
         Entity CreateEntity(const std::string& name=std::string());
         void DestroyEntity(Entity entity);
 
-        void OnUpdate(Timestep ts);
+        void OnUpdateRuntime(Timestep ts);
+        void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 
         void OnViewportReSize(uint32_t width, uint32_t height);
+
+        Entity GetPrimaryCameraEntity();
 
     private:
         template<typename T>

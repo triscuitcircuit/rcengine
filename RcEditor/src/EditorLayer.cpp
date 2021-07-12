@@ -4,13 +4,15 @@
 #include "EditorLayer.h"
 
 #include "external/imgui/imgui.h"
+#include "external/imgui/misc/cpp/imgui_stdlib.h"
 #include "RcEngine/Scene/SceneSerializer.h"
 
-#if defined (RC_PLATFORM_MAC)
-    #include "Platform/Mac/MacUtils.h"
-#endif
+#include "RcEngine/Utils/PlatformUtils.h"
+#include "external/imguizmo/ImGuizmo.h"
+
 
 #include <gtc/type_ptr.hpp>
+#include "RcEngine/Math/Math.h"
 
 #include <external/glm/glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
@@ -80,6 +82,8 @@ namespace RcEngine{
                 }
             }
         };
+
+
         SceneSerializer serializer(m_ActiveScene);
         std::cout << std::filesystem::current_path() << std::endl;
         serializer.Serialize("Assets/Scenes/Example.rc");
@@ -114,24 +118,77 @@ namespace RcEngine{
 
         m_Panel.SetContext(m_ActiveScene);
 
+        m_EditorCamera = EditorCamera(30.0f,1.778f, 0.1f, 1000.0f);
+
         RcEngine::TcpServer();
 
     }
     void EditorLayer::OnEvent(RcEngine::Event &e) {
+
         m_CameraController.OnEvent(e);
+        m_EditorCamera.OnEvent(e);
+
+        EventDispatcher dispatcher(e);
+        dispatcher.Dispatch<KeyPressedEvent>(RC_BIND_EVENT_TO_FUNCTION(EditorLayer::OnKeyPressed));
     }
+
+    bool EditorLayer::OnKeyPressed(KeyPressedEvent &e) {
+        if(e.GetRepeatCount())
+            return false;
+        bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+        bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+
+        switch(e.GetKeyCode()){
+            case Key::S:{
+                if (control && shift){
+                    SaveAs();
+                }
+                break;
+            }
+            case Key::N:{
+                if (control){
+                    NewScene();
+                }
+                break;
+            }
+            case Key::O:{
+                if (control){
+                    OpenScene();
+                }
+                break;
+            }
+            //Gizmo
+            case Key::Q:
+                m_GizmoType = -1;
+                break;
+            case Key::W:
+                m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+                break;
+            case Key::E:
+                m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+                break;
+            case Key::R:
+                m_GizmoType = ImGuizmo::OPERATION::SCALE;
+                break;
+        }
+    }
+
     void EditorLayer::OnUpdate(RcEngine::Timestep ts) {
-
-
-
         RC_PROFILE_FUNCTION();
 
         if(FrameBufferSpec spec = m_FrameBuffer->GetSpecification();
         m_ViewPortSize.x > 0.0f && m_ViewPortSize.y > 0.0f &&
                 (spec.Width != m_ViewPortSize.x || spec.Height != m_ViewPortSize.y)){
             m_FrameBuffer->Resize((uint32_t)m_ViewPortSize.x,(uint32_t)m_ViewPortSize.y);
+            m_EditorCamera.SetViewportSize(m_ViewPortSize.x,m_ViewPortSize.y);
+            m_ActiveScene->OnViewportReSize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+        }
 
-            m_ActiveScene->OnViewportReSize(m_ViewPortSize.x, m_ViewPortSize.y);
+        m_EditorCamera.OnUpdate(ts);
+
+        if(m_ViewportFocused){
+            m_CameraController.OnUpdate(ts);
+            m_EditorCamera.OnUpdate(ts);
         }
 
         //Update function
@@ -146,7 +203,7 @@ namespace RcEngine{
         float rotation = ts*(1000000.0f);
 
         // Update Scene
-        m_ActiveScene->OnUpdate(ts);
+        m_ActiveScene->OnUpdateEditor(ts,m_EditorCamera);
 
 
 
@@ -204,18 +261,14 @@ namespace RcEngine{
                     // Disabling fullscreen would allow the window to be moved to the front of other windows,
                     // which we can't undo at the moment without finer window depth/z control.
                     //ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
-
-                    if(ImGui::MenuItem("Save")){
-                        std::string file = FileDialogs::SaveFile("test");
-                        RC_CORE_INFO("file selected: {0}", file);
-                        SceneSerializer serializer(m_ActiveScene);
-                        serializer.Serialize(file);
+                    if(ImGui::MenuItem("New","Ctrl+N")){
+                        NewScene();
                     }
-                    if(ImGui::MenuItem("Load")){
-                        std::string file = FileDialogs::OpenFile("");
-                        RC_CORE_INFO("Path Selected: {0}", file);
-                        SceneSerializer serializer(m_ActiveScene);
-                        serializer.DeSerialize(file);
+                    if(ImGui::MenuItem("Save As...","Ctrl+Shift+S")){
+                        SaveAs();
+                    }
+                    if(ImGui::MenuItem("Open...","Ctrl+O")){
+                        OpenScene();
                     }
 
                     if (ImGui::MenuItem("Exit")) RcEngine::Application::Get().Close();
@@ -226,6 +279,17 @@ namespace RcEngine{
             }
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0,0});
             ImGui::Begin("ViewPort");
+
+            auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+            auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+            auto viewportOffset = ImGui::GetWindowPos();
+            m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+            m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
+
+            m_ViewportFocused = ImGui::IsWindowFocused();
+            m_ViewportHovered = ImGui::IsWindowHovered();
+            Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);
+
             ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
             m_ViewPortSize = {viewportPanelSize.x,viewportPanelSize.y};
 
@@ -238,6 +302,64 @@ namespace RcEngine{
             }
             uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
             ImGui::Image((void *) textureID, ImVec2{1280, 720},ImVec2{0,1}, ImVec2{1,0});
+
+            //ImGuizmo
+            Entity selectedentity = m_Panel.GetSelectedEntity();
+
+
+            if(selectedentity && m_GizmoType != 1){
+                ImGuizmo::SetOrthographic(false);
+                ImGuizmo::SetDrawlist();
+                float windowwidth = (float)ImGui::GetWindowWidth();
+                float windowheight = (float)ImGui::GetWindowHeight();
+                ImGuizmo::SetRect(ImGui::GetWindowPos().x,ImGui::GetWindowPos().y,
+                                  windowwidth, windowheight);
+
+//
+//                auto cameraEntity  = m_ActiveScene->GetPrimaryCameraEntity();
+//
+//                const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+//                const glm::mat4& cameraProj = camera.GetProjection();
+//                glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
+
+                //Editor camera
+                const glm::mat4& cameraProj = m_EditorCamera.GetProjection();
+                glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
+
+                //Entity Transform
+                auto& tc = selectedentity.GetComponent<TransformComponent>();
+                glm::mat4 transform = tc.GetTransform();
+
+
+                bool snap = Input::IsKeyPressed(Key::LeftControl);
+                float snapValue = 0.5f;
+                //snap to 45 degrees on rotation
+                if(m_GizmoType == ImGuizmo::OPERATION::ROTATE)
+                    snapValue = 45.0f;
+
+                float snapValues[3] = {snapValue,snapValue,snapValue};
+
+                ImGuizmo::Manipulate(glm::value_ptr(cameraView),glm::value_ptr(cameraProj),
+                                     (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform)
+                                     , nullptr, snap? snapValues: nullptr);
+
+
+                if(ImGuizmo::IsUsing()){
+                    glm::vec3 translation, rotation, scale;
+
+                    Math::DecomposeTransform(transform, translation,rotation,scale);
+
+                    glm::vec3 deltaRotation = rotation - tc.Rotation;
+
+                    tc.Translation = glm::vec3(transform[3]);
+                    tc.Scale = translation;
+                    tc.Rotation += deltaRotation;
+                    tc.Scale = scale;
+                }
+
+
+            }
+
             ImGui::End();
             ImGui::PopStyleVar();
             m_Panel.OnImGuiRender();
@@ -257,11 +379,45 @@ namespace RcEngine{
             ImGui::Text("Indices: %d",stats.GetTotalIndexCount());
 
             ImGui::End();
+            ImGui::Begin("Script console");
+            //ImGui::InputTextMultiline("Script",&m_ScriptString,ImVec2(0,0));
+            ImGui::End();
+
+            static bool demo = true;
+            ImGui::ShowDemoWindow(&demo);
 
             ImGui::End();
 
     }
     void EditorLayer::OnDetach() {
         RC_PROFILE_FUNCTION();
+    }
+
+    void EditorLayer::OpenScene() {
+        std::string file = FileDialogs::OpenFile("");
+        RC_CORE_INFO("Path Selected: {0}", file);
+        if(!file.empty()){
+            m_ActiveScene = CreateRef<Scene>();
+            m_ActiveScene->OnViewportReSize((uint32_t)m_ViewPortSize.x,(uint32_t)m_ViewPortSize.y);
+            m_Panel.SetContext(m_ActiveScene);
+
+            SceneSerializer serializer(m_ActiveScene);
+            serializer.DeSerialize(file);
+        }
+    }
+
+    void EditorLayer::NewScene() {
+        m_ActiveScene = CreateRef<Scene>();
+        m_ActiveScene->OnViewportReSize((uint32_t)m_ViewPortSize.x,(uint32_t)m_ViewPortSize.y);
+        m_Panel.SetContext(m_ActiveScene);
+    }
+
+    void EditorLayer::SaveAs() {
+        std::string file = FileDialogs::SaveFile("");
+        RC_CORE_INFO("file selected: {0}", file);
+        if(!file.empty()){
+            SceneSerializer serializer(m_ActiveScene);
+            serializer.Serialize(file);
+        }
     }
 }

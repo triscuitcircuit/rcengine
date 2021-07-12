@@ -17,6 +17,8 @@
 //temp
 #include "include/glad/glad.h"
 
+#include "external/imguizmo/ImGuizmo.h"
+
 namespace RcEngine{
 
     ImGuiLayer::ImGuiLayer()
@@ -77,6 +79,7 @@ namespace RcEngine{
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        ImGuizmo::BeginFrame();
     }
     void ImGuiLayer::End() {
         ImGuiIO& io = ImGui::GetIO();
@@ -129,7 +132,19 @@ namespace RcEngine{
         //ImGui::ShowDemoWindow(&show);
     }
     void ImGuiLayer::SetDarkThemeColors(){
+        auto& style = ImGui::GetStyle();
         auto& colors = ImGui::GetStyle().Colors;
+
+        // Set Imgui framerounding
+        style.FrameRounding = 2.5f;
+        style.GrabRounding = 2.5f;
+        style.FrameBorderSize = 1.0f;
+        style.PopupRounding = 3.0f;
+        style.TabRounding = 8.0f;
+
+        style.WindowMenuButtonPosition = 1;
+
+
         colors[ImGuiCol_WindowBg] = ImVec4{0.1f, 0.105f,0.11f, 1.0f};
 
 

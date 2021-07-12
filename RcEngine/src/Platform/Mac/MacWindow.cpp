@@ -25,6 +25,7 @@ namespace RcEngine{
         RC_PROFILE_FUNCTION();
         Init(props);
     }
+
     MacWindow::~MacWindow(){
         RC_PROFILE_FUNCTION();
 

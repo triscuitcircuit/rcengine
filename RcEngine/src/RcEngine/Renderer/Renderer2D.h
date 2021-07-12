@@ -7,6 +7,8 @@
 #include "RcEngine/Renderer/Texture.h"
 #include "RcEngine/Renderer/SubTexture2D.h"
 
+#include "RcEngine/Renderer/EditorCamera.h"
+
 #ifndef RCENGINE_CLION_RENDERER2D_H
 #define RCENGINE_CLION_RENDERER2D_H
 namespace RcEngine{
@@ -17,7 +19,9 @@ namespace RcEngine{
         static void Shutdown();
 
         static void BeginScene(const OrthoCamera& camera );
+        static void BeginScene(const EditorCamera& camera);
         static void BeginScene(const Camera& camera, const glm::mat4& transform);
+
         static void EndScene();
         static void Flush();
         // DRAWING PRIMITIVE SHAPES

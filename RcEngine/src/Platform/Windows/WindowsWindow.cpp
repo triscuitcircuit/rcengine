@@ -18,14 +18,13 @@ namespace RcEngine{
     static void GLFWErrorCallback(int error, const char* desc){
         RC_CORE_ERROR("GLFW Error {{0}}: {1}", error, desc);
     }
-    Window* Window::Create(const WindowProps &props) {
-        return new WindowsWindow(props);
-    }
 
     WindowsWindow::WindowsWindow(const WindowProps &props) {
         Init(props);
     }
-    WindowsWindow::~WindowsWindow(){}
+    WindowsWindow::~WindowsWindow(){
+        Shutdown();
+    }
 
     void WindowsWindow::Init(const WindowProps &props) {
         RC_PROFILE_FUNCTION();
@@ -45,6 +44,7 @@ namespace RcEngine{
         {
             ++s_GLFW_Win_Count;
         }
+        int actualScreenWidth, actualScreenHeight;
 
         m_Window = glfwCreateWindow((int)props.Width,(int)props.Height,m_Data.Title.c_str(), nullptr, nullptr);
 

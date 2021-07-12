@@ -25,3 +25,6 @@
 [submodule "RcEngine/external/yaml-cpp"]
 	path = RcEngine/external/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp
+[submodule "RcEngine/external/imguizmo"]
+	path = RcEngine/external/imguizmo
+	url = https://github.com/triscuitcircuit/ImGuizmo

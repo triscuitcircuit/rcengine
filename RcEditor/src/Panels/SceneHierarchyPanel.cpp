@@ -17,6 +17,7 @@ namespace RcEngine{
     }
     void SceneHierarchyPanel::SetContext(const Ref<Scene> &scene) {
         m_Scene = scene;
+        m_Selected = {};
     }
     void SceneHierarchyPanel::OnImGuiRender() {
         ImGui::Begin("Scene Hierarchy");
