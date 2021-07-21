@@ -1,6 +1,17 @@
 cmake_minimum_required(VERSION 3.19)
 
-project(RcEngine LANGUAGES C CXX OBJC OBJCXX)
+set(LANGUAGES C CXX)
+
+if(APPLE)
+    message(STATUS "MacOs detected")
+    list(APPEND LANGUAGES OBJC)
+    list(APPEND LANGUAGES OBJCXX)
+    set(CMAKE_OBJCXX_STANDARD 14)
+    set(CMAKE_OBJCXX_STANDARD_REQUIRED ON)
+    set(CMAKE_OBJCXX_EXTENSIONS OFF)
+endif()
+
+project(RcEngine LANGUAGES ${LANGUAGES})
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -67,13 +78,17 @@ if(APPLE)
         src/Platform/Mac/MacWindow.h
         src/Platform/Mac/MacUtils.mm
             )
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit")
+    set(METAL
+            src/Platform/Metal/MetalBuffer.mm
+            src/Platform/Metal/MetalBuffer.h src/Platform/Metal/Metal.h)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit Metal")
 endif(APPLE)
 
 add_definitions(-DRC_BUILD_DLL)
 add_definitions(-DGLFW_INCLUDE_NONE)
 
 add_definitions(-DRC_DEBUG)
+
 if (CMAKE_BUILD_TYPE EQUAL "Debug")
     add_definitions(-DRC_DEBUG)
 endif()
@@ -163,6 +178,7 @@ add_library(rcengine STATIC
         ${GUI}
         ${source_headers}
         ${GLOB}
+        ${METAL}
         ${NETWORK}
         ${SCENE}
         ${UTILS}
@@ -175,7 +191,6 @@ if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
             )
 endif()
 #------------------------------------------------------------------
-
 
 target_precompile_headers(rcengine PRIVATE src/rcpch.h)
 
@@ -203,6 +218,7 @@ if(APPLE)
     )
 endif()
 #--------------------------------------
+
 target_link_libraries(rcengine
         glfw
         glad
