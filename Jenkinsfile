@@ -11,7 +11,7 @@ pipeline{
                 sh 'echo "Running Cmake build script...."'
                 sh 'chmod +x scripts/jenkins/jenkins-cmake.sh'
                 sh 'scripts/jenkins/jenkins-cmake.sh'
-                archiveArtifacts artifacts: 'bin/cmake-build/*', fingerprint: true
+                archiveArtifacts artifacts: 'cmake-build/*', fingerprint: true
             }
         }
     }
