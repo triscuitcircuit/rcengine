@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
+set(CMAKE_CXX_STANDARD 17)
 
 set(LANGUAGES C CXX)
 
@@ -13,7 +14,6 @@ endif()
 
 project(RcEngine LANGUAGES ${LANGUAGES})
 
-set(CMAKE_CXX_STANDARD 17)
 
 file(GLOB source_headers
         "*.h"
@@ -46,7 +46,6 @@ add_subdirectory(external/spdlog)
 add_subdirectory(external/imgui)
 add_subdirectory(external/SOIL2)
 add_subdirectory(external/yaml-cpp)
-add_subdirectory(external/corrosion)
 
 #GLFW--------------------------------------------
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -82,6 +81,8 @@ if(APPLE)
             src/Platform/Metal/MetalBuffer.mm
             src/Platform/Metal/MetalBuffer.h src/Platform/Metal/Metal.h)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit Metal")
+
+    add_subdirectory(external/corrosion)
 endif(APPLE)
 
 add_definitions(-DRC_BUILD_DLL)
