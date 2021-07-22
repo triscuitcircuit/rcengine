@@ -13,6 +13,11 @@ if(WIN32)
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Assets DESTINATION ${CMAKE_BINARY_DIR})
 
     add_executable (RcGame ${SOURCE_FILES})
+elseif(UNIX AND NOT APPLE)
+    add_definitions(-DRC_PLATFORM_UNIX)
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Assets DESTINATION ${CMAKE_BINARY_DIR})
+
+    add_executable (RcGame ${SOURCE_FILES})
 endif(WIN32)
 #----------------------------------------------------------
 
