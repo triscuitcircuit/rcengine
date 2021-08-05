@@ -4,6 +4,8 @@
 #pragma once
 #ifndef RCENGINE_CLION_PROJECTIONCAMERA_H
 #define RCENGINE_CLION_PROJECTIONCAMERA_H
+#include "rcpch.h"
+
 namespace RcEngine{
     class ProjectionCamera{
 

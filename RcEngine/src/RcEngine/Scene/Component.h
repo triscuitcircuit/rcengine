@@ -7,6 +7,8 @@
 #include "SceneCamera.h"
 
 #include "ScriptableEntity.h"
+#include "RcEngine/Renderer/Texture.h"
+
 #include "gtc/matrix_transform.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -42,6 +44,8 @@ namespace RcEngine{
         };
     struct SpriteRendererComponent{
             glm::vec4 Color{1.0f,1.0f,1.0f,1.0f};
+            float TilingFactor =1.0f;
+            Ref<Texture2D> Texture;
 
             SpriteRendererComponent() = default;
             SpriteRendererComponent(const SpriteRendererComponent&) = default;
@@ -51,6 +55,10 @@ namespace RcEngine{
             operator const glm::vec4& () const {return Color;}
             operator glm::vec4& () {return Color;}
 
+    };
+
+    struct CubeComponent{
+        glm::vec4 Color{1.0f,1.0f,1.0f,1.0f};
     };
     struct TagComponent{
         std::string Tag;

@@ -1,7 +1,7 @@
 //
 // Created by Tristan Zippert on 7/10/21.
 //
-#include "Platform/Mac/MacUtils.h"
+#include "Platform/MacUtils.h"
 #import <AppKit/AppKit.h>
 
 namespace RcEngine{
@@ -18,7 +18,7 @@ namespace RcEngine{
         // Captures response value from "modal" window
         NSModalResponse response = [panel runModal];
 
-        [convertedString release];
+        //[convertedString release];
         if(response == NSModalResponseOK){
             //If okay response return filepath
             return std::string([[panel.URL path] UTF8String]);
@@ -42,7 +42,7 @@ namespace RcEngine{
         // Captures response value from "modal" window
         NSModalResponse response = [panel runModal];
 
-        [convertedString release];
+        //[convertedString release];
         if(response == NSModalResponseOK){
             //If okay response return filepath
             return std::string([[panel.URL path] UTF8String]);

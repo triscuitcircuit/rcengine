@@ -18,16 +18,6 @@
 
 namespace RcEngine{
 
-    static const char* s_MapTiles = "SSSSSDDDDSSSSSSSSSSS"
-                                    "SSSDDDDDDDDDDDDDSSSS"
-                                    "SSSDDDDDDDDDDDDDSSSS"
-                                    "SSSDDDDDSDDDDDDDSSSS"
-                                    "SSSDDDDDDDDDDDDDSSSS"
-                                    "SSSDDDDDDDDDDDDDSSSS"
-                                    "SSSDDDDDDDDDDDDDSSSS"
-                                    "SSSSSSSSDDDDDDSSSSSS"
-    ;
-
     EditorLayer::EditorLayer():
             Layer("RcGameEngine2D"),
             m_CameraController(1280.0f/720.0f, true){
@@ -40,11 +30,8 @@ namespace RcEngine{
         m_ActiveScene = CreateRef<Scene>();
 
 
-        auto square = m_ActiveScene->CreateEntity("Square");
-        square.AddComponent<SpriteRendererComponent>(glm::vec4{0.0f,1.0f,0.0f,1.0f});
-
-        auto redsquare = m_ActiveScene->CreateEntity("Red");
-        redsquare.AddComponent<SpriteRendererComponent>(glm::vec4{1.0f,0.0f,0.0f,1.0f});
+        auto square = m_ActiveScene->CreateEntity("Red Square");
+        square.AddComponent<SpriteRendererComponent>(glm::vec4{1.0f,0.0f,0.0f,1.0f});
 
 
         m_SquareEntity = square;
@@ -83,35 +70,13 @@ namespace RcEngine{
             }
         };
 
-
-        SceneSerializer serializer(m_ActiveScene);
-        std::cout << std::filesystem::current_path() << std::endl;
-        serializer.Serialize("Assets/Scenes/Example.rc");
-
         m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
-
-
-
-        m_BaseTexture = RcEngine::Texture2D::Create("Assets/textures/Default.jpg");
-        m_SpriteSheet = RcEngine::Texture2D::Create("Assets/Game/Textures/CC_City_Exterior_B.png");
-        m_BackgroundSheet = RcEngine::Texture2D::Create("Assets/Game/Textures/CC_City_Exterior_A2.png");
-
-        m_Sprite = RcEngine::SubTexture2D::CreateFromCoords(m_SpriteSheet,{9.5,5.5},{50,50},
-                                                            {3,2});
-        m_Background = RcEngine::SubTexture2D::CreateFromCoords(m_BackgroundSheet, {0,2},
-                                                                {96,96},{1,1});
-        m_MapWidth = 14;
-        m_MapHeight = strlen(s_MapTiles)/ m_MapWidth;
-
-        s_TextureMap['S'] = RcEngine::SubTexture2D::CreateFromCoords(m_BackgroundSheet, {1,3},
-                                                                     {96,96},{1,1});
-        s_TextureMap['D'] = RcEngine::SubTexture2D::CreateFromCoords(m_BackgroundSheet, {0,2},
-                                                                     {96,96},{1,1});
 
 
         m_CameraController.SetZoomlevel(5.0f);
 
         RcEngine::FrameBufferSpec fbSpec;
+        fbSpec.Attachments = {FrameBufferTextureFormat::RGBA8,FrameBufferTextureFormat::RED_INT, FrameBufferTextureFormat::Depth};
         fbSpec.Width = 1280;
         fbSpec.Height = 720;
         m_FrameBuffer = RcEngine::FrameBuffer::Create(fbSpec);
@@ -200,12 +165,26 @@ namespace RcEngine{
             RcEngine::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 0.1f});
             RcEngine::RenderCommand::Clear();
         }
+
         float rotation = ts*(1000000.0f);
 
         // Update Scene
         m_ActiveScene->OnUpdateEditor(ts,m_EditorCamera);
 
+        auto [mx, my] = ImGui::GetMousePos();
+        mx -= m_ViewportBounds[0].x;
+        my -= m_ViewportBounds[0].y;
+        glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+        my = viewportSize.y - my;
 
+        int mouseX = (int)mx;
+        int mouseY = (int)my;
+
+        if(mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+        {
+            int pixelData = m_FrameBuffer->ReadPixel(1,mouseX,mouseY);
+            RC_CORE_WARN("Pixel Data = {0}", pixelData);
+        }
 
         m_FrameBuffer->UnBind();
 
@@ -279,10 +258,11 @@ namespace RcEngine{
             }
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0,0});
             ImGui::Begin("ViewPort");
+            auto viewportOffset = ImGui::GetCursorPos();// includes tab
 
             auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
             auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
-            auto viewportOffset = ImGui::GetWindowPos();
+
             m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
             m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 
@@ -302,6 +282,15 @@ namespace RcEngine{
             }
             uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
             ImGui::Image((void *) textureID, ImVec2{1280, 720},ImVec2{0,1}, ImVec2{1,0});
+
+            auto windowSize = ImGui::GetWindowSize();
+            ImVec2 minBound = ImGui::GetWindowPos();
+            minBound.x += viewportOffset.x;
+            minBound.y += viewportOffset.y;
+
+            ImVec2 maxBound = {minBound.x+ windowSize.x, minBound.y + windowSize.y};
+            m_ViewportBounds[0] = {minBound.x, minBound.y};
+            m_ViewportBounds[1] = {maxBound.x, maxBound.y};
 
             //ImGuizmo
             Entity selectedentity = m_Panel.GetSelectedEntity();
@@ -363,11 +352,12 @@ namespace RcEngine{
             ImGui::End();
             ImGui::PopStyleVar();
             m_Panel.OnImGuiRender();
+            m_ContentBrowserPanel.OnImGuiRender();
 
             ImGui::Begin("Settings");
 
-            //uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
-            //ImGui::Image((void*)textureID,ImVec2{320.0f,180.0f});
+            uint32_t textureID2 = m_FrameBuffer->GetColorAttachmentRendererID();
+            ImGui::Image((void*)textureID2,ImVec2{320.0f,180.0f});
 
             ImGui::End();
             ImGui::Begin("Renderer 2D Stats");

@@ -8,7 +8,9 @@
 #include "Shader.h"
 
 #include "RenderCommand.h"
+#include "UniformBuffer.h"
 #include <external/glm/glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+
 
 
 namespace RcEngine{
@@ -19,6 +21,9 @@ namespace RcEngine{
         glm::vec2 TexCoord;
         float TexIndex;
         float TilingFactor;
+
+        //Editor
+        int EntityID;
     };
 
     struct Renderer2DStorage{
@@ -43,6 +48,12 @@ namespace RcEngine{
         glm::vec4 QuadVertexPositions[4];
 
         Renderer2D::Statistics Stats;
+
+        struct CameraData{
+            glm::mat4 ViewProjection;
+        };
+        CameraData CameraBuffer;
+        Ref<UniformBuffer> CameraUniformBuffer;
     };
 
     static Renderer2DStorage s_Data;
@@ -62,6 +73,7 @@ namespace RcEngine{
             { ShaderDataType::Float2, "a_TexCoord" },
             { ShaderDataType::Float, "a_TexIndex" },
             { ShaderDataType::Float, "a_TilingFactor" },
+            { ShaderDataType::Int, "a_EntityID" },
             });
 
         s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
@@ -84,7 +96,7 @@ namespace RcEngine{
         }
 
         RcEngine::Ref<IndexBuffer> quadIB = IndexBuffer::Create(quadIndices,
-                                    s_Data.MaxIndices);
+                                    RcEngine::Renderer2DStorage::MaxIndices);
 
         s_Data.QuadVertexArray ->SetIndexBuffer(quadIB);
 
@@ -108,6 +120,9 @@ namespace RcEngine{
         s_Data.QuadVertexPositions[1] = {0.5, -0.5,0.0f,1.0f};
         s_Data.QuadVertexPositions[2] = {0.5, 0.5,0.0f,1.0f};
         s_Data.QuadVertexPositions[3] = {-0.5, 0.5,0.0f,1.0f};
+
+        s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DStorage::CameraData),0);
+
     }
     void Renderer2D::BeginScene(const OrthoCamera &camera) {
         RC_PROFILE_FUNCTION();
@@ -145,6 +160,9 @@ namespace RcEngine{
     }
 
     void Renderer2D::Flush() {
+        if(s_Data.QuadIndexCount ==0)
+            return;
+
         //Bind Textures
         for(uint32_t i =0; i < s_Data.TextureSlotIndex; i++)
             s_Data.TextureSlots[i]->Bind(i);
@@ -179,23 +197,6 @@ namespace RcEngine{
                               *glm::scale(glm::mat4(1.0f),{size.x,size.y,1.0f});
 
         DrawQuad(transform,color,tilingfactor);
-
-#if NON_BATCH
-        s_Data.TextureShader->
-                SetFloat("u_TileMultiplier", tilingfactor);
-
-        s_Data.WhiteTexture->Bind();
-
-        glm::mat4 transform  = glm::translate(glm::mat4(1.0f),position)*
-                               glm::scale(glm::mat4(1.0f),{size.x,size.y,1.0f});
-
-        s_Data.TextureShader->
-                SetMat4("u_Transform",transform);
-
-        s_Data.QuadVertexArray->Bind();
-
-        RenderCommand::DrawIndexed(s_Data.QuadVertexArray);
-#endif
     }
     void Renderer2D::DrawQuad(const glm::vec2 &position,
                               const glm::vec2 &size,const glm::vec4& color,
@@ -214,24 +215,6 @@ namespace RcEngine{
                               *glm::scale(glm::mat4(1.0f),{size.x,size.y,1.0f});
 
         DrawQuad(transform,color,texture,tilingfactor);
-#if NON_BATCH
-        s_Data.TextureShader->
-                SetFloat4("u_Color", color);
-
-        s_Data.TextureShader->
-                SetFloat("u_TileMultiplier", tilingfactor);
-
-        texture->Bind();
-        glm::mat4 transform  = glm::translate(glm::mat4(1.0f),position)*
-                               glm::scale(glm::mat4(1.0f),{size.x,size.y,1.0f});
-
-        s_Data.TextureShader->
-                SetMat4("u_Transform",transform);
-
-
-        s_Data.QuadVertexArray->Bind();
-        RenderCommand::DrawIndexed(s_Data.QuadVertexArray);
-#endif
     }
     void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2 &size, const glm::vec4 &color,
                               const Ref <SubTexture2D> &subtexture, float tilingfactor) {
@@ -280,7 +263,8 @@ namespace RcEngine{
         s_Data.Stats.QuadCount++;
 
     }
-    void Renderer2D::DrawQuad(const glm::mat4 transform, const glm::vec4 color, float tilingfactor) {
+    void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, float tilingfactor,
+                              int entityID) {
         RC_PROFILE_FUNCTION();
 
         if(s_Data.QuadIndexCount >= Renderer2DStorage::MaxIndices){
@@ -304,14 +288,18 @@ namespace RcEngine{
             s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i];
             s_Data.QuadVertexBufferPtr->TexIndex = texIndex;
             s_Data.QuadVertexBufferPtr->TilingFactor = tilingfactor;
+            s_Data.QuadVertexBufferPtr->EntityID = entityID;
             s_Data.QuadVertexBufferPtr++;
         }
         s_Data.QuadIndexCount+=6;
         s_Data.Stats.QuadCount++;
 
     }
-    void Renderer2D::DrawQuad(const glm::mat4 transform, const glm::vec4 color, const Ref <Texture2D> &texture,
-                              float tilingfactor) {
+    void Renderer2D::DrawSquare(const glm::vec3 &position, const glm::vec4 &color) {
+
+    }
+    void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, const Ref <Texture2D> &texture,
+                              float tilingfactor,int entityID) {
         RC_PROFILE_FUNCTION();
 
         constexpr size_t QuadVertexCount = 4;
@@ -349,6 +337,7 @@ namespace RcEngine{
             s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i];
             s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
             s_Data.QuadVertexBufferPtr->TilingFactor = tilingfactor;
+            s_Data.QuadVertexBufferPtr->EntityID = entityID;
             s_Data.QuadVertexBufferPtr++;
         }
 
@@ -401,26 +390,6 @@ namespace RcEngine{
 
         s_Data.QuadIndexCount+=6;
         s_Data.Stats.QuadCount++;
-
-
-
-#if NON_BATCH
-        s_Data.TextureShader->
-                SetFloat4("u_Color", color);
-        s_Data.TextureShader->
-                SetFloat("u_TileMultiplier", tilingfactor);
-
-        glm::mat4 transform  = glm::translate(glm::mat4(1.0f),position)*
-                glm::rotate(glm::mat4(1.0f),rotation,{0.0f,0.0f,1.0f})
-                *glm::scale(glm::mat4(1.0f),{size.x,size.y,1.0f});
-
-        s_Data.TextureShader->
-                SetMat4("u_Transform",transform);
-
-        s_Data.QuadVertexArray->Bind();
-        s_Data.WhiteTexture->Bind();
-        RenderCommand::DrawIndexed(s_Data.QuadVertexArray);
-#endif
 
     }
     /// Draws a Quad with texture, color and rotation in radians
@@ -563,6 +532,12 @@ namespace RcEngine{
 
         StartNewBatch();
     }
+
+    void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
+    {
+        DrawQuad(transform, src.Color, 1.0f,entityID);
+    }
+
 
 
 }

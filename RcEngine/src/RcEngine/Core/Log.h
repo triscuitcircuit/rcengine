@@ -19,6 +19,7 @@ namespace RcEngine{
         static std::shared_ptr<spdlog::logger> s_ClientLogger;
     };
 }
+
 #define RC_CORE_ERROR(...) ::RcEngine::Log::GetClientLogger()->error(__VA_ARGS__)
 #define RC_CORE_WARN(...) ::RcEngine::Log::GetCoreLogger()->warn(__VA_ARGS__)
 #define RC_CORE_INFO(...) ::RcEngine::Log::GetCoreLogger()->info(__VA_ARGS__)

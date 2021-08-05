@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.19)
 set(CMAKE_CXX_STANDARD 17)
-
 set(LANGUAGES C CXX)
 
+option(RCENGINE_RENDER_METAL "Build RcEngine with Metal on MacOS only" OFF)
+option(RCENGINE_RENDER_OPENGL "Build RcEngine with OpenGL" ON)
+
+
 if(APPLE)
-    message(STATUS "MacOs detected")
+    message(STATUS "Including Objective-C++ for APPLE")
     list(APPEND LANGUAGES OBJC)
     list(APPEND LANGUAGES OBJCXX)
     set(CMAKE_OBJCXX_STANDARD 14)
@@ -60,10 +63,10 @@ add_subdirectory(external/glad/)
 if(WIN32)
     add_definitions(-DRC_PLATFORM_WINDOWS)
     set(WINDOW
-        src/Platform/Windows/WindowsWindow.cpp
-        src/Platform/Windows/WindowsWindow.h
-        src/Platform/Mac/MacUtils.h
-        )
+            src/Platform/Windows/WindowsWindow.cpp
+            src/Platform/Windows/WindowsWindow.h
+            src/Platform/MacUtils.h
+            )
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
     include_directories(GL)
@@ -72,17 +75,25 @@ endif(WIN32)
 if(APPLE)
     add_definitions(-DRC_PLATFORM_MAC)
     add_definitions(-DRC_PLATFORM_UNIX)
+
     set(WINDOW
-        src/Platform/Mac/MacWindow.cpp
-        src/Platform/Mac/MacWindow.h
-        src/Platform/Mac/MacUtils.mm
+            src/Platform/Mac/MacWindow.cpp
+            src/Platform/Mac/MacWindow.h
+            src/Platform/Mac/MacUtils.mm
             )
-    set(METAL
-            src/Platform/Metal/MetalBuffer.mm
-            src/Platform/Metal/MetalBuffer.h src/Platform/Metal/Metal.h)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit Metal")
+
+    file(GLOB_RECURSE METAL "src/Platform/Metal/*.cpp" "src/Platform/Metal/*.h")
+
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit -framework Metal -framework Cocoa")
+
+    #Allows Objc++ code to be called from within C++ files
+    #without the need for wrappers
+#    set_source_files_properties(${METAL} PROPERTIES
+#            COMPILE_FLAGS "-x objective-c++ ")
+    set(CMAKE_C_FLAGS "-x objective-c++")
 
     add_subdirectory(external/corrosion)
+
 endif(APPLE)
 
 add_definitions(-DRC_BUILD_DLL)
@@ -112,7 +123,7 @@ set(GUI
         src/RcEngine/ImGui/ImGuiLayer.cpp
         src/RcEngine/ImGui/ImGuiLayer.h
         src/RcEngine/ImGui/ImGuiBuild.cpp
-)
+        )
 #RENDERER----------------------------------------------------------
 set(RENDERER
         src/RcEngine/Renderer/Shader.h src/RcEngine/Renderer/Shader.cpp
@@ -134,7 +145,9 @@ set(RENDERER
         src/RcEngine/Renderer/IsoCameraController.cpp src/RcEngine/Renderer/IsoCameraController.h
         src/RcEngine/Renderer/SubTexture2D.h src/RcEngine/Renderer/SubTexture2D.cpp
         src/RcEngine/Renderer/FrameBuffer.cpp src/RcEngine/Renderer/FrameBuffer.h
-        src/RcEngine/Renderer/EditorCamera.cpp src/RcEngine/Renderer/EditorCamera.h)
+        src/RcEngine/Renderer/EditorCamera.cpp src/RcEngine/Renderer/EditorCamera.h
+        src/RcEngine/Renderer/Renderer3D.cpp src/RcEngine/Renderer/Renderer3D.h
+        src/RcEngine/Renderer/UniformBuffer.cpp src/RcEngine/Renderer/UniformBuffer.h)
 #CORE--------------------------------------------------------------
 set(CORE
         src/RcEngine.h src/rcpch.cpp src/rcpch.h
@@ -151,7 +164,8 @@ set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLRenderAPI.cpp src/Platform/OpenGL/OpenGLVertexArray.cpp
         src/Platform/OpenGL/OpenGLShader.cpp src/Platform/OpenGL/OpenGLShader.h
         src/Platform/OpenGL/OpenGLTexture.cpp src/Platform/OpenGL/OpenGLTexture.h
-        src/Platform/OpenGL/OpenGLFrameBuffer.cpp src/Platform/OpenGL/OpenGLFrameBuffer.h)
+        src/Platform/OpenGL/OpenGLFrameBuffer.cpp src/Platform/OpenGL/OpenGLFrameBuffer.h
+        src/Platform/OpenGL/OpenGLUniformBuffer.cpp src/Platform/OpenGL/OpenGLUniformBuffer.h)
 #SCENE-------------------------------------------------------------
 set(SCENE
         src/RcEngine/Scene/Scene.h
@@ -171,7 +185,11 @@ if(APPLE)
     set(NETWORK src/RcEngine/Network/Network.h)
 endif(APPLE)
 #------------------------------------------------------------------
+set(PCH
+        src/rcpch.h)
+#------------------------------------------------------------------
 add_library(rcengine STATIC
+        #${PCH}
         ${CORE}
         ${RENDERER}
         ${OPENGL_CXT}
@@ -217,6 +235,7 @@ if(APPLE)
             PROPERTY CORROSION_ENVIRONMENT_VARIABLES
             "STEAM_SDK_LOCATION=${SDK_LOC}"
     )
+
 endif()
 #--------------------------------------
 
@@ -235,8 +254,12 @@ if(APPLE)
     target_link_libraries(rcengine
             rc_network
             )
+        set_source_files_properties(${METAL} PROPERTIES
+                COMPILE_FLAGS "-x objective-c++ ")
+    set_property(TARGET rcengine APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 endif()
 #--------------------------------------
 
 
 target_include_directories(rcengine PUBLIC $(CMAKE_CURRENT_SOURCE_DIR))
+

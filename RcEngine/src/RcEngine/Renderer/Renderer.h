@@ -24,6 +24,7 @@ namespace RcEngine{
                            const glm::mat4& transform = glm::mat4(1.0f));
 
         inline static RenderAPI::API GetAPI(){return RenderAPI::GetAPI(); }
+        inline static void SetAPI(RenderAPI::API api){ RenderAPI::SetAPI(api);}
     private:
         struct SceneData{
             glm::mat4 ViewProjectionMatrix;

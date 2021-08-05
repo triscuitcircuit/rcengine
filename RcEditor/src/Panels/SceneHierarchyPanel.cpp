@@ -11,6 +11,8 @@
 #include <external/imgui/imgui_internal.h>
 
 namespace RcEngine{
+    //extern const std::filesystem::path g_AssetPath;
+
     const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed| ImGuiSelectableFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap;
     SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene> &scene) {
         SetContext(scene);
@@ -311,6 +313,20 @@ namespace RcEngine{
         });
         DrawComponent<SpriteRendererComponent>("Sprite Renderer",entitySelection,[](auto& comp){
             ImGui::ColorEdit4("Color",glm::value_ptr(comp.Color));
+            //texture
+
+            ImGui::Button("Texture",ImVec2(100.0f, 0.0f));
+//            if(ImGui::BeginDragDropTarget()){
+//                if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET")){
+//                    const auto* path = (const wchar_t *)payload->Data;
+//                    std::filesystem::path texturePath = std::filesystem::path(g_AssetPath)/path;
+//                    comp.Texture = Texture2D::Create(texturePath.c_str());
+//                }
+//                ImGui::EndDragDropTarget();
+//            }
+
+            ImGui::DragFloat("Tiling Factor",&comp.TilingFactor, 0.1f, 0.0f, 100.0f);
+
         });
 
     }

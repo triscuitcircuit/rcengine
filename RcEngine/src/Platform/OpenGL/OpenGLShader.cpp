@@ -113,7 +113,7 @@ namespace RcEngine{
 
                glDeleteShader(shader);
 
-               RC_CORE_ERROR("Vertex shader compilation error!");
+               RC_CORE_ERROR("Shader compilation error!");
                RC_CORE_ERROR("{0}", infoLog.data());
                RC_CORE_ASSERT(false, "Shader compilation issue");
 

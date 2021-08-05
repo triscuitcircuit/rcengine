@@ -17,7 +17,7 @@ namespace RcEngine{
             bool SerializeRuntime(const std::string& filepath);
 
             bool DeSerialize(const std::string& filepath);
-            bool DeSerializeRuntime(const std::string& filepath);
+            static bool DeSerializeRuntime(const std::string& filepath);
         private:
             Ref<Scene> m_Scene;
         };

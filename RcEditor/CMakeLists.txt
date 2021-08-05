@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.19)
 project(RcEditor)
 set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCE_FILES src/RcEditorApp.cpp src/EditorLayer.h src/EditorLayer.cpp)
+set(SOURCE_FILES src/RcEditorApp.cpp
+        src/EditorLayer.h src/EditorLayer.cpp
+        src/Panels/ContentBrowserPanel.cpp src/Panels/ContentBrowserPanel.h)
 set(PANELS src/Panels/SceneHierarchyPanel.cpp src/Panels/SceneHierarchyPanel.h)
 
 if(APPLE)
