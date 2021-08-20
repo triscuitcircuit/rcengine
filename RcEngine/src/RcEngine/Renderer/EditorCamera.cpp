@@ -7,7 +7,7 @@
 #include "RcEngine/Core/MouseButtonCodes.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <gtx/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 
 //Credit to TheCherno

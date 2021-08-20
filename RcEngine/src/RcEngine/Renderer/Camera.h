@@ -6,7 +6,7 @@
 #ifndef RCENGINE_CLION_CAMERA_H
 #define RCENGINE_CLION_CAMERA_H
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 namespace RcEngine{
     class Camera{

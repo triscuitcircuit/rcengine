@@ -3,6 +3,9 @@
 //
 #pragma once
 
+#ifndef RCENGINE_CLION_RENDERER2D_H
+#define RCENGINE_CLION_RENDERER2D_H
+
 #include "RcEngine/Renderer/OrthoCamera.h"
 #include "RcEngine/Renderer/Camera.h"
 #include "RcEngine/Renderer/Texture.h"
@@ -11,8 +14,6 @@
 #include "RcEngine/Renderer/EditorCamera.h"
 #include <RcEngine/Scene/Component.h>
 
-#ifndef RCENGINE_CLION_RENDERER2D_H
-#define RCENGINE_CLION_RENDERER2D_H
 namespace RcEngine{
     class Renderer2D{
     public:
@@ -26,6 +27,7 @@ namespace RcEngine{
 
         static void EndScene();
         static void Flush();
+
         // DRAWING PRIMITIVE SHAPES
         static void DrawQuad(const glm::vec2& position, const glm::vec2& size,
                              const glm::vec4& color, float tilingfactor=1.0f);
@@ -97,6 +99,7 @@ namespace RcEngine{
         static void ResetStats();
     private:
         static void StartNewBatch();
+        static void StartBatch();
     };
 }
 #endif //RCENGINE_CLION_RENDERER2D_H

@@ -6,7 +6,7 @@
 #include "RcEngine/Events/Event.h"
 #include "RcEngine/Events/MouseEvent.h"
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 namespace RcEngine{
     class EditorCamera : public Camera

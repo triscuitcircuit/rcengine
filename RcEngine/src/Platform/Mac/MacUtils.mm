@@ -52,4 +52,12 @@ namespace RcEngine{
         }
 
     }
+    void FileDialogs::OpenExplorer(const char *path) {
+        //convert input path to NSString
+        NSString *convertedString = [[NSString alloc] initWithCString: path encoding:NSUTF8StringEncoding];
+        //convert NSString to NSURL filepath for NSWorkspace to open in finder
+        NSURL *xmlURL =[NSURL fileURLWithPath: convertedString];
+        // create NSWorkspace panel
+        [[NSWorkspace sharedWorkspace] openURL:xmlURL];
+    }
 }

@@ -4,7 +4,7 @@
 #pragma once
 
 #include "Texture.h"
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 #ifndef RCENGINE_CLION_SUBTEXTURE2D_H
 #define RCENGINE_CLION_SUBTEXTURE2D_H

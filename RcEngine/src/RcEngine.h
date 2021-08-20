@@ -55,6 +55,7 @@
 #include "RcEngine/Renderer/OrthoCameraController.h"
 #include "RcEngine/Renderer/IsoCameraController.h"
 #include "RcEngine/Renderer/Renderer2D.h"
+#include "Platform/processordetection.h"
 ///////////////////////////////////////
 
 

@@ -3,7 +3,7 @@
 //
 #pragma once
 #include "RcEngine/Renderer/Shader.h"
-#include <glm.hpp>
+#include <glm/glm.hpp>
 //#include <include/glad/glad.h>
 typedef unsigned int GLenum;
 

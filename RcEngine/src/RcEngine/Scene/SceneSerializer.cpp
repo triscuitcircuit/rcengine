@@ -158,7 +158,8 @@ namespace RcEngine{
 
             auto& spriteRenderer = entity1.GetComponent<SpriteRendererComponent>();
             out << YAML::Key << "Color" << YAML::Value << spriteRenderer.Color;
-
+            if(spriteRenderer.Texture)
+                out << YAML::Key << "TextureFile" << YAML::Value << spriteRenderer.Texture->getPath();
             out << YAML::EndMap;
         }
 
@@ -251,11 +252,15 @@ namespace RcEngine{
                 {
                     auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
                     src.Color = spriteRendererComponent["Color"].as<glm::vec4>();
+                    auto texturein = spriteRendererComponent["TextureFile"].as<std::string>();
+                    // we need to check if the file exists and cant rely on catching the error
+                    if(std::filesystem::exists(texturein))
+                        src.Texture = Texture2D::Create(texturein.c_str());
                 }
 
             }
         }
-
+        return true;
     }
     bool SceneSerializer::DeSerializeRuntime(const std::string &filepath) {
         RC_CORE_ASSERT("",false);

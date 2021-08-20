@@ -3,10 +3,14 @@ cmake_minimum_required(VERSION 3.19)
 project(RcEditor)
 set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCE_FILES src/RcEditorApp.cpp
+set(SOURCE_FILES
+        src/RcEditorApp.cpp
         src/EditorLayer.h src/EditorLayer.cpp
-        src/Panels/ContentBrowserPanel.cpp src/Panels/ContentBrowserPanel.h)
-set(PANELS src/Panels/SceneHierarchyPanel.cpp src/Panels/SceneHierarchyPanel.h)
+        src/Panels/ContentBrowserPanel.cpp
+        src/Panels/ContentBrowserPanel.h)
+
+set(PANELS src/Panels/SceneHierarchyPanel.cpp
+        src/Panels/SceneHierarchyPanel.h)
 
 if(APPLE)
     set(MACOSX_BUNDLE_ICON_FILE AppImage.icns )
@@ -38,10 +42,6 @@ else()
 
 endif(APPLE)
 
-
 include_directories("${CMAKE_SOURCE_DIR}/RcEngine/src")
-include_directories("${CMAKE_SOURCE_DIR}/RcEngine/external/glm/glm")
-include_directories(SYSTEM "${CMAKE_SOURCE_DIR}/RcEngine/entt/include")
-include_directories("${CMAKE_SOURCE_DIR}/RcEngine/yaml-cpp/include")
 
 target_link_libraries(RcEditor rcengine)

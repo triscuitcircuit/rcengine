@@ -5,7 +5,7 @@
 #pragma once
 
 #include "rcpch.h"
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 #include <external/GLFW/include/GLFW/glfw3.h>
 

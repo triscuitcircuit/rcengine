@@ -106,8 +106,8 @@ namespace RcEngine{
         uint32_t blankData = 0xffffffff;
         s_Data.WhiteTexture->SetData(&blankData, sizeof(uint32_t));
 
-        int32_t samplers[s_Data.MaxTextureSlots];
-        for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
+        int32_t samplers[RcEngine::Renderer2DStorage::MaxTextureSlots];
+        for (uint32_t i = 0; i < RcEngine::Renderer2DStorage::MaxTextureSlots; i++)
             samplers[i] = i;
 
         s_Data.TextureShader = Shader::Create("Assets/Shaders/TextureCombined.glsl");
@@ -131,10 +131,7 @@ namespace RcEngine{
         s_Data.TextureShader->
                 SetMat4("u_ViewProjection",camera.GetViewProjectMatrix());
 
-        s_Data.QuadIndexCount =0;
-
-        s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
-        s_Data.TextureSlotIndex = 1;
+        StartBatch();
 
     }
     void Renderer2D::BeginScene(const Camera &camera, const glm::mat4 &transform) {
@@ -145,12 +142,15 @@ namespace RcEngine{
         s_Data.TextureShader->Bind();
         s_Data.TextureShader->
                 SetMat4("u_ViewProjection",viewProj);
-
+        StartBatch();
+    }
+    void Renderer2D::StartBatch(){
         s_Data.QuadIndexCount =0;
 
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
         s_Data.TextureSlotIndex = 1;
     }
+
     void Renderer2D::EndScene() {
         RC_PROFILE_FUNCTION();
 
@@ -535,7 +535,10 @@ namespace RcEngine{
 
     void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
     {
-        DrawQuad(transform, src.Color, 1.0f,entityID);
+        if(src.Texture)
+            DrawQuad(transform,src.Color,src.Texture,src.TilingFactor,entityID);
+        else
+            DrawQuad(transform, src.Color, 1.0f,entityID);
     }
 
 

@@ -7,11 +7,11 @@
 
 
 #include <external/imgui/imgui.h>
-#include <gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <external/imgui/imgui_internal.h>
 
 namespace RcEngine{
-    //extern const std::filesystem::path g_AssetPath;
+    extern const std::filesystem::path g_AssetPath;
 
     const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed| ImGuiSelectableFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap;
     SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene> &scene) {
@@ -34,7 +34,7 @@ namespace RcEngine{
             m_Selected = {};
         }
         // Right click blank space
-        if(ImGui::BeginPopupContextWindow(0,1,false)){
+        if(ImGui::BeginPopupContextWindow(nullptr,1,false)){
             if(ImGui::MenuItem("Create new Entity")){
                 m_Scene->CreateEntity("Empty Entity");
             }
@@ -71,7 +71,8 @@ namespace RcEngine{
     void SceneHierarchyPanel::DrawEntityNode(Entity entity) {
         auto& tc = entity.GetComponent<TagComponent>().Tag;
 
-        ImGuiTreeNodeFlags flags = ((m_Selected == entity)? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+        ImGuiTreeNodeFlags flags = ((m_Selected == entity)? ImGuiTreeNodeFlags_Selected : 0)
+                | ImGuiTreeNodeFlags_OpenOnArrow |ImGuiTreeNodeFlags_Framed;
         flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity,flags, "%s", tc.c_str());
         if(ImGui::IsItemClicked()){
@@ -316,14 +317,14 @@ namespace RcEngine{
             //texture
 
             ImGui::Button("Texture",ImVec2(100.0f, 0.0f));
-//            if(ImGui::BeginDragDropTarget()){
-//                if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET")){
-//                    const auto* path = (const wchar_t *)payload->Data;
-//                    std::filesystem::path texturePath = std::filesystem::path(g_AssetPath)/path;
-//                    comp.Texture = Texture2D::Create(texturePath.c_str());
-//                }
-//                ImGui::EndDragDropTarget();
-//            }
+            if(ImGui::BeginDragDropTarget()){
+                if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
+                    const wchar_t* path = (const wchar_t *)payload->Data;
+                        std::filesystem::path texturePath = std::filesystem::path(g_AssetPath)/path;
+                        comp.Texture = Texture2D::Create(texturePath.c_str());
+                }
+                ImGui::EndDragDropTarget();
+            }
 
             ImGui::DragFloat("Tiling Factor",&comp.TilingFactor, 0.1f, 0.0f, 100.0f);
 

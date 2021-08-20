@@ -5,7 +5,6 @@ set(LANGUAGES C CXX)
 option(RCENGINE_RENDER_METAL "Build RcEngine with Metal on MacOS only" OFF)
 option(RCENGINE_RENDER_OPENGL "Build RcEngine with OpenGL" ON)
 
-
 if(APPLE)
     message(STATUS "Including Objective-C++ for APPLE")
     list(APPEND LANGUAGES OBJC)
@@ -19,43 +18,26 @@ project(RcEngine LANGUAGES ${LANGUAGES})
 
 
 file(GLOB source_headers
-        "*.h"
-        "*.hpp"
-        "external/glm/glm/*.cpp"
-        "external/glm/glm/*.hpp"
-        "external/glm/glm/*.inl"
-        "external/GLFW/include/GLFW/*.h"
-        "external/imgui/*.h"
-        "external/imgui/*.cpp"
-        "external/spdlog/*.h"
-        "external/entt/include/*.hpp"
-        "external/yaml-cpp/include/*.h"
-        "external/yaml-cpp/include/*.cpp"
-        "external/imguizmo/*.cpp"
-        "external/imguizmo/*.h"
-        )
+        "external/imgui/*.cpp")
 
-include_directories("external/imguizmo")
-include_directories("external/glm/glm")
 include_directories("external/imgui")
 include_directories(SYSTEM "external/glad/include")
-include_directories("external/SOIL2")
 include_directories(SYSTEM "external/entt/include")
-include_directories("external/yaml-cpp/include")
 include_directories("src")
 
 add_subdirectory(external/imguizmo)
+add_subdirectory(external/glm)
 add_subdirectory(external/spdlog)
 add_subdirectory(external/imgui)
 add_subdirectory(external/SOIL2)
 add_subdirectory(external/yaml-cpp)
+add_subdirectory(external/glad)
 
 #GLFW--------------------------------------------
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-add_subdirectory(external/GLFW/)
-add_subdirectory(external/glad/)
+add_subdirectory(external/GLFW)
 #------------------------------------------------
 
 
@@ -66,7 +48,8 @@ if(WIN32)
             src/Platform/Windows/WindowsWindow.cpp
             src/Platform/Windows/WindowsWindow.h
             src/Platform/MacUtils.h
-            )
+            src/Platform/Windows/processordetection.cpp)
+
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
     include_directories(GL)
@@ -75,12 +58,11 @@ endif(WIN32)
 if(APPLE)
     add_definitions(-DRC_PLATFORM_MAC)
     add_definitions(-DRC_PLATFORM_UNIX)
-
     set(WINDOW
             src/Platform/Mac/MacWindow.cpp
             src/Platform/Mac/MacWindow.h
             src/Platform/Mac/MacUtils.mm
-            )
+            src/Platform/Mac/processordetection.cpp)
 
     file(GLOB_RECURSE METAL "src/Platform/Metal/*.cpp" "src/Platform/Metal/*.h")
 
@@ -117,7 +99,7 @@ set(SOURCE_FILES
         src/RcEngine/Core/Input.h src/Platform/Mac/MacInput.cpp
         src/Platform/Mac/MacInput.h src/RcEngine/Core/keycodes.h
         src/RcEngine/Core/MouseButtonCodes.h
-        )
+        src/Platform/processordetection.h)
 #GUI---------------------------------------------------------------
 set(GUI
         src/RcEngine/ImGui/ImGuiLayer.cpp
@@ -166,6 +148,9 @@ set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLTexture.cpp src/Platform/OpenGL/OpenGLTexture.h
         src/Platform/OpenGL/OpenGLFrameBuffer.cpp src/Platform/OpenGL/OpenGLFrameBuffer.h
         src/Platform/OpenGL/OpenGLUniformBuffer.cpp src/Platform/OpenGL/OpenGLUniformBuffer.h)
+#VULKAN------------------------------------------------------------
+set(VK_CXT
+        src/Platform/Vulkan/VKBuffer.cpp src/Platform/Vulkan/VKBuffer.h)
 #SCENE-------------------------------------------------------------
 set(SCENE
         src/RcEngine/Scene/Scene.h
@@ -193,6 +178,7 @@ add_library(rcengine STATIC
         ${CORE}
         ${RENDERER}
         ${OPENGL_CXT}
+        ${VK_CXT}
         ${SOURCE_FILES}
         ${GUI}
         ${source_headers}
@@ -213,17 +199,9 @@ endif()
 
 target_precompile_headers(rcengine PRIVATE src/rcpch.h)
 
-
 #link with libraries-------------------
 find_package(OpenGL REQUIRED)
-find_package(spdlog)
-find_package(imgui)
-find_package(soil2)
-find_package(GLFW)
-find_package(glad)
-find_package(entt)
-find_package(imguizmo)
-find_package(yaml-cpp)
+find_package(Vulkan REQUIRED)
 
 #Rust library link---------------------
 if(APPLE)
@@ -241,6 +219,7 @@ endif()
 
 target_link_libraries(rcengine
         glfw
+        glm::glm
         glad
         spdlog
         OpenGL::GL
@@ -248,6 +227,7 @@ target_link_libraries(rcengine
         soil2
         yaml-cpp
         imguizmo
+        Vulkan::Vulkan
         )
 
 if(APPLE)
@@ -259,7 +239,4 @@ if(APPLE)
     set_property(TARGET rcengine APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 endif()
 #--------------------------------------
-
-
 target_include_directories(rcengine PUBLIC $(CMAKE_CURRENT_SOURCE_DIR))
-

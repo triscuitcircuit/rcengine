@@ -3,31 +3,40 @@
 //
 #include "rcpch.h"
 #include "ContentBrowserPanel.h"
+#include "Platform/MacUtils.h"
 
 #include <external/imgui/imgui.h>
-#include <gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <external/imgui/imgui_internal.h>
 
 namespace RcEngine{
-
 
     extern const std::filesystem::path g_AssetPath = "Assets";
 
     ContentBrowserPanel::ContentBrowserPanel()
     : m_CurrentDirectory(g_AssetPath){
         m_DirectoryIcon = Texture2D::Create("Assets/Icons/ContentBrowser/DirectoryIcon.png");
-        m_FileIcon =Texture2D::Create("Assets/Icons/ContentBrowser/FileIcon.png");
+        m_FileIcon = Texture2D::Create("Assets/Icons/ContentBrowser/FileIcon.png");
     }
 
     void ContentBrowserPanel::OnImGuiRender()
     {
         ImGui::Begin("Content Browser");
 
+        if(ImGui::BeginPopupContextWindow(nullptr,1,false)){
+            if(ImGui::MenuItem("Open in file explorer")){
+                FileDialogs::OpenExplorer(m_CurrentDirectory.c_str());
+            }
+            ImGui::EndPopup();
+        }
+
         if(m_CurrentDirectory != std::filesystem::path(g_AssetPath)){
             if(ImGui::Button("<-")){
                 m_CurrentDirectory = m_CurrentDirectory.parent_path();
             }
         }
+        ImGui::TextWrapped("Directory: %s",m_CurrentDirectory.c_str());
+        ImGui::Separator();
         static float padding = 16.0f;
         static float thumbnailSize = 128.0f;
         float cellSize = thumbnailSize + padding;
@@ -38,7 +47,7 @@ namespace RcEngine{
         if(columnCount < 1)
             columnCount = 1;
 
-        ImGui::Columns(columnCount,0, false);
+        ImGui::Columns(columnCount,nullptr, false);
 
         for(auto& directoryEntry: std::filesystem::directory_iterator(m_CurrentDirectory)){
             const auto& path = directoryEntry.path();
@@ -53,7 +62,9 @@ namespace RcEngine{
                                {thumbnailSize, thumbnailSize},{0,1},{1,0});
 
             if(ImGui::BeginDragDropSource()){
-                const auto* itemPath = reinterpret_cast<const wchar_t *>(relativePath.c_str());
+                std::string w_stringPath  = relativePath.string();
+                std::wstring w_relativePath = std::wstring(w_stringPath.begin(),w_stringPath.end());
+                const wchar_t* itemPath = w_relativePath.c_str();
                 ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM",itemPath,
                                           (wcslen(itemPath)+1)* sizeof(wchar_t));
                 ImGui::Text("%s", relativePath.c_str());

@@ -11,12 +11,16 @@
 #include "external/imguizmo/ImGuizmo.h"
 
 
-#include <gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "RcEngine/Math/Math.h"
 
 #include <external/glm/glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
+#include "Platform/processordetection.h"
+
 namespace RcEngine{
+
+    extern const std::filesystem::path g_AssetPath; 
 
     EditorLayer::EditorLayer():
             Layer("RcGameEngine2D"),
@@ -183,7 +187,8 @@ namespace RcEngine{
         if(mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
         {
             int pixelData = m_FrameBuffer->ReadPixel(1,mouseX,mouseY);
-            RC_CORE_WARN("Pixel Data = {0}", pixelData);
+
+            //RC_CORE_WARN("Pixel Data = {0}", pixelData);
         }
 
         m_FrameBuffer->UnBind();
@@ -234,7 +239,7 @@ namespace RcEngine{
                 ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
                 ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
             }
-
+            bool aboutWindow = false;
             if (ImGui::BeginMenuBar()) {
                 if (ImGui::BeginMenu("File")) {
                     // Disabling fullscreen would allow the window to be moved to the front of other windows,
@@ -249,13 +254,34 @@ namespace RcEngine{
                     if(ImGui::MenuItem("Open...","Ctrl+O")){
                         OpenScene();
                     }
+                    if(ImGui::MenuItem("About...")){
+                            aboutWindow = true;
+                        }
 
-                    if (ImGui::MenuItem("Exit")) RcEngine::Application::Get().Close();
+                     if (ImGui::MenuItem("Exit")) RcEngine::Application::Get().Close();
                     ImGui::EndMenu();
                 }
 
                 ImGui::EndMenuBar();
             }
+
+            if(aboutWindow){
+                ImGui::OpenPopup("About");
+                aboutWindow = false;
+            }
+            if(ImGui::BeginPopupModal("About",nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
+                ImGui::Text("RcEngine(RcEditor) by triscuitcircuit");
+
+                ImGui::TextWrapped("CPU: %s\nCPU Speed: %d",
+                                   ProcessorDetectionBase::getCPUString().c_str(),
+                                   ProcessorDetectionBase::getCPUMaxFreq());
+                ImGui::Separator();
+                if (ImGui::Button("Close", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+
+                ImGui::EndPopup();
+            }
+
+
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0,0});
             ImGui::Begin("ViewPort");
             auto viewportOffset = ImGui::GetCursorPos();// includes tab

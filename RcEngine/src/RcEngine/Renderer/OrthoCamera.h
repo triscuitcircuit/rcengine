@@ -2,7 +2,7 @@
 // Created by Tristan Zippert on 6/6/21.
 //
 #pragma once
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 
 #ifndef RCENGINE_CLION_ORTHOCAMERA_H

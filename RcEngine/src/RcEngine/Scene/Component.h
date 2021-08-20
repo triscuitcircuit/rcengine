@@ -1,7 +1,7 @@
 //
 // Created by Tristan Zippert on 7/7/21.
 //
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 #pragma once
 #include "SceneCamera.h"
@@ -9,10 +9,10 @@
 #include "ScriptableEntity.h"
 #include "RcEngine/Renderer/Texture.h"
 
-#include "gtc/matrix_transform.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <gtx/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #ifndef RCENGINE_CLION_COMPONENT_H
 #define RCENGINE_CLION_COMPONENT_H

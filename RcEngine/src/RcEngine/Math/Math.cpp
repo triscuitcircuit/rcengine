@@ -4,7 +4,10 @@
 #include "Math.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <gtx/matrix_decompose.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+
+//IEEE representation of 1.0
+#define IEEE_1_0 0x3f800000
 
 namespace RcEngine::Math{
     bool DecomposeTransform(const glm::mat4& transform, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale)
@@ -53,17 +56,6 @@ namespace RcEngine::Math{
         // At this point, the matrix (in rows[]) is orthonormal.
         // Check for a coordinate system flip.  If the determinant
         // is -1, then negate the matrix and the scaling factors.
-#if 0
-        Pdum3 = cross(Row[1], Row[2]); // v3Cross(row[1], row[2], Pdum3);
-		if (dot(Row[0], Pdum3) < 0)
-		{
-			for (length_t i = 0; i < 3; i++)
-			{
-				scale[i] *= static_cast<T>(-1);
-				Row[i] *= static_cast<T>(-1);
-			}
-		}
-#endif
 
         rotation.y = asin(-Row[0][2]);
         if (cos(rotation.y) != 0) {
@@ -77,5 +69,11 @@ namespace RcEngine::Math{
 
 
         return true;
+    }
+    // computes 1.0f/sqrt(x) and comes from nvidia
+    float Qsqrt(const float& x ){
+        uint temp = (uint(IEEE_1_0 << 1)+ IEEE_1_0 - *(uint*)&x) >>1;
+        float y = *(float*)&temp;
+        return y *(1.47f - 0.47f * x * y * y);
     }
 }

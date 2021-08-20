@@ -7,7 +7,7 @@
 #include <filesystem>
 
 #include <external/glad/include/glad/glad.h>
-#include <gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include "Platform/OpenGL/OpenGLUtils.h"
 

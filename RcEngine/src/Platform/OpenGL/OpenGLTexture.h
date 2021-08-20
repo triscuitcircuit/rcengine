@@ -3,7 +3,7 @@
 //
 #pragma once
 #include "RcEngine/Renderer/Texture.h"
-#include <include/glad/glad.h>
+#include <glad/glad.h>
 
 #ifndef RCENGINE_CLION_OPENGLTEXTURE_H
 #define RCENGINE_CLION_OPENGLTEXTURE_H
@@ -28,6 +28,7 @@ namespace RcEngine{
         virtual bool operator==(const Texture& other) const override{
             return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID;
         }
+        virtual std::string getPath() const override{return m_Path;}
 
     private:
         std::string m_Path;

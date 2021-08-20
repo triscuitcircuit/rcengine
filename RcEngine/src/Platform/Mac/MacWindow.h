@@ -7,7 +7,7 @@
 #include "RcEngine/Renderer/GraphicsContext.h"
 
 #include <GLFW/glfw3.h>
-#include <include/glad/glad.h>
+#include <glad/glad.h>
 
 namespace RcEngine{
     class MacWindow: public Window{
