@@ -5,8 +5,8 @@
 
 #pragma once
 #include "SceneCamera.h"
+#include "RcEngine/Core/UUID.h"
 
-#include "ScriptableEntity.h"
 #include "RcEngine/Renderer/Texture.h"
 
 #include "glm/gtc/matrix_transform.hpp"
@@ -17,6 +17,11 @@
 #ifndef RCENGINE_CLION_COMPONENT_H
 #define RCENGINE_CLION_COMPONENT_H
 namespace RcEngine{
+        struct IDComponent{
+            UUID ID;
+            IDComponent() = default;
+            IDComponent(const IDComponent&) = default;
+        };
         struct MeshComponent{
             float value;
             MeshComponent() =default;
@@ -40,6 +45,16 @@ namespace RcEngine{
                         * rotation
                         * glm::scale(glm::mat4(1.0f),Scale);
             }
+
+        };
+        struct TextComponent{
+            std::string TextString;
+            float lineSpacing;
+            float Kerning;
+            float MaxWidth;
+            glm::vec4 Color{1.0f,1.0f,1.0f,1.0f};
+
+            TextComponent() = default;
 
         };
     struct SpriteRendererComponent{
@@ -77,6 +92,7 @@ namespace RcEngine{
         CameraComponent(const CameraComponent&) = default;
 
     };
+    class ScriptableEntity;
     struct NativeScriptComponent{
         ScriptableEntity* Instance = nullptr;
 
@@ -89,6 +105,43 @@ namespace RcEngine{
             DestroyScript = [](NativeScriptComponent* nsc){delete nsc->Instance; nsc->Instance = nullptr;};
         }
 
+    };
+    struct RigidBodyFlatComponent{
+        enum class BodyType {Static = 0, Kinematic = 1, Dynamic = 2};
+        BodyType Type = BodyType::Static;
+
+        bool FixedRotation = false;
+
+        void* RuntimeBody = nullptr;
+        RigidBodyFlatComponent() = default;
+        RigidBodyFlatComponent(const RigidBodyFlatComponent&) = default;
+
+    };
+    struct CircleRenderComponent{
+        glm::vec4 Color{1.0f,1.0f,1.0f,1.0f};
+        float Fade = 0.0005;
+        float Thickness = 1.0f;
+        //Ref<Texture2D> Texture;
+
+        CircleRenderComponent() = default;
+        CircleRenderComponent(const CircleRenderComponent&) = default;
+
+        operator const glm::vec4& () const {return Color;}
+        operator glm::vec4& () {return Color;}
+
+    };
+    struct BoxFlatComponent{
+
+        glm::vec2 Offset ={0.0f,0.0f};
+        glm::vec2 Size = {0.5f,0.5f};
+
+        float Density = 1.0f;
+        float Friction = 0.5f;
+        float Bounce = 0.5f, BounceThreshold = 0.5f;
+
+        void* RuntimeFixture = nullptr;
+        BoxFlatComponent() = default;
+        BoxFlatComponent(const BoxFlatComponent&) = default;
     };
 }
 #endif //RCENGINE_CLION_COMPONENT_H

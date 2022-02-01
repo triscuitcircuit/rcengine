@@ -4,8 +4,8 @@
 
 #include "OpenGLVertexArray.h"
 #include "rcpch.h"
+#include <glad/glad.h>
 
-#include <include/glad/glad.h>
 
 namespace RcEngine{
     static GLenum ShaderDataTypeToGLBase(ShaderDataType type){
@@ -45,19 +45,71 @@ namespace RcEngine{
         glBindVertexArray(m_RendererID);
         vertexBuffer->Bind();
 
-        uint32_t index =0;
         const auto& layout = vertexBuffer->GetLayout();
         RC_CORE_INFO("___VERTEX ATTRIB____");
         for(const auto& element: layout){
-            glEnableVertexAttribArray(index);
-            glVertexAttribPointer(index,element.GetCompCount(),
-                                  ShaderDataTypeToGLBase(element.Type)
-                    , element.Normalized? GL_TRUE: GL_FALSE
-                    , layout.GetStride(), (const void*)element.Offset);
-            RC_CORE_INFO("index {}: comp count:{}, Type:{}, layout:{} ,offset {}",
-                         index, element.GetCompCount(), ShaderDataTypeToGLBase(element.Type),
-                         layout.GetStride(),  element.Offset);
-            index++;
+            switch (element.Type) {
+                case ShaderDataType::Float:
+                case ShaderDataType::Float2:
+                case ShaderDataType::Float3:
+                case ShaderDataType::Float4:
+                {
+                    glEnableVertexAttribArray(m_VertexBufferIndex);
+                    glVertexAttribPointer(m_VertexBufferIndex,element.GetCompCount(),
+                                          ShaderDataTypeToGLBase(element.Type)
+                            , element.Normalized? GL_TRUE: GL_FALSE
+                            , layout.GetStride(), (const void*)element.Offset);
+
+
+                    RC_CORE_INFO("index {}: comp count:{}, Type:{}, layout:{} ,offset {}",
+                                 m_VertexBufferIndex, element.GetCompCount(), ShaderDataTypeToGLBase(element.Type),
+                                 layout.GetStride(),  element.Offset);
+
+                    m_VertexBufferIndex++;
+                    break;
+                }
+                case ShaderDataType::Int:
+                case ShaderDataType::Int2:
+                case ShaderDataType::Int3:
+                case ShaderDataType::Int4:
+                case ShaderDataType::Bool:
+                {
+                    glEnableVertexAttribArray(m_VertexBufferIndex);
+                    glVertexAttribPointer(m_VertexBufferIndex,
+                                          element.GetCompCount(),
+                                          ShaderDataTypeToGLBase(element.Type),
+                                          element.Normalized? GL_TRUE: GL_FALSE
+                            , layout.GetStride()
+                            ,(const void*)element.Offset);
+
+
+                    RC_CORE_INFO("index {}: comp count:{}, Type:{}, layout:{} ,offset {}",
+                                 m_VertexBufferIndex, element.GetCompCount(), ShaderDataTypeToGLBase(element.Type),
+                                 layout.GetStride(),  element.Offset);
+
+                    m_VertexBufferIndex++;
+                    break;
+
+                }
+                case ShaderDataType::Mat3:
+                case ShaderDataType::Mat4:{
+                    uint8_t count = element.GetCompCount();
+                    for(uint8_t i=0; i< count ; i++){
+                        glEnableVertexAttribArray(m_VertexBufferIndex);
+                        glVertexAttribPointer(m_VertexBufferIndex,
+                                              count,
+                                              ShaderDataTypeToGLBase(element.Type),
+                                              element.Normalized? GL_TRUE : GL_FALSE,
+                                              layout.GetStride(),
+                                              (const void*)(element.Offset + sizeof(float)* count *i));
+                        glVertexAttribDivisor(m_VertexBufferIndex,1);
+                        m_VertexBufferIndex++;
+                    }
+                    break;
+                }
+                default: RC_CORE_ASSERT(false,"Unknown ShaderType");
+
+            }
         }
         m_VertexBuffers.push_back(vertexBuffer);
 

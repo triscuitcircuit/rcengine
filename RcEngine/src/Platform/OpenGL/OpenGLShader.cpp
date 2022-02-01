@@ -5,8 +5,11 @@
 #include "OpenGLShader.h"
 #include "rcpch.h"
 #include <filesystem>
+#include <spirv_cross/spirv_cross.hpp>
+#include <spirv_cross//spirv_glsl.hpp>
+#include <shaderc/shaderc.h>
 
-#include <external/glad/include/glad/glad.h>
+#include <../external/glad/include/glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include "Platform/OpenGL/OpenGLUtils.h"
@@ -25,6 +28,9 @@ namespace RcEngine{
 
         std::string source = ReadFile(filepath);
         auto shaderSources = PreProcess(source);
+
+
+
         Compile(shaderSources);
 
         // Assets/Shaders/TextureCombined.glsl
@@ -179,7 +185,7 @@ namespace RcEngine{
         RC_PROFILE_FUNCTION();
         UploadUniformFloat4(name,value);
     }
-    void OpenGLShader::SetMat4(const std::string& name, const glm::mat4 value) {
+    void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value) {
         RC_PROFILE_FUNCTION();
         UploadUniformMat4(name,value);
     }

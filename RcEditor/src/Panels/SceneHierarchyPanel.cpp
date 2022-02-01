@@ -5,10 +5,11 @@
 #include "SceneHierarchyPanel.h"
 #include "RcEngine/Scene/Component.h"
 
-
-#include <external/imgui/imgui.h>
+#include <../imgui/imgui.h>
+#include <../imgui/imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <external/imgui/imgui_internal.h>
+
+//#include "RcEngine/ImGui/CustomWidgets.h"
 
 namespace RcEngine{
     extern const std::filesystem::path g_AssetPath;
@@ -50,18 +51,46 @@ namespace RcEngine{
             if(ImGui::Button("Add Component"))
                 ImGui::OpenPopup("AddComponent");
 
-            if(ImGui::BeginPopup("AddComponent")){
+            if(ImGui::BeginPopup("AddComponent")) {
 
-                if(ImGui::MenuItem("Camera")){
-                    m_Selected.AddComponent<CameraComponent>();
+                if (!m_Selected.HasComponent<CameraComponent>()) {
+                    if (ImGui::MenuItem("Camera")) {
+                        m_Selected.AddComponent<CameraComponent>();
 
-                    ImGui::CloseCurrentPopup();
+                        ImGui::CloseCurrentPopup();
+                    }
                 }
-                if(ImGui::MenuItem("Sprite")){
-                    m_Selected.AddComponent<SpriteRendererComponent>();
 
-                    ImGui::CloseCurrentPopup();
+                if (!m_Selected.HasComponent<SpriteRendererComponent>()) {
+                    if (ImGui::MenuItem("Sprite")) {
+                        m_Selected.AddComponent<SpriteRendererComponent>();
+
+                        ImGui::CloseCurrentPopup();
+                    }
                 }
+
+                if (!m_Selected.HasComponent<RigidBodyFlatComponent>()) {
+                    if (ImGui::MenuItem("RigidBody 2D")) {
+                        m_Selected.AddComponent<RigidBodyFlatComponent>();
+
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+                if (!m_Selected.HasComponent<BoxFlatComponent>()) {
+                    if (ImGui::MenuItem("Box Collider 2D")) {
+                        m_Selected.AddComponent<BoxFlatComponent>();
+
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+                if (!m_Selected.HasComponent<CircleRenderComponent>()) {
+                    if (ImGui::MenuItem("Circle Component")) {
+                        m_Selected.AddComponent<CircleRenderComponent>();
+
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+
                 ImGui::EndPopup();
             }
 
@@ -74,6 +103,7 @@ namespace RcEngine{
         ImGuiTreeNodeFlags flags = ((m_Selected == entity)? ImGuiTreeNodeFlags_Selected : 0)
                 | ImGuiTreeNodeFlags_OpenOnArrow |ImGuiTreeNodeFlags_Framed;
         flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity,flags, "%s", tc.c_str());
         if(ImGui::IsItemClicked()){
             m_Selected = entity;
@@ -85,6 +115,13 @@ namespace RcEngine{
             }
             ImGui::EndPopup();
         }
+        if(ImGui::BeginPopupContextItem()){
+            if(ImGui::MenuItem("Duplicate Entity")){
+                m_Scene->DuplicateEntity(m_Selected);
+            }
+            ImGui::EndPopup();
+        }
+
 
         if(opened){
             ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -96,7 +133,7 @@ namespace RcEngine{
         }
         if(entityDeleted){
             m_Scene->DestroyEntity(entity);
-            if(m_Selected ==entity){
+            if(m_Selected == entity){
                 m_Selected = {};
             }
         }
@@ -315,7 +352,7 @@ namespace RcEngine{
         DrawComponent<SpriteRendererComponent>("Sprite Renderer",entitySelection,[](auto& comp){
             ImGui::ColorEdit4("Color",glm::value_ptr(comp.Color));
             //texture
-
+        //    CustomWidget::ColorPicker4("Color",setCol_ESP, 0);
             ImGui::Button("Texture",ImVec2(100.0f, 0.0f));
             if(ImGui::BeginDragDropTarget()){
                 if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
@@ -323,12 +360,67 @@ namespace RcEngine{
                         std::filesystem::path texturePath = std::filesystem::path(g_AssetPath)/path;
                         comp.Texture = Texture2D::Create(texturePath.c_str());
                 }
+
                 ImGui::EndDragDropTarget();
+            }
+            if(comp.Texture != nullptr){
+                auto& tex = comp.Texture;
+                ImGui::Text("Texture File: %s",tex->getPath().c_str());
+
+                ImGui::Image((void*)tex->GetRendererID(),ImVec2(200.0,200.0),
+                             ImVec2{0,0}, ImVec2{1,1},
+                             ImColor(255,255,255,255), ImColor(255,255,255,128));
             }
 
             ImGui::DragFloat("Tiling Factor",&comp.TilingFactor, 0.1f, 0.0f, 100.0f);
 
         });
+        DrawComponent<CircleRenderComponent>("Sprite Renderer",entitySelection,[](auto& comp){
+            ImGui::ColorEdit4("Color",glm::value_ptr(comp.Color));
+
+            ImGui::DragFloat("Thickness",&comp.Thickness, 0.025f, 0.0f, 1.0f);
+            ImGui::DragFloat("Fade",&comp.Fade, 0.1f, 0.025f, 1.0f);
+
+
+        });
+        DrawComponent<RigidBodyFlatComponent>("RigidBody Collider 2D",entitySelection, [](auto& component){
+
+            const char* bodyTypeStrings[] = {"Static", "Kinematic", "Dynamic"};
+            const char* currentBodyTypeString = bodyTypeStrings[(int)component.Type];
+
+
+
+            if(ImGui::BeginCombo("Type",currentBodyTypeString)){
+
+                for(int i =0; i< 3; ++i){
+                    bool isSelected = currentBodyTypeString == bodyTypeStrings[i];
+                    if(ImGui::Selectable(bodyTypeStrings[i], isSelected)){
+                        currentBodyTypeString = bodyTypeStrings[i];
+                        component.Type = (RigidBodyFlatComponent::BodyType)i;
+                    }
+
+                    if(isSelected){
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+
+                ImGui::EndCombo();
+            }
+            ImGui::Checkbox("Fixed Rotation",&component.FixedRotation);
+        });
+        DrawComponent<BoxFlatComponent>("Box Collider 2D",entitySelection, [](auto& component){
+
+            ImGui::DragFloat2("Offset ",glm::value_ptr(component.Offset));
+            ImGui::DragFloat2("Size ",glm::value_ptr(component.Size));
+
+            ImGui::DragFloat("Density ",&component.Density,0.01f,0.0f,1.0f);
+            ImGui::DragFloat("Friction ",&component.Friction,0.01f,0.0f,1.0f);
+            ImGui::DragFloat("Restitution ",&component.Bounce,0.01f,0.0f,1.0f);
+            ImGui::DragFloat("Restitution Threshold",&component.BounceThreshold,0.01f,0.0f);
+
+        });
+
+
 
     }
 

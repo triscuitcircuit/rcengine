@@ -4,6 +4,8 @@
 #pragma once
 
 #include "Scene.h"
+#include "RcEngine/Core/UUID.h"
+#include "Component.h"
 #include "external/entt/include/entt.hpp"
 
 #ifndef RCENGINE_CLION_ENTITY_H
@@ -38,6 +40,8 @@ namespace RcEngine{
             RC_CORE_ASSERT(HasComponent<T>(), "Entity does not have component");
             m_Scene->m_Registry.remove<T>(m_EntityHandle);
         }
+
+        UUID GetUUID() {return GetComponent<IDComponent>().ID;}
 
         operator bool() const{return m_EntityHandle != entt::null;}
 

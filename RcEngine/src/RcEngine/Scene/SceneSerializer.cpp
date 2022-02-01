@@ -13,7 +13,26 @@
 #include <fstream>
 
 namespace YAML {
+    template<>
+    struct convert<glm::vec2>{
+        static Node encode(const glm::vec2& rhs)
+        {
+            Node node;
+            node.push_back(rhs.x);
+            node.push_back(rhs.y);
+            node.SetStyle(EmitterStyle::Flow);
+            return node;
+        }
+        static bool decode(const Node& node, glm::vec2& rhs)
+        {
+            if (!node.IsSequence() || node.size() != 2)
+                return false;
+            rhs.x = node[0].as<float>();
+            rhs.y = node[1].as<float>();
+            return true;
+        }
 
+    };
     template<>
     struct convert<glm::vec3>
     {
@@ -68,6 +87,25 @@ namespace YAML {
 
 }
 namespace RcEngine{
+    static std::string RigidBodyFlatBodyTypeToString(RigidBodyFlatComponent::BodyType bodyType){
+        switch (bodyType){
+            case RigidBodyFlatComponent::BodyType::Dynamic: return "Dynamic";
+            case RigidBodyFlatComponent::BodyType::Kinematic : return "Kinematic";
+            case RigidBodyFlatComponent::BodyType::Static : return "Static";
+        }
+        RC_CORE_ASSERT(false,"Unknown RigidBody Type");
+        return {};
+    }
+    static RigidBodyFlatComponent::BodyType RigidBodyFlatBodyTypeFromString(const std::string& bodyType){
+        if(bodyType == "Dynamic") return RigidBodyFlatComponent::BodyType::Dynamic;
+        if(bodyType == "Kinematic") return RigidBodyFlatComponent::BodyType::Kinematic;
+        if(bodyType == "Static") return RigidBodyFlatComponent::BodyType::Static;
+
+        RC_CORE_ASSERT(false,"Unknown RigidBody Type");
+        return {};
+    }
+
+
     YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& v){
         out << YAML::Flow;
         out << YAML::BeginSeq << v.x << v.y << v.z << YAML::EndSeq;
@@ -76,6 +114,11 @@ namespace RcEngine{
     YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec4& v){
         out << YAML::Flow;
         out << YAML::BeginSeq << v.x << v.y << v.z << v.w << YAML::EndSeq;
+        return out;
+    }
+    YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& v){
+        out << YAML::Flow;
+        out << YAML::BeginSeq << v.x << v.y << YAML::EndSeq;
         return out;
     }
 
@@ -102,9 +145,11 @@ namespace RcEngine{
     }
 
     static void SerializeEntity(YAML::Emitter& out, Entity entity1){
+        RC_CORE_ASSERT(entity1.HasComponent<IDComponent>(),"ID component already generated");
+
         out << YAML::BeginMap;
         out << YAML::Key << "Entity";
-        out << YAML::Value << "23124232"; // Entity ID
+        out << YAML::Value << entity1.GetUUID(); // Entity ID
 
         if(entity1.HasComponent<TagComponent>()){
             out << YAML::Key << "TagComponent";
@@ -162,11 +207,37 @@ namespace RcEngine{
                 out << YAML::Key << "TextureFile" << YAML::Value << spriteRenderer.Texture->getPath();
             out << YAML::EndMap;
         }
+        if(entity1.HasComponent<RigidBodyFlatComponent>()){
+            out <<YAML::Key << "RigidBodyFlatComponent";
+            out <<YAML::BeginMap;
 
+            auto& RigidBod = entity1.GetComponent<RigidBodyFlatComponent>();
+
+            out << YAML::Key << "BodyType" << YAML::Value << RigidBodyFlatBodyTypeToString(RigidBod.Type);
+            out << YAML::Key << "FixedRotation" << YAML::Value << RigidBod.FixedRotation;
+
+            out << YAML::EndMap;
+
+        }
+        if(entity1.HasComponent<BoxFlatComponent>()){
+            out <<YAML::Key << "BoxFlatComponent";
+            out <<YAML::BeginMap;
+
+            auto& BoxFlat = entity1.GetComponent<BoxFlatComponent>();
+
+            out << YAML::Key << "Offset" << BoxFlat.Offset;
+            out << YAML::Key << "Size" << BoxFlat.Size;
+
+            out << YAML::Key << "Density" << YAML::Value << BoxFlat.Density;
+            out << YAML::Key << "Friction" << YAML::Value << BoxFlat.Friction;
+            out << YAML::Key << "Bounce" << YAML::Value << BoxFlat.Bounce;
+            out << YAML::Key << "BounceThreshold" << YAML::Value << BoxFlat.BounceThreshold;
+
+            out << YAML::EndMap;
+        }
 
 
         out << YAML::EndMap; // Entity Map
-
 
 
     }
@@ -248,14 +319,41 @@ namespace RcEngine{
                 }
 
                 auto spriteRendererComponent = entity["SpriteRendererComp"];
+
                 if (spriteRendererComponent)
                 {
                     auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();
                     src.Color = spriteRendererComponent["Color"].as<glm::vec4>();
-                    auto texturein = spriteRendererComponent["TextureFile"].as<std::string>();
-                    // we need to check if the file exists and cant rely on catching the error
-                    if(std::filesystem::exists(texturein))
-                        src.Texture = Texture2D::Create(texturein.c_str());
+
+                    auto textureDe =  spriteRendererComponent["TextureFile"];
+                    if(textureDe) {
+                        auto texturein = textureDe.as<std::string>();
+                        // we need to check if the file exists and can't rely on catching the error
+                        if (std::filesystem::exists(texturein))
+                            src.Texture = Texture2D::Create(texturein.c_str());
+                    }
+                }
+
+                auto BoxComp = entity["BoxFlatComponent"];
+
+                if(BoxComp){
+                    auto& src = deserializedEntity.AddComponent<BoxFlatComponent>();
+                    src.Offset = BoxComp["Offset"].as<glm::vec2>();
+                    src.Size = BoxComp["Size"].as<glm::vec2>();
+
+                    src.Density = BoxComp["Density"].as<float>();
+                    src.Friction = BoxComp["Density"].as<float>();
+                    src.Bounce = BoxComp["Bounce"].as<float>();
+                    src.Bounce = BoxComp["BounceThreshold"].as<float>();
+                }
+                auto RigidComp = entity["RigidBodyFlatComponent"];
+
+                if(RigidComp){
+                    auto& src = deserializedEntity.AddComponent<RigidBodyFlatComponent>();
+
+                    src.Type = RigidBodyFlatBodyTypeFromString(RigidComp["BodyType"].as<std::string>());
+                    src.FixedRotation = RigidComp["FixedRotation"].as<bool>();
+
                 }
 
             }
@@ -265,5 +363,13 @@ namespace RcEngine{
     bool SceneSerializer::DeSerializeRuntime(const std::string &filepath) {
         RC_CORE_ASSERT("",false);
         return false;
+    }
+    void SceneSerializer::SerializeExport(const std::string& filepath){
+
+        std::fstream file(filepath, std::ios::in | std::ios::binary);
+        file.write((char*)&m_Scene,sizeof(m_Scene));
+        file.close();
+
+        return;
     }
 }

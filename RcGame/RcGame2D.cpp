@@ -144,6 +144,7 @@ void RcGame2D::OnUpdate(RcEngine::Timestep ts) {
 void RcGame2D::OnImGuiRender() {
     RC_PROFILE_FUNCTION();
     ImGui::Begin("Settings");
+
     ImGui::ColorEdit4("Square color", glm::value_ptr(m_SquareColor) );
     ImGui::ColorEdit4("Texture color",glm::value_ptr(m_TextureColor));
     ImGui::SliderFloat("Texture Tiling: ", &m_TextureTile, -5.0f, 20.0f);

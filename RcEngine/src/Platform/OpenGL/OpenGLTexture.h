@@ -15,6 +15,8 @@ namespace RcEngine{
         OpenGLTexture2D(uint32_t width, uint32_t height);
         OpenGLTexture2D(const char* path);
 
+        void CreateCubeMap(bool with_mipmap);
+
         virtual ~OpenGLTexture2D();
 
         virtual void SetData(void* data, uint32_t size, uint32_t slot =0) const override;

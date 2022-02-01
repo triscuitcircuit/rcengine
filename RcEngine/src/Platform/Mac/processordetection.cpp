@@ -17,6 +17,7 @@ namespace RcEngine{
     int32_t ProcessorDetectionBase::getCPUMaxFreq() {
         int32_t freq;
         size_t bufferlen = sizeof(freq);
+        // TODO: deal with M1 issue
         sysctlbyname("hw.cpufrequency_max", &freq, &bufferlen, nullptr, 0);
         return freq;
     }

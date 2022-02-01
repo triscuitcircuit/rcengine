@@ -18,6 +18,8 @@ namespace RcEngine{
 
             bool DeSerialize(const std::string& filepath);
             static bool DeSerializeRuntime(const std::string& filepath);
+
+            void SerializeExport(const std::string& filepath);
         private:
             Ref<Scene> m_Scene;
         };

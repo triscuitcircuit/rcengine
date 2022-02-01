@@ -17,6 +17,8 @@ namespace RcEngine{
 
         Ref<Texture2D> m_DirectoryIcon;
         Ref<Texture2D> m_FileIcon;
+
+
     };
 }
 #endif //RCENGINE_CONTENTBROWSERPANEL_H

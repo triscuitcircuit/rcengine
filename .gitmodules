@@ -28,3 +28,12 @@
 [submodule "RcEngine/external/imguizmo"]
 	path = RcEngine/external/imguizmo
 	url = https://github.com/triscuitcircuit/ImGuizmo
+[submodule "RcEngine/external/box2d"]
+	path = RcEngine/external/box2d
+	url = https://github.com/triscuitcircuit/box2d
+[submodule "RcEngine/external/sol2"]
+	path = RcEngine/external/sol2
+	url = https://github.com/triscuitcircuit/sol2
+[submodule "RcEngine/external/lua"]
+	path = RcEngine/external/lua
+	url = https://github.com/triscuitcircuit/lua-cmake

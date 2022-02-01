@@ -22,18 +22,27 @@ namespace RcEngine{
         void OnEvent(Event& e) override;
     private:
         bool OnKeyPressed(KeyPressedEvent& e );
+        bool OnMouseScroll(MouseScrolledEvent& e);
 
         void NewScene();
         void OpenScene();
+        void OpenScene(const std::filesystem::path& path);
         void SaveAs();
+
+        void OnScenePlay();
+        void OnSceneStop();
+        void OnSceneEdit();
+
+
+        //UI specific functions
+        void UI_Toolbar();
+
+
+
     private:
         OrthoCameraController m_CameraController;
 
-        Ref<RcEngine::Shader> m_FlatColorShader;
-        Ref<RcEngine::VertexArray> m_SquareVA;
         Ref<RcEngine::FrameBuffer> m_FrameBuffer;
-
-        float m_TextureTile = 1.0f, m_Rotation =0.0f;
 
         glm::vec4  m_SquareColor = {0.8f,0.0f,0.0f,1.0f};
         glm::vec4  m_TextureColor = {0.2f,0.3f,0.8f,1.0f};
@@ -48,6 +57,8 @@ namespace RcEngine{
         Entity m_CameraEntity;
         Entity m_SecondCamera;
         Ref<Scene> m_ActiveScene;
+        Ref<Scene> m_EditorScene;
+        std::filesystem::path m_EditorScenePath;
 
         struct ProfileResult{
             const char* Name;
@@ -62,10 +73,20 @@ namespace RcEngine{
         SceneHierarchyPanel m_Panel;
         ContentBrowserPanel m_ContentBrowserPanel;
 
+        //editor menu
+        Ref<Texture2D> m_IconPlay,m_StopPlay;
+
         //Script
         std::string m_ScriptString;
 
         int m_GizmoType = -1;
+
+        enum class SceneState{
+            Edit =0, Play =1
+        };
+        SceneState m_SceneState = SceneState::Edit;
+
+
 
     };
 }

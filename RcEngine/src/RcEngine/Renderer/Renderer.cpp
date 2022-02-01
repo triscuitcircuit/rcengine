@@ -1,7 +1,7 @@
 //
 // Created by Tristan Zippert on 5/27/21.
 //
-#include "rcpch.h"
+#include    "rcpch.h"
 #include "Renderer.h"
 #include "RenderCommand.h"
 
@@ -33,10 +33,8 @@ namespace RcEngine{
 
         shader->Bind();
 
-        std::dynamic_pointer_cast<OpenGLShader>(shader)->
-                UploadUniformMat4("u_ViewProjection",m_SceneData->ViewProjectionMatrix);
-        std::dynamic_pointer_cast<OpenGLShader>(shader)->
-                UploadUniformMat4("u_Transform", transform);
+        shader->SetMat4("u_ViewProjection",m_SceneData->ViewProjectionMatrix);
+        shader->SetMat4("u_Transform", transform);
 
 
         vertexArray->Bind();

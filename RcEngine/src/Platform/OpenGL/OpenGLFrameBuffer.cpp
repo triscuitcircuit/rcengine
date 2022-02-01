@@ -41,6 +41,8 @@ namespace RcEngine{
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+index, TextureTarget(multisampled), id,0);
             }
         static void AttachDepthTexture(uint32_t id, int samples, GLenum format, GLenum attachmentType, uint32_t width, uint32_t height){
+           //TODO:figure out the issue with depth testing in the framebuffer
+           //I think that the internal format is not matching with the format being passed in
             bool multisampled = samples >1;
             if(multisampled){
                 glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE,samples, format, width, height, GL_FALSE);
@@ -112,12 +114,6 @@ namespace RcEngine{
                                                   m_Specification.Samples, GL_R32I, GL_RED_INTEGER,
                                                   m_Specification.Width,m_Specification.Height,i);
                         break;
-                    case FrameBufferTextureFormat::None:
-                        break;
-                    case FrameBufferTextureFormat::RGBA16F:
-                        break;
-                    case FrameBufferTextureFormat::DEPTH24STENCIL8:
-                        break;
                 }
             }
         }
@@ -126,6 +122,8 @@ namespace RcEngine{
             Utils::BindTexture(multisampled,m_DepthAttachment);
             switch(m_DepthAttachmentSpec.TextureFormat){
                 case FrameBufferTextureFormat::DEPTH24STENCIL8:
+//                    Utils::AttachDepthTexture(m_DepthAttachment,m_Specification.Samples,GL_DEPTH24_STENCIL8,GL_DEPTH_ATTACHMENT,
+//                                              m_Specification.Width, m_Specification.Height);
                     Utils::AttachColorTexture(m_DepthAttachment,
                                               m_Specification.Samples,GL_DEPTH24_STENCIL8,GL_DEPTH24_STENCIL8,
                                               GL_DEPTH_STENCIL_ATTACHMENT,m_Specification.Width,m_Specification.Height);
@@ -141,7 +139,13 @@ namespace RcEngine{
         }else if(m_ColorAttachments.empty()){
             glDrawBuffer(GL_NONE);
         }
-        RC_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,"Framebuffer incomplete");
+
+        if(!(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)){
+
+            RC_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,
+                           "Framebuffer incomplete");
+
+        }
 
         glBindFramebuffer(GL_FRAMEBUFFER,0);
     }

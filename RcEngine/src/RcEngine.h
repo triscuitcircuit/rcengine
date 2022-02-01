@@ -22,20 +22,22 @@
 #include <external/GLFW/include/GLFW/glfw3.h>
 #include <external/imgui/imgui.h>
 
-#include "RcEngine/Core/Application.h"
-#include "RcEngine/Core/Log.h"
-#include "RcEngine/Core/Layer.h"
 
 #include "RcEngine/Scene/Scene.h"
 #include "RcEngine/Scene/Entity.h"
 #include "RcEngine/Scene/ScriptableEntity.h"
 #include "RcEngine/Scene/Component.h"
 
-#include "RcEngine/Core/Timestep.h"
+///CORE////////////////////////////////
+#include "RcEngine/Core/Application.h"
+#include "RcEngine/Core/Log.h"
+#include "RcEngine/Core/Layer.h"
 
+#include "RcEngine/Core/Timestep.h"
 #include "RcEngine/Core/MouseButtonCodes.h"
 #include "RcEngine/Core/keycodes.h"
 #include "RcEngine/Core/Input.h"
+///////////////////////////////////////
 
 #include "RcEngine/ImGui/ImGuiLayer.h"
 
@@ -58,11 +60,14 @@
 #include "Platform/processordetection.h"
 ///////////////////////////////////////
 
-
 ///OPENGL//////////////////////////////
 #include "Platform/OpenGL/OpenGLUtils.h"
 ///////////////////////////////////////
 
 ///Network/////////////////////////////
 #include "RcEngine/Network/Network.h"
+///////////////////////////////////////
+
+///LUA/////////////////////////////////
+#include "RcEngine/Lua/luastate.h"
 ///////////////////////////////////////

@@ -4,6 +4,7 @@ set(LANGUAGES C CXX)
 
 option(RCENGINE_RENDER_METAL "Build RcEngine with Metal on MacOS only" OFF)
 option(RCENGINE_RENDER_OPENGL "Build RcEngine with OpenGL" ON)
+option(RCENGINE_RENDER_VK "Build RcEngine with Vulkan" OFF)
 
 if(APPLE)
     message(STATUS "Including Objective-C++ for APPLE")
@@ -21,18 +22,24 @@ file(GLOB source_headers
         "external/imgui/*.cpp")
 
 include_directories("external/imgui")
+include_directories("external/box2d")
 include_directories(SYSTEM "external/glad/include")
 include_directories(SYSTEM "external/entt/include")
-include_directories("src")
+include_directories(SYSTEM "src")
 
 add_subdirectory(external/imguizmo)
 add_subdirectory(external/glm)
 add_subdirectory(external/spdlog)
 add_subdirectory(external/imgui)
 add_subdirectory(external/SOIL2)
+add_subdirectory(external/sol2)
 add_subdirectory(external/yaml-cpp)
 add_subdirectory(external/glad)
-
+add_subdirectory(external/lua)
+#BOX2D-------------------------------------------
+set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/box2d)
 #GLFW--------------------------------------------
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -62,7 +69,10 @@ if(APPLE)
             src/Platform/Mac/MacWindow.cpp
             src/Platform/Mac/MacWindow.h
             src/Platform/Mac/MacUtils.mm
-            src/Platform/Mac/processordetection.cpp)
+            src/Platform/Mac/processordetection.cpp
+#            src/RcEngine/ImGui/CustomWidgets.h
+#            src/RcEngine/ImGui/CustomWidgets.mm
+            )
 
     file(GLOB_RECURSE METAL "src/Platform/Metal/*.cpp" "src/Platform/Metal/*.h")
 
@@ -136,7 +146,10 @@ set(CORE
         src/RcEngine/Core/Assert.h src/RcEngine/Core/Core.h
         src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
         src/RcEngine/Core/Timestep.h src/RcEngine/Core/Window.cpp src/RcEngine/Math/Math.cpp
-        src/RcEngine/Math/Math.h)
+        src/RcEngine/Math/Math.h src/RcEngine/Core/UUID.h src/RcEngine/Core/UUID.cpp)
+#EDITOR------------------------------------------------------------
+set(EDITOR
+        src/RcEngine/Editor/EditorConsolePanel.h src/RcEngine/Editor/EditorConsole/EditorConsoleSink.h)
 #OPENGL------------------------------------------------------------
 set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLUtils.cpp src/Platform/OpenGL/OpenGLUtils.h
@@ -150,7 +163,12 @@ set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLUniformBuffer.cpp src/Platform/OpenGL/OpenGLUniformBuffer.h)
 #VULKAN------------------------------------------------------------
 set(VK_CXT
-        src/Platform/Vulkan/VKBuffer.cpp src/Platform/Vulkan/VKBuffer.h)
+        src/Platform/Vulkan/VKBuffer.cpp src/Platform/Vulkan/VKBuffer.h
+        src/Platform/Vulkan/VKUtils.h src/Platform/Vulkan/VKUtils.cpp
+        src/Platform/Vulkan/VKUniformBuffer.cpp src/Platform/Vulkan/VKUniformBuffer.h src/Platform/Vulkan/VKTexture.cpp src/Platform/Vulkan/VKTexture.h)
+#METAL-------------------------------------------------------------
+set(MTL_CXT
+        src/Platform/Metal/MetalImplementation.h src/Platform/Metal/MetalResource.h)
 #SCENE-------------------------------------------------------------
 set(SCENE
         src/RcEngine/Scene/Scene.h
@@ -159,6 +177,8 @@ set(SCENE
         src/RcEngine/Scene/Entity.cpp src/RcEngine/Scene/SceneCamera.h
         src/RcEngine/Scene/SceneCamera.cpp src/RcEngine/Scene/ScriptableEntity.h
         src/RcEngine/Scene/SceneSerializer.cpp src/RcEngine/Scene/SceneSerializer.h)
+set(LUA
+        src/RcEngine/Lua/luastate.h src/RcEngine/Lua/luastate.cpp)
 #UTILS-------------------------------------------------------------
 set(UTILS
         src/RcEngine/Utils/PlatformUtils.h)
@@ -173,10 +193,11 @@ endif(APPLE)
 set(PCH
         src/rcpch.h)
 #------------------------------------------------------------------
-add_library(rcengine STATIC
-        #${PCH}
+add_library(RcEngine STATIC
         ${CORE}
+        ${LUA}
         ${RENDERER}
+        ${EDITOR}
         ${OPENGL_CXT}
         ${VK_CXT}
         ${SOURCE_FILES}
@@ -187,6 +208,7 @@ add_library(rcengine STATIC
         ${NETWORK}
         ${SCENE}
         ${UTILS}
+        ${MTL_CXT}
         )
 #------------------------------------------------------------------
 if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
@@ -197,11 +219,14 @@ if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
 endif()
 #------------------------------------------------------------------
 
-target_precompile_headers(rcengine PRIVATE src/rcpch.h)
+target_precompile_headers(RcEngine PRIVATE src/rcpch.h)
 
 #link with libraries-------------------
 find_package(OpenGL REQUIRED)
+find_package(Lua51 REQUIRED)
 find_package(Vulkan REQUIRED)
+
+#find_package(Mono)
 
 #Rust library link---------------------
 if(APPLE)
@@ -217,9 +242,10 @@ if(APPLE)
 endif()
 #--------------------------------------
 
-target_link_libraries(rcengine
+target_link_libraries(RcEngine
         glfw
         glm::glm
+        box2d
         glad
         spdlog
         OpenGL::GL
@@ -228,15 +254,14 @@ target_link_libraries(rcengine
         yaml-cpp
         imguizmo
         Vulkan::Vulkan
+        sol2
+        lua::lib
         )
 
 if(APPLE)
-    target_link_libraries(rcengine
+    target_link_libraries(RcEngine
             rc_network
             )
-        set_source_files_properties(${METAL} PROPERTIES
-                COMPILE_FLAGS "-x objective-c++ ")
-    set_property(TARGET rcengine APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 endif()
 #--------------------------------------
-target_include_directories(rcengine PUBLIC $(CMAKE_CURRENT_SOURCE_DIR))
+target_include_directories(RcEngine PUBLIC $(CMAKE_CURRENT_SOURCE_DIR))

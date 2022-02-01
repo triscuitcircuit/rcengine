@@ -2,23 +2,26 @@
 // Created by Tristan Zippert on 7/6/21.
 //
 #include "EditorLayer.h"
+#include "RcEngine/Renderer/RenderAPI.h"
 
-#include "external/imgui/imgui.h"
-#include "external/imgui/misc/cpp/imgui_stdlib.h"
+#include "../external/imgui/imgui.h"
+#include "../external/imgui/misc/cpp/imgui_stdlib.h"
 #include "RcEngine/Scene/SceneSerializer.h"
 
+
 #include "RcEngine/Utils/PlatformUtils.h"
-#include "external/imguizmo/ImGuizmo.h"
+#include "../external/imguizmo/ImGuizmo.h"
 
 
 #include <glm/gtc/type_ptr.hpp>
 #include "RcEngine/Math/Math.h"
-
-#include <external/glm/glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+#include <../external/glm/glm/gtc/matrix_transform.hpp>
 
 #include "Platform/processordetection.h"
 
 namespace RcEngine{
+
+    static std::vector<float> s_FPS(200);
 
     extern const std::filesystem::path g_AssetPath; 
 
@@ -29,6 +32,9 @@ namespace RcEngine{
     }
     void EditorLayer::OnAttach() {
         RC_PROFILE_FUNCTION();
+
+        m_IconPlay = Texture2D::Create("Assets/Icons/Menu/playicon.png");
+        m_StopPlay = Texture2D::Create("Assets/Icons/Menu/stopicon.png");
 
         // Entity
         m_ActiveScene = CreateRef<Scene>();
@@ -93,14 +99,14 @@ namespace RcEngine{
 
     }
     void EditorLayer::OnEvent(RcEngine::Event &e) {
-
-        m_CameraController.OnEvent(e);
-        m_EditorCamera.OnEvent(e);
-
         EventDispatcher dispatcher(e);
-        dispatcher.Dispatch<KeyPressedEvent>(RC_BIND_EVENT_TO_FUNCTION(EditorLayer::OnKeyPressed));
+        if(m_ViewportHovered) {
+            m_CameraController.OnEvent(e);
+            m_EditorCamera.OnEvent(e);
+            dispatcher.Dispatch<KeyPressedEvent>
+                    (RC_BIND_EVENT_TO_FUNCTION(EditorLayer::OnKeyPressed));
+        }
     }
-
     bool EditorLayer::OnKeyPressed(KeyPressedEvent &e) {
         if(e.GetRepeatCount())
             return false;
@@ -139,11 +145,36 @@ namespace RcEngine{
             case Key::R:
                 m_GizmoType = ImGuizmo::OPERATION::SCALE;
                 break;
+
+            //TODO: Editor Movement
+            case Key::Left:
+                break;
+            case Key::Right:
+                break;
+            case Key::Up:
+                break;
+            case Key::Down:
+                break;
+            case Key::Space:
+                if(shift) {
+                    if (m_SceneState == SceneState::Edit) {
+                        OnScenePlay();
+                    } else {
+                        OnSceneStop();
+                    }
+                }
+
+                break;
         }
     }
 
     void EditorLayer::OnUpdate(RcEngine::Timestep ts) {
         RC_PROFILE_FUNCTION();
+
+        for (int i = 0; i < s_FPS.size() - 1; ++i)
+            s_FPS[i] = s_FPS[i+1];
+
+        s_FPS[s_FPS.size()-1] = 1/ts;
 
         if(FrameBufferSpec spec = m_FrameBuffer->GetSpecification();
         m_ViewPortSize.x > 0.0f && m_ViewPortSize.y > 0.0f &&
@@ -151,13 +182,6 @@ namespace RcEngine{
             m_FrameBuffer->Resize((uint32_t)m_ViewPortSize.x,(uint32_t)m_ViewPortSize.y);
             m_EditorCamera.SetViewportSize(m_ViewPortSize.x,m_ViewPortSize.y);
             m_ActiveScene->OnViewportReSize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-        }
-
-        m_EditorCamera.OnUpdate(ts);
-
-        if(m_ViewportFocused){
-            m_CameraController.OnUpdate(ts);
-            m_EditorCamera.OnUpdate(ts);
         }
 
         //Update function
@@ -172,8 +196,25 @@ namespace RcEngine{
 
         float rotation = ts*(1000000.0f);
 
+        switch(m_SceneState){
+            case SceneState::Edit:{
+                m_EditorCamera.OnUpdate(ts);
+
+                if(m_ViewportFocused){
+                    m_CameraController.OnUpdate(ts);
+                    m_EditorCamera.OnUpdate(ts);
+                }
+
+                m_ActiveScene->OnUpdateEditor(ts,m_EditorCamera);
+                break;
+            }
+            case SceneState::Play:{
+                m_ActiveScene->OnUpdateRuntime(ts);
+                break;
+            }
+        }
         // Update Scene
-        m_ActiveScene->OnUpdateEditor(ts,m_EditorCamera);
+
 
         auto [mx, my] = ImGui::GetMousePos();
         mx -= m_ViewportBounds[0].x;
@@ -205,6 +246,7 @@ namespace RcEngine{
             // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
             // because it would be confusing to have two docking targets within each others.
             ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+
             if (opt_fullscreen) {
                 ImGuiViewport *viewport = ImGui::GetMainViewport();
                 ImGui::SetNextWindowPos(viewport->Pos);
@@ -239,7 +281,7 @@ namespace RcEngine{
                 ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
                 ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
             }
-            bool aboutWindow = false;
+            bool aboutWindow = false, settingsWindow = false;
             if (ImGui::BeginMenuBar()) {
                 if (ImGui::BeginMenu("File")) {
                     // Disabling fullscreen would allow the window to be moved to the front of other windows,
@@ -261,28 +303,65 @@ namespace RcEngine{
                      if (ImGui::MenuItem("Exit")) RcEngine::Application::Get().Close();
                     ImGui::EndMenu();
                 }
+                if(ImGui::BeginMenu("Edit")){
+                    if(ImGui::MenuItem("Settings")){
+                        settingsWindow = true;
+                    }
+                    ImGui::EndMenu();
+                }
+
 
                 ImGui::EndMenuBar();
             }
 
             if(aboutWindow){
                 ImGui::OpenPopup("About");
-                aboutWindow = false;
             }
+            if(settingsWindow) ImGui::OpenPopup("Settings");
+
+            if(ImGui::BeginPopupModal("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
+                    RenderAPI::API renderer = RenderAPI::GetAPI();
+                    int select = (uint8_t)renderer;
+                    if(ImGui::RadioButton("OpenGL",&select,1 )) Renderer::SetAPI(RenderAPI::API::OpenGL);
+                    if(ImGui::RadioButton("Vulkan", &select,1)) Renderer::SetAPI(RenderAPI::API::Vulkan);
+                    if(ImGui::RadioButton("Metal",&select,1)) Renderer::SetAPI(RenderAPI::API::Metal);
+                if (ImGui::Button("Close", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+
+                ImGui::EndPopup();
+            }
+
             if(ImGui::BeginPopupModal("About",nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
-                ImGui::Text("RcEngine(RcEditor) by triscuitcircuit");
+                ImGui::Text("RcEngine(RcEditor) by triscuitcircuit\n");
+                ImGui::Text("Lua Version: %s",LUtil::getLuaVersion().c_str());
 
                 ImGui::TextWrapped("CPU: %s\nCPU Speed: %d",
                                    ProcessorDetectionBase::getCPUString().c_str(),
                                    ProcessorDetectionBase::getCPUMaxFreq());
                 ImGui::Separator();
+                ImGui::Text("Technologies: ");
+
+                ImGui::BeginChild("SubAbout",ImVec2(ImGui::GetWindowContentRegionWidth() * 0.5f, 100), false,
+                                  ImGuiWindowFlags_HorizontalScrollbar);
+                ImGui::Text("box2d ");
+                ImGui::Text("GLFW ");
+                ImGui::Text("ImGui");
+                ImGui::Text("SOIL2 ");
+                ImGui::Text("spdlog ");
+                ImGui::Text("yaml-cpp ");
+                ImGui::Text("glm ");
+                ImGui::EndChild();
+
                 if (ImGui::Button("Close", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
 
                 ImGui::EndPopup();
             }
 
 
+
+
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0,0});
+
+
             ImGui::Begin("ViewPort");
             auto viewportOffset = ImGui::GetCursorPos();// includes tab
 
@@ -307,7 +386,7 @@ namespace RcEngine{
 
             }
             uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
-            ImGui::Image((void *) textureID, ImVec2{1280, 720},ImVec2{0,1}, ImVec2{1,0});
+            ImGui::Image((void *) textureID, ImVec2{m_ViewPortSize.x, m_ViewPortSize.y},ImVec2{0,1}, ImVec2{1,0});
 
             auto windowSize = ImGui::GetWindowSize();
             ImVec2 minBound = ImGui::GetWindowPos();
@@ -380,12 +459,6 @@ namespace RcEngine{
             m_Panel.OnImGuiRender();
             m_ContentBrowserPanel.OnImGuiRender();
 
-            ImGui::Begin("Settings");
-
-            uint32_t textureID2 = m_FrameBuffer->GetColorAttachmentRendererID();
-            ImGui::Image((void*)textureID2,ImVec2{320.0f,180.0f});
-
-            ImGui::End();
             ImGui::Begin("Renderer 2D Stats");
             auto stats = RcEngine::Renderer2D::GetStats();
             ImGui::Text("Draw Calls: %d",stats.DrawCalls);
@@ -394,16 +467,71 @@ namespace RcEngine{
             ImGui::Text("Vertices %d",stats.GetTotalVertexCount());
             ImGui::Text("Indices: %d",stats.GetTotalIndexCount());
 
+            if(ImGui::TreeNode("FPS Chart")){
+
+                char fps[32];
+                sprintf(fps, "%f", s_FPS[s_FPS.size() - 1]);
+                ImGui::PlotLines("FPS", s_FPS.data(), (int) s_FPS.size(), 0, fps, FLT_MAX, FLT_MAX, ImVec2{0, 80});
+                ImGui::TreePop();
+            }
+
             ImGui::End();
-            ImGui::Begin("Script console");
+            ImGui::Begin("Console");
             //ImGui::InputTextMultiline("Script",&m_ScriptString,ImVec2(0,0));
             ImGui::End();
 
             static bool demo = true;
             ImGui::ShowDemoWindow(&demo);
 
+            UI_Toolbar();
+
             ImGui::End();
 
+    }
+    void EditorLayer::UI_Toolbar(){
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(0,2));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing,ImVec2(0,2));
+        ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0,0,0,0));
+        auto& colors = ImGui::GetStyle().Colors;
+        const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered,ImVec4(buttonHovered.x,buttonHovered.y,buttonHovered.z,0.5f));
+        const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive,ImVec4(buttonActive.x,buttonActive.y,buttonActive.z,0.5f));
+
+        ImGui::Begin("##toolbar",nullptr,
+                     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar
+                     );
+        float size = ImGui::GetWindowHeight()-4;
+        Ref<Texture2D> icon = m_SceneState == SceneState::Edit? m_IconPlay: m_StopPlay;
+        ImGui::SameLine((ImGui::GetWindowContentRegionMax().x * 0.5f)- (size*0.5f));
+        if(ImGui::ImageButton((ImTextureID)icon->GetRendererID(),ImVec2(size,size),
+                              ImVec2(0,0), ImVec2(1,1),0)){
+            switch(m_SceneState){
+                case SceneState::Play:
+                    OnSceneStop();
+                    break;
+                case SceneState::Edit:
+                    OnScenePlay();
+                    break;
+            }
+        }
+        ImGui::PopStyleVar(2);
+        ImGui::PopStyleColor(3);
+
+        ImGui::End();
+
+    }
+    void EditorLayer::OnScenePlay() {
+        m_SceneState = SceneState::Play;
+        m_ActiveScene = Scene::Copy(m_EditorScene);
+        m_ActiveScene->OnRuntimeStart();
+        m_Panel.SetContext(m_ActiveScene);
+    }
+    void EditorLayer::OnSceneStop() {
+        m_SceneState = SceneState::Edit;
+        m_ActiveScene->OnRuntimeStop();
+        m_ActiveScene = m_EditorScene;
+        m_Panel.SetContext(m_ActiveScene);
     }
     void EditorLayer::OnDetach() {
         RC_PROFILE_FUNCTION();
@@ -411,21 +539,36 @@ namespace RcEngine{
 
     void EditorLayer::OpenScene() {
         std::string file = FileDialogs::OpenFile("");
-        RC_CORE_INFO("Path Selected: {0}", file);
-        if(!file.empty()){
-            m_ActiveScene = CreateRef<Scene>();
-            m_ActiveScene->OnViewportReSize((uint32_t)m_ViewPortSize.x,(uint32_t)m_ViewPortSize.y);
-            m_Panel.SetContext(m_ActiveScene);
+        if(!file.empty())
+            OpenScene(file);
+    }
+    void EditorLayer::OpenScene(const std::filesystem::path& path){
+        if(m_SceneState != SceneState::Edit)
+            OnSceneStop();
 
-            SceneSerializer serializer(m_ActiveScene);
-            serializer.DeSerialize(file);
+        if(path.extension().string() != ".rc"){
+            RC_WARN("Could not load {0} - not an RcEngine file", path.filename().string());
+            return;
+        }
+        Ref<Scene> newScene = CreateRef<Scene>();
+        SceneSerializer serializer(newScene);
+        if(serializer.DeSerialize(path.string())){
+            m_EditorScene = newScene;
+            m_EditorScene->OnViewportReSize((uint32_t)m_ViewPortSize.x,(uint32_t)m_ViewPortSize.y);
+            m_Panel.SetContext(m_EditorScene);
+
+            m_ActiveScene = m_EditorScene;
+            m_EditorScenePath = path;
         }
     }
 
+
     void EditorLayer::NewScene() {
-        m_ActiveScene = CreateRef<Scene>();
-        m_ActiveScene->OnViewportReSize((uint32_t)m_ViewPortSize.x,(uint32_t)m_ViewPortSize.y);
-        m_Panel.SetContext(m_ActiveScene);
+        m_EditorScene = CreateRef<Scene>();
+        m_EditorScene->OnViewportReSize((uint32_t)m_ViewPortSize.x,(uint32_t)m_ViewPortSize.y);
+        m_Panel.SetContext(m_EditorScene);
+
+        m_EditorScenePath = std::filesystem::path();
     }
 
     void EditorLayer::SaveAs() {
@@ -434,6 +577,7 @@ namespace RcEngine{
         if(!file.empty()){
             SceneSerializer serializer(m_ActiveScene);
             serializer.Serialize(file);
+            m_EditorScenePath = file;
         }
     }
 }

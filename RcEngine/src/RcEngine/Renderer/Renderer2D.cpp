@@ -9,7 +9,7 @@
 
 #include "RenderCommand.h"
 #include "UniformBuffer.h"
-#include <external/glm/glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+#include <../glm/glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 
 
@@ -25,6 +25,24 @@ namespace RcEngine{
         //Editor
         int EntityID;
     };
+    struct CircleVertex{
+        glm::vec3 WorldPosition;
+        glm::vec3 LocalPosition;
+        glm::vec4 Color;
+        float Thickness;
+        float Fade;
+
+        //Editor
+        int EntityID;
+    };
+
+    struct LineVertex{
+        glm::vec3 Position;
+        glm::vec4 Color;
+
+        //Editor
+        int EntityID;
+    };
 
     struct Renderer2DStorage{
         static const uint32_t  MaxQuads = 10000;
@@ -35,12 +53,21 @@ namespace RcEngine{
         Ref<VertexArray> QuadVertexArray;
         Ref<VertexBuffer> QuadVertexBuffer;
         Ref<Texture2D> WhiteTexture;
-        Ref<Shader> TextureShader;
+        Ref<Shader> QuadShader;
+
+        Ref<VertexArray> CircleVertexArray;
+        Ref<VertexBuffer> CircleVertexBuffer;
+        Ref<Shader> CircleShader;
 
         uint32_t QuadIndexCount =0;
 
         QuadVertex* QuadVertexBufferBase = nullptr;
         QuadVertex* QuadVertexBufferPtr = nullptr;
+
+        uint32_t CircleIndexCount =0;
+
+       CircleVertex* CircleVertexBufferBase = nullptr;
+        CircleVertex* CircleVertexBufferPtr = nullptr;
 
         std::array<Ref<Texture2D>,MaxTextureSlots> TextureSlots;
         uint32_t  TextureSlotIndex = 1; //0 = base texture
@@ -64,9 +91,7 @@ namespace RcEngine{
 
         s_Data.QuadVertexArray = VertexArray::Create();
 
-
         s_Data.QuadVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(QuadVertex));
-
         s_Data.QuadVertexBuffer->SetLayout({
             { ShaderDataType::Float3, "a_Position" },
             { ShaderDataType::Float4, "a_Color" },
@@ -102,6 +127,23 @@ namespace RcEngine{
 
         delete[] quadIndices;
 
+        s_Data.CircleVertexArray = VertexArray::Create();
+        s_Data.CircleVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(CircleVertex));
+
+//        s_Data.CircleVertexBuffer->SetLayout({
+//           { ShaderDataType::Float3, "a_WorldPosition" },
+//           { ShaderDataType::Float3, "a_LocalPosition" },
+//           { ShaderDataType::Float4, "a_Color" },
+//           { ShaderDataType::Float2, "a_Thickness" },
+//           { ShaderDataType::Float, "a_Fade" },
+//           { ShaderDataType::Int, "a_EntityID" },
+//           });
+
+//        s_Data.CircleVertexArray->AddVertexBuffer(s_Data.CircleVertexBuffer);
+//        s_Data.CircleVertexArray ->SetIndexBuffer(quadIB);
+//        s_Data.CircleVertexBufferBase = new CircleVertex[s_Data.MaxVertices];
+//
+
         s_Data.WhiteTexture = Texture2D::Create(1,1);
         uint32_t blankData = 0xffffffff;
         s_Data.WhiteTexture->SetData(&blankData, sizeof(uint32_t));
@@ -110,9 +152,11 @@ namespace RcEngine{
         for (uint32_t i = 0; i < RcEngine::Renderer2DStorage::MaxTextureSlots; i++)
             samplers[i] = i;
 
-        s_Data.TextureShader = Shader::Create("Assets/Shaders/TextureCombined.glsl");
-        s_Data.TextureShader->Bind();
-        s_Data.TextureShader->SetIntArray("u_Textures",samplers,s_Data.MaxTextureSlots);
+        s_Data.QuadShader = Shader::Create("Assets/Shaders/TextureCombined.glsl");
+        s_Data.QuadShader->Bind();
+        s_Data.QuadShader->SetIntArray("u_Textures",samplers,s_Data.MaxTextureSlots);
+
+        s_Data.CircleShader = Shader::Create("Assets/Shaders/CircleCombined.glsl");
 
         s_Data.TextureSlots[0] = s_Data.WhiteTexture;
 
@@ -127,9 +171,8 @@ namespace RcEngine{
     void Renderer2D::BeginScene(const OrthoCamera &camera) {
         RC_PROFILE_FUNCTION();
 
-        s_Data.TextureShader->Bind();
-        s_Data.TextureShader->
-                SetMat4("u_ViewProjection",camera.GetViewProjectMatrix());
+        s_Data.CameraBuffer.ViewProjection = camera.GetProjectionMatrix();
+        s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DStorage::CameraData));
 
         StartBatch();
 
@@ -137,48 +180,72 @@ namespace RcEngine{
     void Renderer2D::BeginScene(const Camera &camera, const glm::mat4 &transform) {
         RC_PROFILE_FUNCTION();
 
-        glm::mat4 viewProj = camera.GetProjection() * glm::inverse(transform);
+        s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
+        //s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DStorage::CameraData));
 
-        s_Data.TextureShader->Bind();
-        s_Data.TextureShader->
-                SetMat4("u_ViewProjection",viewProj);
+        s_Data.QuadShader->Bind();
+        s_Data.QuadShader->
+                SetMat4("u_ViewProjection",s_Data.CameraBuffer.ViewProjection);
         StartBatch();
     }
     void Renderer2D::StartBatch(){
         s_Data.QuadIndexCount =0;
-
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
+
+        s_Data.CircleIndexCount =0;
+//        s_Data.CircleVertexBufferPtr = s_Data.CircleVertexBufferBase;
+
         s_Data.TextureSlotIndex = 1;
     }
 
     void Renderer2D::EndScene() {
         RC_PROFILE_FUNCTION();
 
-        uint32_t dataSize = (uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase;
-        s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);
         Flush();
     }
 
     void Renderer2D::Flush() {
-        if(s_Data.QuadIndexCount ==0)
-            return;
 
-        //Bind Textures
+        if(s_Data.QuadIndexCount > 0  ){
+            uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);
+            s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase,dataSize);
+
+            //Bind Textures
         for(uint32_t i =0; i < s_Data.TextureSlotIndex; i++)
             s_Data.TextureSlots[i]->Bind(i);
 
-        RenderCommand::DrawIndexed(s_Data.QuadVertexArray,s_Data.QuadIndexCount);
-        s_Data.Stats.DrawCalls++;
+            s_Data.QuadShader->Bind();
+
+            RenderCommand::DrawIndexed(s_Data.QuadVertexArray,s_Data.QuadIndexCount);
+            s_Data.Stats.DrawCalls++;
+        }
+        if(s_Data.CircleIndexCount > 0){
+//            uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.CircleVertexBufferPtr - (uint8_t*)s_Data.CircleVertexBufferBase);
+//            s_Data.CircleVertexBuffer->SetData(s_Data.CircleVertexBufferBase,dataSize);
+//
+//            s_Data.CircleShader->Bind();
+//
+//            RenderCommand::DrawIndexed(s_Data.CircleVertexArray,s_Data.CircleIndexCount);
+            s_Data.Stats.DrawCalls++;
+        }
     }
     void Renderer2D::StartNewBatch() {
         EndScene();
 
         s_Data.QuadIndexCount = 0;
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
+
+        s_Data.CircleIndexCount = 0;
+//        s_Data.CircleVertexBufferPtr = s_Data.CircleVertexBufferBase;
+
         s_Data.TextureSlotIndex = 1;
     }
 
-    void Renderer2D::Shutdown() {}
+    void Renderer2D::Shutdown() {
+        RC_PROFILE_FUNCTION()
+
+        delete[] s_Data.QuadVertexBufferBase;
+    }
 
     void Renderer2D::DrawQuad(const glm::vec2 &position,
                               const glm::vec2 &size,
@@ -297,6 +364,27 @@ namespace RcEngine{
     }
     void Renderer2D::DrawSquare(const glm::vec3 &position, const glm::vec4 &color) {
 
+    }
+    void Renderer2D::DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness, float fade, int entityID){
+        RC_PROFILE_FUNCTION();
+
+
+//        if(s_Data.QuadIndexCount >= Renderer2DStorage::MaxIndices){
+//            StartNewBatch();
+//        }
+//        for(size_t i =0; i< 4; i++){
+//            s_Data.CircleVertexBufferPtr->WorldPosition = transform * s_Data.QuadVertexPositions[i];
+//            s_Data.CircleVertexBufferPtr->LocalPosition = s_Data.QuadVertexPositions[i] * 2.0f;
+//            s_Data.CircleVertexBufferPtr->Color = color;
+//            s_Data.CircleVertexBufferPtr->Thickness = thickness;
+//            s_Data.CircleVertexBufferPtr->Thickness = fade;
+//            s_Data.CircleVertexBufferPtr->EntityID = entityID;
+//            s_Data.CircleVertexBufferPtr++;
+//        }
+//
+//        s_Data.CircleIndexCount+=6;
+//
+//        s_Data.Stats.QuadCount++;
     }
     void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, const Ref <Texture2D> &texture,
                               float tilingfactor,int entityID) {
@@ -444,24 +532,6 @@ namespace RcEngine{
         s_Data.QuadIndexCount+=6;
         s_Data.Stats.QuadCount++;
 
-#if NON_BATCH
-        s_Data.TextureShader->
-                SetFloat4("u_Color", color);
-        s_Data.TextureShader->
-                SetFloat("u_TileMultiplier", tilingfactor);
-
-        texture->Bind();
-        glm::mat4 transform  = glm::translate(glm::mat4(1.0f),position)*
-                glm::rotate(glm::mat4(1.0f),rotation,{0.0f,0.0f,1.0f})
-                *glm::scale(glm::mat4(1.0f),{size.x,size.y,1.0f});
-
-        s_Data.TextureShader->
-                SetMat4("u_Transform",transform);
-
-
-        s_Data.QuadVertexArray->Bind();
-        RenderCommand::DrawIndexed(s_Data.QuadVertexArray);
-#endif
     }
     void Renderer2D::DrawRotatedQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color,
                                      float rotation, const Ref <SubTexture2D> &subtexture, float tilingfactor) {
@@ -527,8 +597,17 @@ namespace RcEngine{
 
         glm::mat4 viewproj = camera.GetViewProjection();
 
-        s_Data.TextureShader->Bind();
-        s_Data.TextureShader->SetMat4("u_ViewProjection",viewproj);
+        s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
+       // s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DStorage::CameraData));
+
+        s_Data.QuadShader->Bind();
+        s_Data.QuadShader->
+                SetMat4("u_ViewProjection",s_Data.CameraBuffer.ViewProjection);
+
+//        s_Data.CircleShader->Bind();
+//        s_Data.CircleShader->
+//                SetMat4("u_ViewProjection",s_Data.CameraBuffer.ViewProjection);
+
 
         StartNewBatch();
     }

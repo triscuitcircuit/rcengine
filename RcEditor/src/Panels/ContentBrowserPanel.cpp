@@ -5,9 +5,9 @@
 #include "ContentBrowserPanel.h"
 #include "Platform/MacUtils.h"
 
-#include <external/imgui/imgui.h>
+#include <../imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <external/imgui/imgui_internal.h>
+#include <../imgui/imgui_internal.h>
 
 namespace RcEngine{
 

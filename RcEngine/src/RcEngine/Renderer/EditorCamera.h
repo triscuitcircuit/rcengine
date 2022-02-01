@@ -32,13 +32,13 @@ namespace RcEngine{
         const glm::vec3& GetPosition() const { return m_Position; }
         glm::quat GetOrientation() const;
 
+        bool OnMouseScroll(MouseScrolledEvent& e);
+
         float GetPitch() const { return m_Pitch; }
         float GetYaw() const { return m_Yaw; }
     private:
         void UpdateProjection();
         void UpdateView();
-
-        bool OnMouseScroll(MouseScrolledEvent& e);
 
         void MousePan(const glm::vec2& delta);
         void MouseRotate(const glm::vec2& delta);

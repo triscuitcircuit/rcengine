@@ -7,7 +7,7 @@
 #include "rcpch.h"
 #include <glm/glm.hpp>
 
-#include <external/GLFW/include/GLFW/glfw3.h>
+#include <../external/GLFW/include/GLFW/glfw3.h>
 
 namespace RcEngine{
     class FileDialog{

@@ -5,6 +5,7 @@
 
 #include "RcEngine/Renderer/Camera.h"
 #include "RcEngine/Renderer/Texture.h"
+#include "RcEngine/Renderer/ProjectionCamera.h"
 #include "RcEngine/Renderer/EditorCamera.h"
 
 #ifndef RCENGINE_RENDERER3D_H
@@ -17,7 +18,7 @@ namespace RcEngine{
         static void Shutdown();
 
         //TODO: implement perspective camera
-        //static void BeginScene(const PerspectiveCamera& camera);
+        static void BeginScene(const ProjectionCamera& camera);
         static void BeginScene(const EditorCamera& camera);
         static void BeginScene(const Camera& camera, const glm::mat4 transform);
 

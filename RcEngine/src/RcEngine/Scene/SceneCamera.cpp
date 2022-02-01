@@ -12,6 +12,7 @@ namespace RcEngine{
     }
     void SceneCamera::SetViewPortSize(uint32_t width,
                                       uint32_t height) {
+        RC_CORE_ASSERT("width and height greater than zero", width > 0 && height > 0);
         m_AspectRatio = (float)width / (float)height;
         RecalculateProjection();
     }

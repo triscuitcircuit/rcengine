@@ -5,12 +5,12 @@
 #include "rcpch.h"
 #include "Application.h"
 #include "Log.h"
-#include "include/glad/glad.h"
+#include <glad/glad.h>
 #include "RcEngine/Renderer/Renderer.h"
 #include "RcEngine/Network/Network.h"
 
 #include "Input.h"
-#include <external/GLFW/include/GLFW/glfw3.h>
+#include <../external/GLFW/include/GLFW/glfw3.h>
 
 
 namespace RcEngine{
@@ -29,6 +29,7 @@ namespace RcEngine{
         m_Window->SetVSync(false);
 
         Renderer::Init();
+        //Renderer::SetAPI(RenderAPI::API::Vulkan);
 
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);

@@ -10,9 +10,9 @@ namespace RcEngine{
 
     OpenGlUniformBuffer::OpenGlUniformBuffer(uint32_t size, uint32_t binding) {
         glGenBuffers(1, &m_RendererID);
-        //testing
-        glBufferData(m_RendererID,size,nullptr,GL_DYNAMIC_DRAW);
         glBindBuffer(GL_UNIFORM_BUFFER,m_RendererID);
+        glBufferData(GL_UNIFORM_BUFFER,size,nullptr,GL_DYNAMIC_DRAW);
+        glBindBufferBase(GL_UNIFORM_BUFFER,binding,m_RendererID);
 
     }
 

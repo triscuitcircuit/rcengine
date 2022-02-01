@@ -4,6 +4,7 @@
 #pragma once
 
 #include "RcEngine/Renderer/Buffer.h"
+#define GL_SILENCE_DEPRECATION
 
 namespace RcEngine{
     class OpenGLVertexBuffer: public VertexBuffer{

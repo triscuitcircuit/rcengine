@@ -2,7 +2,7 @@
 // Created by Tristan Zippert on 5/22/21.
 //
 
-
+#define GLFW_INCLUDE_VULKAN
 #include "RcEngine/Core/Window.h"
 #include "RcEngine/Renderer/GraphicsContext.h"
 

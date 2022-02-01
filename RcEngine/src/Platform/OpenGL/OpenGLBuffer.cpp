@@ -4,8 +4,7 @@
 #include "OpenGLBuffer.h"
 #include "rcpch.h"
 
-
-#include <include/glad/glad.h>
+#include <../include/glad/glad.h>
 
 namespace RcEngine{
     OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t count) {
@@ -18,7 +17,6 @@ namespace RcEngine{
     OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
     {
         RC_PROFILE_FUNCTION();
-        glShadeModel(GL_FLAT);
         glGenBuffers(1, &m_RendererID);
         glBindBuffer(GL_ARRAY_BUFFER,m_RendererID);
         glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);

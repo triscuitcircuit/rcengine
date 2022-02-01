@@ -5,8 +5,8 @@
 #include "OpenGLContext.h"
 
 
-#include <external/GLFW/include/GLFW/glfw3.h>
-#include <include/glad/glad.h>
+#include <../external/GLFW/include/GLFW/glfw3.h>
+#include <../include/glad/glad.h>
 
 namespace RcEngine{
     OpenGLContext::OpenGLContext(GLFWwindow *windowHandle)

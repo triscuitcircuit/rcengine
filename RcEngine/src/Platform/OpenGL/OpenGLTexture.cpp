@@ -88,6 +88,15 @@ namespace RcEngine{
         glBindTexture(GL_TEXTURE_2D,m_RendererID);
         glTexImage2D(GL_TEXTURE_2D, 0, m_InternalFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data);
     }
+    void OpenGLTexture2D::CreateCubeMap(bool with_mipmap) {
+        for (int i = 0; i < 6; ++i) {
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                         0, GL_RGBA32F,m_Width, m_Height,
+                         0, GL_RGBA, GL_FLOAT, nullptr);
+        }
+        GLenum gl_filter_min = (with_mipmap)? GL_LINEAR_MIPMAP_LINEAR: GL_LINEAR;
+        
+    }
     void OpenGLTexture2D::Bind(uint32_t slot) const {
         RC_PROFILE_FUNCTION();
         glActiveTexture(GL_TEXTURE0 + slot);

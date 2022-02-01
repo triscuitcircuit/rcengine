@@ -88,6 +88,8 @@ namespace RcEngine{
 
         static void DrawSquare(const glm::vec3& position, const glm::vec4& color);
 
+        static void DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness= 1.0f, float fade = 0.005f, int entityID = -1);
+
         struct Statistics{
             uint32_t  DrawCalls =0;
             uint32_t  QuadCount =0;

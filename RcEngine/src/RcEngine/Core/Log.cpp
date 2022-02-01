@@ -1,7 +1,7 @@
 //
 // Created by Tristan Zippert on 5/21/21.
 //
-#include <src/rcpch.h>
+#include <rcpch.h>
 #include <spdlog/sinks/stdout_color_sinks-inl.h>
 #include "Log.h"
 
@@ -9,6 +9,7 @@
 namespace RcEngine{
     std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
     std::shared_ptr<spdlog::logger> Log::s_ClientLogger;
+    std::shared_ptr<spdlog::logger> Log::s_EditorConsoleLogger;
 
     void Log::Init() {
         spdlog::set_pattern("%^[%T] %n: %v%$");

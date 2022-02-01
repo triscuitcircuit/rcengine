@@ -4,7 +4,7 @@
 #pragma once
 
 #include "RcEngine/Core/Core.h"
-#include <src/rcpch.h>
+#include <rcpch.h>
 
 namespace RcEngine{
 
