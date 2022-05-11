@@ -27,11 +27,11 @@ include_directories(SYSTEM "external/glad/include")
 include_directories(SYSTEM "external/entt/include")
 include_directories(SYSTEM "src")
 
+add_subdirectory(external/SOIL2)
 add_subdirectory(external/imguizmo)
 add_subdirectory(external/glm)
 add_subdirectory(external/spdlog)
 add_subdirectory(external/imgui)
-add_subdirectory(external/SOIL2)
 add_subdirectory(external/sol2)
 add_subdirectory(external/yaml-cpp)
 add_subdirectory(external/glad)
@@ -82,7 +82,7 @@ if(APPLE)
     #without the need for wrappers
 #    set_source_files_properties(${METAL} PROPERTIES
 #            COMPILE_FLAGS "-x objective-c++ ")
-    set(CMAKE_C_FLAGS "-x objective-c++")
+#    set(CMAKE_C_FLAGS "-x objective-c++")
 
     add_subdirectory(external/corrosion)
 
@@ -147,6 +147,8 @@ set(CORE
         src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
         src/RcEngine/Core/Timestep.h src/RcEngine/Core/Window.cpp src/RcEngine/Math/Math.cpp
         src/RcEngine/Math/Math.h src/RcEngine/Core/UUID.h src/RcEngine/Core/UUID.cpp)
+#SOUND-------------------------------------------------------------
+
 #EDITOR------------------------------------------------------------
 set(EDITOR
         src/RcEngine/Editor/EditorConsolePanel.h src/RcEngine/Editor/EditorConsole/EditorConsoleSink.h)
@@ -177,6 +179,7 @@ set(SCENE
         src/RcEngine/Scene/Entity.cpp src/RcEngine/Scene/SceneCamera.h
         src/RcEngine/Scene/SceneCamera.cpp src/RcEngine/Scene/ScriptableEntity.h
         src/RcEngine/Scene/SceneSerializer.cpp src/RcEngine/Scene/SceneSerializer.h)
+#LUA---------------------------------------------------------------
 set(LUA
         src/RcEngine/Lua/luastate.h src/RcEngine/Lua/luastate.cpp)
 #UTILS-------------------------------------------------------------
@@ -209,6 +212,7 @@ add_library(RcEngine STATIC
         ${SCENE}
         ${UTILS}
         ${MTL_CXT}
+#        ${SOUND}
         )
 #------------------------------------------------------------------
 if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
@@ -225,6 +229,9 @@ target_precompile_headers(RcEngine PRIVATE src/rcpch.h)
 find_package(OpenGL REQUIRED)
 find_package(Lua51 REQUIRED)
 find_package(Vulkan REQUIRED)
+if (APPLE)
+    find_library(COCOA Cocoa)
+endif()
 
 #find_package(Mono)
 
@@ -261,6 +268,7 @@ target_link_libraries(RcEngine
 if(APPLE)
     target_link_libraries(RcEngine
             rc_network
+            stdc++ "-framework Foundation" "-framework Cocoa" objc
             )
 endif()
 #--------------------------------------

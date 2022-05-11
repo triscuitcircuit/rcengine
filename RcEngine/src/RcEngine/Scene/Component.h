@@ -9,6 +9,7 @@
 
 #include "RcEngine/Renderer/Texture.h"
 
+
 #include "glm/gtc/matrix_transform.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -71,6 +72,15 @@ namespace RcEngine{
             operator glm::vec4& () {return Color;}
 
     };
+
+//    struct SoundComponent{
+//        Ref<FlatSound> Sound;
+//
+//        SoundComponent() = default();
+//        SoundComponent(const SoundComponent&) = default;
+//
+//
+//    };
 
     struct CubeComponent{
         glm::vec4 Color{1.0f,1.0f,1.0f,1.0f};
