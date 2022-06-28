@@ -246,9 +246,9 @@ namespace RcEngine{
 
     }
     template<>
-    void Scene::OnAdded<TagComponent>(Entity entity, TagComponent& comp){
-
-    }
+    void Scene::OnAdded<SoundComponent>(Entity entity, SoundComponent &component) {}
+    template<>
+    void Scene::OnAdded<TagComponent>(Entity entity, TagComponent& comp){}
     template<>
     void Scene::OnAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& comp){
 

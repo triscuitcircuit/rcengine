@@ -8,6 +8,7 @@
 #include "RcEngine/Core/UUID.h"
 
 #include "RcEngine/Renderer/Texture.h"
+#include "RcEngine/Sound/SoundBuffer.h"
 
 
 #include "glm/gtc/matrix_transform.hpp"
@@ -58,6 +59,16 @@ namespace RcEngine{
             TextComponent() = default;
 
         };
+        struct SoundComponent{
+            Ref<SoundBuffer> Sound;
+            float Gain = 1.0f;
+            bool Playing = false;
+            bool Loop = false;
+
+            SoundComponent() = default;
+            SoundComponent(const SoundComponent&) = default;
+        };
+
     struct SpriteRendererComponent{
             glm::vec4 Color{1.0f,1.0f,1.0f,1.0f};
             float TilingFactor =1.0f;
@@ -72,15 +83,6 @@ namespace RcEngine{
             operator glm::vec4& () {return Color;}
 
     };
-
-//    struct SoundComponent{
-//        Ref<FlatSound> Sound;
-//
-//        SoundComponent() = default();
-//        SoundComponent(const SoundComponent&) = default;
-//
-//
-//    };
 
     struct CubeComponent{
         glm::vec4 Color{1.0f,1.0f,1.0f,1.0f};

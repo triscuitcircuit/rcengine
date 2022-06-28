@@ -6,6 +6,18 @@
 #include "Platform/processordetection.h"
 #include <sys/sysctl.h>
 namespace RcEngine{
+    template< typename T>
+    int getCTLValue(const char key[], T * dest){
+        size_t len =0;
+        int err;
+
+        err = sysctlbyname(key,nullptr,&len, nullptr,0);
+        if(!err){
+            RC_CORE_ASSERT((len == sizeof(T)), "Mis-matched destination type for SYSCTL() read.\n");
+            err = sysctlbyname(key,dest,&len, nullptr,0);
+        }
+        return err;
+    }
 
     std::string ProcessorDetectionBase::getCPUString() {
         char buffer[64];

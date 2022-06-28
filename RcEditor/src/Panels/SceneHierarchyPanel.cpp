@@ -60,6 +60,13 @@ namespace RcEngine{
                         ImGui::CloseCurrentPopup();
                     }
                 }
+                if(!m_Selected.HasComponent<SoundComponent>()){
+                    if(ImGui::MenuItem("Sound")){
+                        m_Selected.AddComponent<SoundComponent>();
+
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
 
                 if (!m_Selected.HasComponent<SpriteRendererComponent>()) {
                     if (ImGui::MenuItem("Sprite")) {
@@ -374,6 +381,27 @@ namespace RcEngine{
 
             ImGui::DragFloat("Tiling Factor",&comp.TilingFactor, 0.1f, 0.0f, 100.0f);
 
+        });
+        DrawComponent<SoundComponent>("Sound Component",entitySelection,[](auto& comp){
+            ImGui::Button("Sound",ImVec2(100.0f, 0.0f));
+            if(ImGui::BeginDragDropTarget()){
+                if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
+                    const wchar_t* path = (const wchar_t *)payload->Data;
+                    std::filesystem::path soundpath = std::filesystem::path(g_AssetPath)/path;
+                    comp.Sound = std::make_shared<SoundBuffer>(soundpath.c_str());
+                }
+            }
+            if(comp.Sound != nullptr){
+                auto& snd = comp.Sound;
+                if (ImGui::DragFloat("Gain",&comp.Gain,0.1f,0.0f,1.0f)){
+                    snd->SetGain(comp.Gain);
+                };
+                ImGui::Text("Sound File: %s",snd->getPath().c_str());
+                if(ImGui::Button("Play",ImVec2(100.0f,0.0f))){
+                    snd->SetGain(comp.Gain);
+                    snd->Play();
+                }
+            }
         });
         DrawComponent<CircleRenderComponent>("Sprite Renderer",entitySelection,[](auto& comp){
             ImGui::ColorEdit4("Color",glm::value_ptr(comp.Color));

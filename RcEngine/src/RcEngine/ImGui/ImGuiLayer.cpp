@@ -48,7 +48,9 @@ namespace RcEngine{
 
         //setup imgui context
         IMGUI_CHECKVERSION();
+
         ImGui::CreateContext();
+        ImGui::LoadIniSettingsFromDisk("Assets/Config/imgui.ini");
 
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // enables keyboard controls

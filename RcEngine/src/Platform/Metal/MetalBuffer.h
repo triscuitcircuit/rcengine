@@ -6,7 +6,7 @@
 #pragma once
 #include "MetalResource.h"
 #include "RcEngine/Core/Core.h"
-#include "RcEngine//Renderer/Buffer.h"
+#include "RcEngine/Renderer/Buffer.h"
 
 namespace RcEngine{
     class  MetalVertexBuffer: public VertexBuffer{

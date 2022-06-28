@@ -1,3 +1,6 @@
+include(sndfile.cmake)
+include(macros.cmake)
+
 cmake_minimum_required(VERSION 3.19)
 set(CMAKE_CXX_STANDARD 17)
 set(LANGUAGES C CXX)
@@ -27,6 +30,7 @@ include_directories(SYSTEM "external/glad/include")
 include_directories(SYSTEM "external/entt/include")
 include_directories(SYSTEM "src")
 
+
 add_subdirectory(external/SOIL2)
 add_subdirectory(external/imguizmo)
 add_subdirectory(external/glm)
@@ -36,6 +40,8 @@ add_subdirectory(external/sol2)
 add_subdirectory(external/yaml-cpp)
 add_subdirectory(external/glad)
 add_subdirectory(external/lua)
+add_subdirectory(external/openal-soft)
+
 #BOX2D-------------------------------------------
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
@@ -70,8 +76,8 @@ if(APPLE)
             src/Platform/Mac/MacWindow.h
             src/Platform/Mac/MacUtils.mm
             src/Platform/Mac/processordetection.cpp
-#            src/RcEngine/ImGui/CustomWidgets.h
-#            src/RcEngine/ImGui/CustomWidgets.mm
+            #            src/RcEngine/ImGui/CustomWidgets.h
+            #            src/RcEngine/ImGui/CustomWidgets.mm
             )
 
     file(GLOB_RECURSE METAL "src/Platform/Metal/*.cpp" "src/Platform/Metal/*.h")
@@ -80,9 +86,9 @@ if(APPLE)
 
     #Allows Objc++ code to be called from within C++ files
     #without the need for wrappers
-#    set_source_files_properties(${METAL} PROPERTIES
-#            COMPILE_FLAGS "-x objective-c++ ")
-#    set(CMAKE_C_FLAGS "-x objective-c++")
+    #    set_source_files_properties(${METAL} PROPERTIES
+    #            COMPILE_FLAGS "-x objective-c++ ")
+    #    set(CMAKE_C_FLAGS "-x objective-c++")
 
     add_subdirectory(external/corrosion)
 
@@ -139,7 +145,7 @@ set(RENDERER
         src/RcEngine/Renderer/FrameBuffer.cpp src/RcEngine/Renderer/FrameBuffer.h
         src/RcEngine/Renderer/EditorCamera.cpp src/RcEngine/Renderer/EditorCamera.h
         src/RcEngine/Renderer/Renderer3D.cpp src/RcEngine/Renderer/Renderer3D.h
-        src/RcEngine/Renderer/UniformBuffer.cpp src/RcEngine/Renderer/UniformBuffer.h)
+        src/RcEngine/Renderer/UniformBuffer.cpp src/RcEngine/Renderer/UniformBuffer.h src/RcEngine/Renderer/Device.cpp src/RcEngine/Renderer/Device.h)
 #CORE--------------------------------------------------------------
 set(CORE
         src/RcEngine.h src/rcpch.cpp src/rcpch.h
@@ -170,7 +176,92 @@ set(VK_CXT
         src/Platform/Vulkan/VKUniformBuffer.cpp src/Platform/Vulkan/VKUniformBuffer.h src/Platform/Vulkan/VKTexture.cpp src/Platform/Vulkan/VKTexture.h)
 #METAL-------------------------------------------------------------
 set(MTL_CXT
+
         src/Platform/Metal/MetalImplementation.h src/Platform/Metal/MetalResource.h)
+#METAL-CPP---------------------------------------------------------
+set(MTL_CPP
+        src/Platform/Metal/metal-cpp/Metal/Metal.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLAccelerationStructure.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLAccelerationStructureCommandEncoder.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLAccelerationStructureTypes.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLArgument.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLArgumentEncoder.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLBinaryArchive.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLBlitCommandEncoder.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLBlitPass.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLBuffer.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLCaptureManager.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLCaptureScope.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLCommandBuffer.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLCommandEncoder.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLCommandQueue.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLComputeCommandEncoder.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLComputePass.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLComputePipeline.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLCounters.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLDefines.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLDepthStencil.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLDevice.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLDrawable.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLDynamicLibrary.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLEvent.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLFence.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLFunctionConstantValues.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLFunctionDescriptor.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLFunctionHandle.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLFunctionLog.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLFunctionStitching.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLHeaderBridge.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLHeap.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLIndirectCommandBuffer.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLIndirectCommandEncoder.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLIntersectionFunctionTable.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLLibrary.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLLinkedFunctions.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLParallelRenderCommandEncoder.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLPipeline.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLPixelFormat.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLPrivate.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLRasterizationRate.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLRenderCommandEncoder.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLRenderPass.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLRenderPipeline.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLResource.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLResourceStateCommandEncoder.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLResourceStatePass.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLSampler.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLStageInputOutputDescriptor.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLTexture.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLTypes.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLVertexDescriptor.hpp
+        src/Platform/Metal/metal-cpp/Metal/MTLVisibleFunctionTable.hpp
+
+        src/Platform/Metal/metal-cpp/Foundation/Foundation.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSArray.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSAutoreleasePool.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSBundle.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSData.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSDate.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSDefines.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSDictionary.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSEnumerator.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSError.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSLock.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSNotification.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSNumber.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSObjCRuntime.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSObject.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSPrivate.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSProcessInfo.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSRange.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSString.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSTypes.hpp
+        src/Platform/Metal/metal-cpp/Foundation/NSURL.hpp
+
+        )
+#SOUND-------------------------------------------------------------
+set(SOUND
+        src/RcEngine/Sound/SoundBuffer.cpp src/RcEngine/Sound/SoundBuffer.h src/RcEngine/Sound/SoundDevice.cpp src/RcEngine/Sound/SoundDevice.h)
 #SCENE-------------------------------------------------------------
 set(SCENE
         src/RcEngine/Scene/Scene.h
@@ -212,7 +303,8 @@ add_library(RcEngine STATIC
         ${SCENE}
         ${UTILS}
         ${MTL_CXT}
-#        ${SOUND}
+        ${MTL_CPP}
+        ${SOUND}
         )
 #------------------------------------------------------------------
 if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
@@ -229,11 +321,9 @@ target_precompile_headers(RcEngine PRIVATE src/rcpch.h)
 find_package(OpenGL REQUIRED)
 find_package(Lua51 REQUIRED)
 find_package(Vulkan REQUIRED)
-if (APPLE)
-    find_library(COCOA Cocoa)
-endif()
+find_package(PkgConfig REQUIRED)
+find_package(OpenAL)
 
-#find_package(Mono)
 
 #Rust library link---------------------
 if(APPLE)
@@ -248,6 +338,7 @@ if(APPLE)
 
 endif()
 #--------------------------------------
+include_directories(${LIBSNDFILE_INCLUDE_DIRS})
 
 target_link_libraries(RcEngine
         glfw
@@ -263,6 +354,8 @@ target_link_libraries(RcEngine
         Vulkan::Vulkan
         sol2
         lua::lib
+        OpenAL
+        ${LIBSNDFILE_LIBRARIES}
         )
 
 if(APPLE)

@@ -28,10 +28,16 @@ namespace RcEngine{
     EditorLayer::EditorLayer():
             Layer("RcGameEngine2D"),
             m_CameraController(1280.0f/720.0f, true){
+                ImGuiIO& io = ImGui::GetIO();
+                (void)io;
+                io.IniFilename = "Config/imgui.ini";
 
     }
     void EditorLayer::OnAttach() {
+
         RC_PROFILE_FUNCTION();
+
+
 
         m_IconPlay = Texture2D::Create("Assets/Icons/Menu/playicon.png");
         m_StopPlay = Texture2D::Create("Assets/Icons/Menu/stopicon.png");
@@ -498,7 +504,7 @@ namespace RcEngine{
         const auto& buttonActive = colors[ImGuiCol_ButtonActive];
         ImGui::PushStyleColor(ImGuiCol_ButtonActive,ImVec4(buttonActive.x,buttonActive.y,buttonActive.z,0.5f));
 
-        ImGui::Begin("##toolbar",nullptr,
+        ImGui::Begin("##toolbar", nullptr,
                      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar
                      );
         float size = ImGui::GetWindowHeight()-4;

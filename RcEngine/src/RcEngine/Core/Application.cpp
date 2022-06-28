@@ -4,6 +4,7 @@
 
 #include "rcpch.h"
 #include "Application.h"
+#include "RcEngine/Sound/SoundDevice.h"
 #include "Log.h"
 #include <glad/glad.h>
 #include "RcEngine/Renderer/Renderer.h"
@@ -28,7 +29,9 @@ namespace RcEngine{
         m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
         m_Window->SetVSync(false);
 
+        SoundDevice::Init();
         Renderer::Init();
+
         //Renderer::SetAPI(RenderAPI::API::Vulkan);
 
         m_ImGuiLayer = new ImGuiLayer();
