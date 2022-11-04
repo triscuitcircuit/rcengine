@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 
-find_package(Vulkan REQUIRED COMPONENTS glslc)
-find_program(glslc_executable NAMES glslc HINTS Vulkan::glslc)
+#find_package(Vulkan REQUIRED COMPONENTS glslc)
+#find_program(glslc_executable NAMES glslc HINTS Vulkan::glslc)
 
 project(RcEditor)
 set(CMAKE_CXX_STANDARD 17)
