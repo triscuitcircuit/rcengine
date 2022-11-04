@@ -23,7 +23,7 @@ jobs:
         submodules: recursive
         
     - name: Brew packages
-      run: brew install lua@5.1 && brew install molten-vk && brew install openal-soft && brew install pkg-config 
+      run: brew install lua@5.1 && brew install molten-vk && brew install openal-soft && brew install pkg-config && brew install glslang && brew install vulkan-headers
       
     - name: Prepare Vulkan SDK
       uses: humbletim/setup-vulkan-sdk@v1.2.0
