@@ -4,5 +4,5 @@ project(RCGameEngine)
 
 
 add_subdirectory(RcEngine)
-add_subdirectory(RcGame)
+#add_subdirectory(RcGame)
 add_subdirectory(RcEditor)
