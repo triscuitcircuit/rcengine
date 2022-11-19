@@ -24,7 +24,11 @@ jobs:
         
     - name: Brew packages
       run: brew install lua@5.1 && brew install molten-vk && brew install openal-soft && brew install pkg-config && brew install glslang && brew install openal-soft
-
+    - name: Install Vulkan SDK
+      uses: humbletim/install-vulkan-sdk@v1.1.1
+      with:
+        version: latest
+        cache: true
     - name: Fetch Vulkan SDK JSON spec
       shell: bash
       run: |
@@ -33,7 +37,7 @@ jobs:
       uses: humbletim/setup-vulkan-sdk@v1.2.0
       with:
        vulkan-config-file: vulkan-sdk-config.json
-       vulkan-components: Vulkan-Headers, Vulkan-Loader, SPIRV-Headers, SPIRV-Cross, SPIRV-Tools, SPIRV-Reflect, Glslang, shaderc
+       vulkan-components: Vulkan-Headers, Vulkan-Loader, SPIRV-Headers, SPIRV-Cross, SPIRV-Tools, SPIRV-Reflect
        vulkan-use-cache: true
       
 
