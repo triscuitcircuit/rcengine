@@ -4,7 +4,7 @@
 #include "RcEngine/Core/EntryPoint.h"
 
 #include <gtc/type_ptr.hpp>
-#include <external/glm/glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+#include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 #include <gtc/matrix_transform.hpp>
 
