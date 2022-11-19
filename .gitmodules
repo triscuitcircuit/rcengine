@@ -40,3 +40,6 @@
 [submodule "RcEngine/external/openal-soft"]
 	path = RcEngine/external/openal-soft
 	url = https://github.com/triscuitcircuit/openal-soft
+[submodule "RcEngine/external/sndfile"]
+	path = RcEngine/external/sndfile
+	url = https://github.com/triscuitcircuit/libsndfile

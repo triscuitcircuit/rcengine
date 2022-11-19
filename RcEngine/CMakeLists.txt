@@ -26,6 +26,7 @@ file(GLOB source_headers
 
 include_directories("external/imgui")
 include_directories("external/box2d")
+include_directories("external/sndfile")
 include_directories(SYSTEM "external/glad/include")
 include_directories(SYSTEM "external/entt/include")
 include_directories(SYSTEM "src")
@@ -39,6 +40,7 @@ add_subdirectory(external/imgui)
 add_subdirectory(external/sol2)
 add_subdirectory(external/yaml-cpp)
 add_subdirectory(external/glad)
+add_subdirectory(external/sndfile)
 add_subdirectory(external/lua)
 add_subdirectory(external/openal-soft)
 
@@ -287,6 +289,7 @@ endif(APPLE)
 set(PCH
         src/rcpch.h)
 #------------------------------------------------------------------
+
 add_library(RcEngine STATIC
         ${CORE}
         ${LUA}
@@ -322,7 +325,7 @@ find_package(OpenGL REQUIRED)
 find_package(Lua51 REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(PkgConfig REQUIRED)
-find_package(OpenAL)
+find_package(OpenAL REQUIRED)
 
 
 #Rust library link---------------------
@@ -338,9 +341,9 @@ if(APPLE)
 
 endif()
 #--------------------------------------
-include_directories(${LIBSNDFILE_INCLUDE_DIRS})
 
 target_link_libraries(RcEngine
+        SndFile::sndfile
         glfw
         glm::glm
         box2d
