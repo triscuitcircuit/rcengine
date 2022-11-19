@@ -56,7 +56,7 @@ add_subdirectory(external/GLFW)
 
 #Pass arguments----------------------------------------------------
 if(WIN32)
-    add_definitions(-DRC_PLATFORM_WINDOWS)
+    add_compile_definitions(RC_PLATFORM_WINDOWS)
     set(WINDOW
             src/Platform/Windows/WindowsWindow.cpp
             src/Platform/Windows/WindowsWindow.h
@@ -69,38 +69,30 @@ if(WIN32)
 
 endif(WIN32)
 if(APPLE)
-    add_definitions(-DRC_PLATFORM_MAC)
-    add_definitions(-DRC_PLATFORM_UNIX)
+    add_compile_definitions(RC_PLATFORM_MAC)
+    add_compile_definitions(RC_PLATFORM_UNIX)
     set(WINDOW
             src/Platform/Mac/MacWindow.cpp
             src/Platform/Mac/MacWindow.h
             src/Platform/Mac/MacUtils.mm
             src/Platform/Mac/processordetection.cpp
-            #            src/RcEngine/ImGui/CustomWidgets.h
-            #            src/RcEngine/ImGui/CustomWidgets.mm
             )
 
     file(GLOB_RECURSE METAL "src/Platform/Metal/*.cpp" "src/Platform/Metal/*.h")
 
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit -framework Metal -framework Cocoa")
 
-    #Allows Objc++ code to be called from within C++ files
-    #without the need for wrappers
-    #    set_source_files_properties(${METAL} PROPERTIES
-    #            COMPILE_FLAGS "-x objective-c++ ")
-    #    set(CMAKE_C_FLAGS "-x objective-c++")
 
     add_subdirectory(external/corrosion)
 
 endif(APPLE)
 
-add_definitions(-DRC_BUILD_DLL)
-add_definitions(-DGLFW_INCLUDE_NONE)
+add_compile_definitions(RC_BUILD_DLL)
+add_compile_definitions(GLFW_INCLUDE_NONE)
 
-add_definitions(-DRC_DEBUG)
 
 if (CMAKE_BUILD_TYPE EQUAL "Debug")
-    add_definitions(-DRC_DEBUG)
+    add_compile_definitions(RC_DEBUG)
 endif()
 #SOURCE-------------------------------------------------------------
 
@@ -145,19 +137,23 @@ set(RENDERER
         src/RcEngine/Renderer/FrameBuffer.cpp src/RcEngine/Renderer/FrameBuffer.h
         src/RcEngine/Renderer/EditorCamera.cpp src/RcEngine/Renderer/EditorCamera.h
         src/RcEngine/Renderer/Renderer3D.cpp src/RcEngine/Renderer/Renderer3D.h
-        src/RcEngine/Renderer/UniformBuffer.cpp src/RcEngine/Renderer/UniformBuffer.h src/RcEngine/Renderer/Device.cpp src/RcEngine/Renderer/Device.h)
+        src/RcEngine/Renderer/UniformBuffer.cpp src/RcEngine/Renderer/UniformBuffer.h
+#        src/RcEngine/Renderer/Device.cpp src/RcEngine/Renderer/Device.h
+        )
 #CORE--------------------------------------------------------------
 set(CORE
         src/RcEngine.h src/rcpch.cpp src/rcpch.h
         src/RcEngine/Core/Assert.h src/RcEngine/Core/Core.h
         src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
-        src/RcEngine/Core/Timestep.h src/RcEngine/Core/Window.cpp src/RcEngine/Math/Math.cpp
+        src/RcEngine/Core/Timestep.h src/RcEngine/Core/Window.cpp
+        src/RcEngine/Math/Math.cpp
         src/RcEngine/Math/Math.h src/RcEngine/Core/UUID.h src/RcEngine/Core/UUID.cpp)
 #SOUND-------------------------------------------------------------
 
 #EDITOR------------------------------------------------------------
 set(EDITOR
-        src/RcEngine/Editor/EditorConsolePanel.h src/RcEngine/Editor/EditorConsole/EditorConsoleSink.h)
+        src/RcEngine/Editor/EditorConsolePanel.h
+        src/RcEngine/Editor/EditorConsole/EditorConsoleSink.h)
 #OPENGL------------------------------------------------------------
 set(OPENGL_CXT
         src/Platform/OpenGL/OpenGLUtils.cpp src/Platform/OpenGL/OpenGLUtils.h
@@ -173,11 +169,13 @@ set(OPENGL_CXT
 set(VK_CXT
         src/Platform/Vulkan/VKBuffer.cpp src/Platform/Vulkan/VKBuffer.h
         src/Platform/Vulkan/VKUtils.h src/Platform/Vulkan/VKUtils.cpp
-        src/Platform/Vulkan/VKUniformBuffer.cpp src/Platform/Vulkan/VKUniformBuffer.h src/Platform/Vulkan/VKTexture.cpp src/Platform/Vulkan/VKTexture.h)
+        src/Platform/Vulkan/VKUniformBuffer.cpp
+        src/Platform/Vulkan/VKUniformBuffer.h
+        src/Platform/Vulkan/VKTexture.cpp src/Platform/Vulkan/VKTexture.h)
 #METAL-------------------------------------------------------------
 set(MTL_CXT
-
-        src/Platform/Metal/MetalImplementation.h src/Platform/Metal/MetalResource.h)
+        src/Platform/Metal/MetalImplementation.h
+        src/Platform/Metal/MetalResource.h)
 #METAL-CPP---------------------------------------------------------
 set(MTL_CPP
         src/Platform/Metal/metal-cpp/Metal/Metal.hpp
@@ -261,7 +259,9 @@ set(MTL_CPP
         )
 #SOUND-------------------------------------------------------------
 set(SOUND
-        src/RcEngine/Sound/SoundBuffer.cpp src/RcEngine/Sound/SoundBuffer.h src/RcEngine/Sound/SoundDevice.cpp src/RcEngine/Sound/SoundDevice.h)
+        src/RcEngine/Sound/SoundBuffer.cpp
+        src/RcEngine/Sound/SoundBuffer.h
+        src/RcEngine/Sound/SoundDevice.cpp src/RcEngine/Sound/SoundDevice.h)
 #SCENE-------------------------------------------------------------
 set(SCENE
         src/RcEngine/Scene/Scene.h
