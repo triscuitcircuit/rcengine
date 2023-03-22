@@ -22,18 +22,16 @@
 
 
 namespace LUtil{
-    std::string getLuaVersion();
+//    std::string getLuaVersion();
 
     class LuaState{
     public:
 
-    void addPackage(std::string packageName, sol::object package);
-    sol::function loadScript(const std::string& path);
+    LuaState(std::string& filename);
+    ~LuaState();
 
-    private:
-        sol::state m_Lua;
-        std::map<std::string,sol::bytecode> m_Compiled;
-        std::map<std::string,sol::object> m_Packages;
+    void initLua();
+
     };
 }
 

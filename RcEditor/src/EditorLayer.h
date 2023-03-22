@@ -33,6 +33,8 @@ namespace RcEngine{
         void OnSceneStop();
         void OnSceneEdit();
 
+        void OnSceneSimulation();
+
 
         //UI specific functions
         void UI_Toolbar();
@@ -74,7 +76,7 @@ namespace RcEngine{
         ContentBrowserPanel m_ContentBrowserPanel;
 
         //editor menu
-        Ref<Texture2D> m_IconPlay,m_StopPlay;
+        Ref<Texture2D> m_IconPlay,m_StopPlay, m_IconSimulate, m_IconSimulateStop;
 
         //Script
         std::string m_ScriptString;
@@ -82,7 +84,7 @@ namespace RcEngine{
         int m_GizmoType = -1;
 
         enum class SceneState{
-            Edit =0, Play =1
+            Edit =0, Play =1, Simulate=2
         };
         SceneState m_SceneState = SceneState::Edit;
 

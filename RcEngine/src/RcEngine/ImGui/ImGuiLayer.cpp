@@ -90,9 +90,13 @@ namespace RcEngine{
     }
     void ImGuiLayer::Begin() {
         RC_PROFILE_FUNCTION();
+    #ifdef RC_OPENGL
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+    #endif
+    #ifdef RC_METAL
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
+    #endif
         ImGui::NewFrame();
         ImGuizmo::BeginFrame();
     }
@@ -134,7 +138,7 @@ namespace RcEngine{
                         1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
 #elif CPPMetal
-#include <TargetConditionals.h>
+            #include <TargetConditionals.h>
             id<MTLDevice> obj = MTLCreateSystemDefaultDevice();
             ImGui::Text("Could not detect renderer");
 #else

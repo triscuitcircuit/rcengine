@@ -138,6 +138,54 @@ namespace RcEngine{
 
         }
     }
+    void Scene::RenderScene(RcEngine::EditorCamera &camera) {
+        Renderer2D::BeginScene(camera);
+
+        {
+
+            auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+            for (auto entity: group) {
+                auto[sprite, transform] = group.get<SpriteRendererComponent, TransformComponent>(entity);
+                Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int) entity);
+            }
+        }
+
+//            {
+//
+//                auto group = m_Registry.group<TransformComponent>(entt::get<CircleRenderComponent>);
+//                for (auto entity: group) {
+//                    auto[circle, transform] = group.get<CircleRenderComponent, TransformComponent>(entity);
+//                    Renderer2D::DrawCircle(transform.GetTransform(), circle.Color,circle.Thickness,circle.Fade, (int) entity);
+//                }
+//            }
+
+
+
+        Renderer2D::EndScene();
+    }
+    void Scene::OnUpdateSimulation(Timestep ts, EditorCamera& camera){
+        {
+            const int32_t velocityIteration = 6;
+            const int32_t positionIterations = 2;
+
+            m_world->Step(ts, velocityIteration, positionIterations);
+            auto view = m_Registry.view<RigidBodyFlatComponent>();
+            for(auto e: view){
+                Entity entity = {e, this};
+                auto& transform = entity.GetComponent<TransformComponent>();
+                auto& rb = entity.GetComponent<RigidBodyFlatComponent>();
+
+                b2Body* body = (b2Body*)rb.RuntimeBody;
+
+                const auto& position = body->GetPosition();
+                transform.Translation.x = position.x;
+                transform.Translation.y = position.y;
+                transform.Rotation.z = body->GetAngle();
+            }
+        }
+
+        RenderScene(camera);
+    }
     Entity Scene::CreateEntity(const std::string& name) {
         return CreateEntityWithUUID(UUID(), name);
     }
@@ -150,6 +198,49 @@ namespace RcEngine{
         return entity;
     }
     void Scene::OnRuntimeStart() {
+        OnPhysics2DStart();
+    }
+    void Scene::OnSimulationStart(){
+        OnPhysics2DStart();
+    }
+    void Scene::OnSimulationStop(){
+        OnPhysics2DStop();
+    }
+    void Scene::OnRuntimeStop() {
+        OnPhysics2DStop();
+    }
+    void Scene::DestroyEntity(Entity entity) {
+        m_Registry.destroy(entity);
+    }
+    Entity Scene::DuplicateEntity(Entity& other) {
+        return CloneEntityWithUUID(UUID(),other);
+    }
+    Entity Scene::CloneEntityWithUUID(UUID uuid, Entity &other) {
+        Entity entity = {m_Registry.create(), this};
+        if(other.HasComponent<SpriteRendererComponent>()){
+            entity.AddComponent<SpriteRendererComponent>();
+            SpriteRendererComponent sprite = other.GetComponent<SpriteRendererComponent>();
+            SpriteRendererComponent newSprite = entity.GetComponent<SpriteRendererComponent>();
+
+            newSprite = sprite;
+        }
+        return entity;
+    }
+
+
+    void Scene::OnViewportReSize(uint32_t width, uint32_t height) {
+        m_ViewportWidth = width;
+        m_ViewportHeight = height;
+
+        auto view = m_Registry.view<CameraComponent>();
+        for(auto entity: view){
+            auto& cameraComp = view.get<CameraComponent>(entity);
+            if(!cameraComp.FixedAspectRatio){
+                cameraComp.Camera.SetViewPortSize(width, height);
+            }
+        }
+    }
+    void Scene::OnPhysics2DStart(){
         m_world = new b2World({0.0,-9.8});
         auto view = m_Registry.view<RigidBodyFlatComponent>();
         for (auto e: view) {
@@ -188,42 +279,10 @@ namespace RcEngine{
 
         }
     }
-    void Scene::OnRuntimeStop() {
+    void Scene::OnPhysics2DStop() {
         delete m_world;
         m_world = nullptr;
     }
-    void Scene::DestroyEntity(Entity entity) {
-        m_Registry.destroy(entity);
-    }
-    Entity Scene::DuplicateEntity(Entity& other) {
-        return CloneEntityWithUUID(UUID(),other);
-    }
-    Entity Scene::CloneEntityWithUUID(UUID uuid, Entity &other) {
-        Entity entity = {m_Registry.create(), this};
-        if(other.HasComponent<SpriteRendererComponent>()){
-            entity.AddComponent<SpriteRendererComponent>();
-            SpriteRendererComponent sprite = other.GetComponent<SpriteRendererComponent>();
-            SpriteRendererComponent newSprite = entity.GetComponent<SpriteRendererComponent>();
-
-            newSprite = sprite;
-        }
-        return entity;
-    }
-
-
-    void Scene::OnViewportReSize(uint32_t width, uint32_t height) {
-        m_ViewportWidth = width;
-        m_ViewportHeight = height;
-
-        auto view = m_Registry.view<CameraComponent>();
-        for(auto entity: view){
-            auto& cameraComp = view.get<CameraComponent>(entity);
-            if(!cameraComp.FixedAspectRatio){
-                cameraComp.Camera.SetViewPortSize(width, height);
-            }
-        }
-    }
-
     template<typename T>
     void Scene::OnAdded(Entity entity, T& component){
         RC_CORE_ASSERT(false,"Added Entity not recognized");
@@ -275,17 +334,7 @@ namespace RcEngine{
         return {};
     }
     void Scene::OnUpdateEditor(Timestep ts, EditorCamera &camera) {
-
-        Renderer2D::BeginScene(camera);
-
-        auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-        for (auto entity: group) {
-            auto [sprite, transform] = group.get<SpriteRendererComponent,TransformComponent>(entity);
-
-            Renderer2D::DrawSprite(transform.GetTransform(),sprite,(int)entity);
-
-        }
-        Renderer2D::EndScene();
+        RenderScene(camera);
     }
 
 }

@@ -5,7 +5,7 @@
 #ifndef RCGAMEENGINE_SOUNDBUFFER_H
 #define RCGAMEENGINE_SOUNDBUFFER_H
 #include "AL/al.h"
-#include "sndfile.h"
+#include "/opt/homebrew/include/sndfile.h"
 
 namespace RcEngine{
     class SoundBuffer{

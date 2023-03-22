@@ -1,0 +1,8 @@
+//
+// Created by Tristan Zippert on 7/21/22.
+//
+
+#ifndef RCGAMEENGINE_METALSHADER_H
+#define RCGAMEENGINE_METALSHADER_H
+
+#endif //RCGAMEENGINE_METALSHADER_H

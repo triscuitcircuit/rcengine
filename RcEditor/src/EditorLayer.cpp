@@ -41,6 +41,8 @@ namespace RcEngine{
 
         m_IconPlay = Texture2D::Create("Assets/Icons/Menu/playicon.png");
         m_StopPlay = Texture2D::Create("Assets/Icons/Menu/stopicon.png");
+        m_IconSimulate = Texture2D::Create("Assets/Icons/Menu/simplay.png");
+        m_IconSimulateStop = Texture2D::Create("Assets/Icons/Menu/simstop.png");
 
         // Entity
         m_ActiveScene = CreateRef<Scene>();
@@ -101,7 +103,7 @@ namespace RcEngine{
 
         m_EditorCamera = EditorCamera(30.0f,1.778f, 0.1f, 1000.0f);
 
-        RcEngine::TcpServer();
+//        RcEngine::TcpServer();
 
     }
     void EditorLayer::OnEvent(RcEngine::Event &e) {
@@ -218,6 +220,12 @@ namespace RcEngine{
                 m_ActiveScene->OnUpdateRuntime(ts);
                 break;
             }
+            case SceneState::Simulate:{
+                m_EditorCamera.OnUpdate(ts);
+
+                m_ActiveScene->OnUpdateSimulation(ts,m_EditorCamera);
+                break;
+            }
         }
         // Update Scene
 
@@ -243,7 +251,6 @@ namespace RcEngine{
     }
     void EditorLayer::OnImGuiRender() {
         RC_PROFILE_FUNCTION();
-
             static bool dockspaceOpen = true;
             static bool opt_fullscreen_persistant = true;
             bool opt_fullscreen = opt_fullscreen_persistant;
@@ -338,7 +345,7 @@ namespace RcEngine{
 
             if(ImGui::BeginPopupModal("About",nullptr, ImGuiWindowFlags_AlwaysAutoResize)){
                 ImGui::Text("RcEngine(RcEditor) by triscuitcircuit\n");
-                ImGui::Text("Lua Version: %s",LUtil::getLuaVersion().c_str());
+               // ImGui::Text("Lua Version: %s",LUtil::getLuaVersion().c_str());
 
                 ImGui::TextWrapped("CPU: %s\nCPU Speed: %d",
                                    ProcessorDetectionBase::getCPUString().c_str(),
@@ -414,6 +421,7 @@ namespace RcEngine{
                 float windowheight = (float)ImGui::GetWindowHeight();
                 ImGuizmo::SetRect(ImGui::GetWindowPos().x,ImGui::GetWindowPos().y,
                                   windowwidth, windowheight);
+
 
 //
 //                auto cameraEntity  = m_ActiveScene->GetPrimaryCameraEntity();
@@ -508,17 +516,28 @@ namespace RcEngine{
                      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoTitleBar
                      );
         float size = ImGui::GetWindowHeight()-4;
-        Ref<Texture2D> icon = m_SceneState == SceneState::Edit? m_IconPlay: m_StopPlay;
-        ImGui::SameLine((ImGui::GetWindowContentRegionMax().x * 0.5f)- (size*0.5f));
-        if(ImGui::ImageButton((ImTextureID)icon->GetRendererID(),ImVec2(size,size),
-                              ImVec2(0,0), ImVec2(1,1),0)){
-            switch(m_SceneState){
-                case SceneState::Play:
-                    OnSceneStop();
-                    break;
-                case SceneState::Edit:
+        {
+
+            Ref<Texture2D> icon = m_SceneState == SceneState::Edit ? m_IconPlay : m_StopPlay;
+            ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f)- (size* 0.5f));
+            if (ImGui::ImageButton((ImTextureID) icon->GetRendererID(), ImVec2(size, size),
+                                   ImVec2(0, 0), ImVec2(1, 1), 0)) {
+                if(m_SceneState == SceneState::Edit)
                     OnScenePlay();
-                    break;
+                else if(m_SceneState == SceneState::Play)
+                    OnSceneStop();
+            }
+        }
+        ImGui::SameLine();
+        {
+
+            Ref<Texture2D> icon = m_SceneState == SceneState::Edit ? m_IconSimulate : m_IconSimulateStop;
+            if (ImGui::ImageButton((ImTextureID) icon->GetRendererID(), ImVec2(size, size),
+                                   ImVec2(0, 0), ImVec2(1, 1), 0)) {
+                if(m_SceneState == SceneState::Edit)
+                    OnSceneSimulation();
+                else if(m_SceneState == SceneState::Simulate)
+                    OnSceneStop();
             }
         }
         ImGui::PopStyleVar(2);
@@ -534,11 +553,21 @@ namespace RcEngine{
         m_Panel.SetContext(m_ActiveScene);
     }
     void EditorLayer::OnSceneStop() {
+        if(m_SceneState == SceneState::Play)
+            m_ActiveScene->OnRuntimeStop();
+        if(m_SceneState == SceneState::Simulate)
+            m_ActiveScene->OnSimulationStop();
         m_SceneState = SceneState::Edit;
-        m_ActiveScene->OnRuntimeStop();
         m_ActiveScene = m_EditorScene;
         m_Panel.SetContext(m_ActiveScene);
     }
+    void EditorLayer::OnSceneSimulation() {
+        m_SceneState = SceneState::Simulate;
+        m_ActiveScene = Scene::Copy(m_EditorScene);
+        m_ActiveScene->OnSimulationStart();
+        m_Panel.SetContext(m_ActiveScene);
+    }
+
     void EditorLayer::OnDetach() {
         RC_PROFILE_FUNCTION();
     }

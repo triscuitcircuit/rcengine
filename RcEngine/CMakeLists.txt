@@ -26,7 +26,6 @@ file(GLOB source_headers
 
 include_directories("external/imgui")
 include_directories("external/box2d")
-include_directories("external/sndfile")
 include_directories(SYSTEM "external/glad/include")
 include_directories(SYSTEM "external/entt/include")
 include_directories(SYSTEM "src")
@@ -40,9 +39,9 @@ add_subdirectory(external/imgui)
 add_subdirectory(external/sol2)
 add_subdirectory(external/yaml-cpp)
 add_subdirectory(external/glad)
-add_subdirectory(external/sndfile)
 add_subdirectory(external/lua)
 add_subdirectory(external/openal-soft)
+add_subdirectory(external/tinyobj)
 
 #BOX2D-------------------------------------------
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
@@ -78,13 +77,12 @@ if(APPLE)
             src/Platform/Mac/MacWindow.h
             src/Platform/Mac/MacUtils.mm
             src/Platform/Mac/processordetection.cpp
+            #            src/RcEngine/ImGui/CustomWidgets.h
+            #            src/RcEngine/ImGui/CustomWidgets.mm
             )
 
     file(GLOB_RECURSE METAL "src/Platform/Metal/*.cpp" "src/Platform/Metal/*.h")
-
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit -framework Metal -framework Cocoa")
-
-
     add_subdirectory(external/corrosion)
 
 endif(APPLE)
@@ -92,10 +90,10 @@ endif(APPLE)
 add_compile_definitions(RC_BUILD_DLL)
 add_compile_definitions(GLFW_INCLUDE_NONE)
 
-
-if (CMAKE_BUILD_TYPE EQUAL "Debug")
+if (CMAKE_BUILD_TYPE MATCHES "Debug")
     add_compile_definitions(RC_DEBUG)
 endif()
+
 #SOURCE-------------------------------------------------------------
 
 set(SOURCE_FILES
@@ -140,130 +138,137 @@ set(RENDERER
         src/RcEngine/Renderer/EditorCamera.cpp src/RcEngine/Renderer/EditorCamera.h
         src/RcEngine/Renderer/Renderer3D.cpp src/RcEngine/Renderer/Renderer3D.h
         src/RcEngine/Renderer/UniformBuffer.cpp src/RcEngine/Renderer/UniformBuffer.h
-#        src/RcEngine/Renderer/Device.cpp src/RcEngine/Renderer/Device.h
-        )
+        src/RcEngine/Renderer/MeshLoader.cpp src/RcEngine/Renderer/MeshLoader.h)
 #CORE--------------------------------------------------------------
 set(CORE
         src/RcEngine.h src/rcpch.cpp src/rcpch.h
         src/RcEngine/Core/Assert.h src/RcEngine/Core/Core.h
         src/RcEngine/Core/Application.h src/RcEngine/Core/Application.cpp
-        src/RcEngine/Core/Timestep.h src/RcEngine/Core/Window.cpp
-        src/RcEngine/Math/Math.cpp
+        src/RcEngine/Core/Timestep.h src/RcEngine/Core/Window.cpp src/RcEngine/Math/Math.cpp
         src/RcEngine/Math/Math.h src/RcEngine/Core/UUID.h src/RcEngine/Core/UUID.cpp)
 #SOUND-------------------------------------------------------------
 
 #EDITOR------------------------------------------------------------
 set(EDITOR
-        src/RcEngine/Editor/EditorConsolePanel.h
-        src/RcEngine/Editor/EditorConsole/EditorConsoleSink.h)
+        src/RcEngine/Editor/EditorConsolePanel.h src/RcEngine/Editor/EditorConsole/EditorConsoleSink.h)
 #OPENGL------------------------------------------------------------
-set(OPENGL_CXT
-        src/Platform/OpenGL/OpenGLUtils.cpp src/Platform/OpenGL/OpenGLUtils.h
-        src/Platform/OpenGL/OpenGLContext.h src/Platform/OpenGL/OpenGLContext.cpp
-        src/Platform/OpenGL/OpenGLBuffer.h src/Platform/OpenGL/OpenGLBuffer.cpp
-        src/Platform/OpenGL/OpenGLVertexArray.h src/Platform/OpenGL/OpenGLRenderAPI.h
-        src/Platform/OpenGL/OpenGLRenderAPI.cpp src/Platform/OpenGL/OpenGLVertexArray.cpp
-        src/Platform/OpenGL/OpenGLShader.cpp src/Platform/OpenGL/OpenGLShader.h
-        src/Platform/OpenGL/OpenGLTexture.cpp src/Platform/OpenGL/OpenGLTexture.h
-        src/Platform/OpenGL/OpenGLFrameBuffer.cpp src/Platform/OpenGL/OpenGLFrameBuffer.h
-        src/Platform/OpenGL/OpenGLUniformBuffer.cpp src/Platform/OpenGL/OpenGLUniformBuffer.h)
+if(RCENGINE_RENDER_OPENGL)
+    add_compile_definitions(RC_OPENGL)
+    find_package(OpenGL REQUIRED)
+    set(OPENGL_CXT
+            src/Platform/OpenGL/OpenGLUtils.cpp src/Platform/OpenGL/OpenGLUtils.h
+            src/Platform/OpenGL/OpenGLContext.h src/Platform/OpenGL/OpenGLContext.cpp
+            src/Platform/OpenGL/OpenGLBuffer.h src/Platform/OpenGL/OpenGLBuffer.cpp
+            src/Platform/OpenGL/OpenGLVertexArray.h src/Platform/OpenGL/OpenGLRenderAPI.h
+            src/Platform/OpenGL/OpenGLRenderAPI.cpp src/Platform/OpenGL/OpenGLVertexArray.cpp
+            src/Platform/OpenGL/OpenGLShader.cpp src/Platform/OpenGL/OpenGLShader.h
+            src/Platform/OpenGL/OpenGLTexture.cpp src/Platform/OpenGL/OpenGLTexture.h
+            src/Platform/OpenGL/OpenGLFrameBuffer.cpp src/Platform/OpenGL/OpenGLFrameBuffer.h
+            src/Platform/OpenGL/OpenGLUniformBuffer.cpp src/Platform/OpenGL/OpenGLUniformBuffer.h)
+endif()
 #VULKAN------------------------------------------------------------
-set(VK_CXT
-        src/Platform/Vulkan/VKBuffer.cpp src/Platform/Vulkan/VKBuffer.h
-        src/Platform/Vulkan/VKUtils.h src/Platform/Vulkan/VKUtils.cpp
-        src/Platform/Vulkan/VKUniformBuffer.cpp
-        src/Platform/Vulkan/VKUniformBuffer.h
-        src/Platform/Vulkan/VKTexture.cpp src/Platform/Vulkan/VKTexture.h)
+if(RCENGINE_RENDER_VK)
+    add_compile_definitions(RC_VKN)
+    set(VK_CXT
+            src/Platform/Vulkan/VKBuffer.cpp src/Platform/Vulkan/VKBuffer.h
+            src/Platform/Vulkan/VKUtils.h src/Platform/Vulkan/VKUtils.cpp
+            src/Platform/Vulkan/VKUniformBuffer.cpp
+            src/Platform/Vulkan/VKUniformBuffer.h
+            src/Platform/Vulkan/VKTexture.cpp
+            src/Platform/Vulkan/VKTexture.h src/Platform/Vulkan/VKMesh.cpp
+            src/Platform/Vulkan/VKMesh.h)
+endif()
 #METAL-------------------------------------------------------------
 set(MTL_CXT
-        src/Platform/Metal/MetalImplementation.h
-        src/Platform/Metal/MetalResource.h)
+
+        src/Platform/Metal/MetalImplementation.h src/Platform/Metal/MetalResource.h src/Platform/Metal/MetalShader.cpp src/Platform/Metal/MetalShader.h)
 #METAL-CPP---------------------------------------------------------
-set(MTL_CPP
-        src/Platform/Metal/metal-cpp/Metal/Metal.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLAccelerationStructure.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLAccelerationStructureCommandEncoder.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLAccelerationStructureTypes.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLArgument.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLArgumentEncoder.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLBinaryArchive.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLBlitCommandEncoder.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLBlitPass.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLBuffer.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLCaptureManager.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLCaptureScope.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLCommandBuffer.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLCommandEncoder.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLCommandQueue.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLComputeCommandEncoder.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLComputePass.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLComputePipeline.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLCounters.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLDefines.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLDepthStencil.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLDevice.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLDrawable.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLDynamicLibrary.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLEvent.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLFence.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLFunctionConstantValues.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLFunctionDescriptor.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLFunctionHandle.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLFunctionLog.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLFunctionStitching.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLHeaderBridge.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLHeap.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLIndirectCommandBuffer.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLIndirectCommandEncoder.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLIntersectionFunctionTable.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLLibrary.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLLinkedFunctions.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLParallelRenderCommandEncoder.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLPipeline.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLPixelFormat.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLPrivate.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLRasterizationRate.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLRenderCommandEncoder.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLRenderPass.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLRenderPipeline.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLResource.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLResourceStateCommandEncoder.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLResourceStatePass.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLSampler.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLStageInputOutputDescriptor.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLTexture.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLTypes.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLVertexDescriptor.hpp
-        src/Platform/Metal/metal-cpp/Metal/MTLVisibleFunctionTable.hpp
+if(RCENGINE_RENDER_METAL)
+    add_compile_definitions(RC_METAL)
+    set(MTL_CPP
+            src/Platform/Metal/metal-cpp/Metal/Metal.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLAccelerationStructure.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLAccelerationStructureCommandEncoder.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLAccelerationStructureTypes.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLArgument.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLArgumentEncoder.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLBinaryArchive.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLBlitCommandEncoder.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLBlitPass.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLBuffer.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLCaptureManager.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLCaptureScope.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLCommandBuffer.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLCommandEncoder.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLCommandQueue.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLComputeCommandEncoder.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLComputePass.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLComputePipeline.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLCounters.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLDefines.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLDepthStencil.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLDevice.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLDrawable.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLDynamicLibrary.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLEvent.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLFence.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLFunctionConstantValues.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLFunctionDescriptor.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLFunctionHandle.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLFunctionLog.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLFunctionStitching.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLHeaderBridge.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLHeap.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLIndirectCommandBuffer.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLIndirectCommandEncoder.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLIntersectionFunctionTable.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLLibrary.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLLinkedFunctions.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLParallelRenderCommandEncoder.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLPipeline.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLPixelFormat.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLPrivate.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLRasterizationRate.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLRenderCommandEncoder.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLRenderPass.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLRenderPipeline.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLResource.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLResourceStateCommandEncoder.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLResourceStatePass.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLSampler.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLStageInputOutputDescriptor.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLTexture.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLTypes.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLVertexDescriptor.hpp
+            src/Platform/Metal/metal-cpp/Metal/MTLVisibleFunctionTable.hpp
 
-        src/Platform/Metal/metal-cpp/Foundation/Foundation.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSArray.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSAutoreleasePool.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSBundle.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSData.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSDate.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSDefines.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSDictionary.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSEnumerator.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSError.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSLock.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSNotification.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSNumber.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSObjCRuntime.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSObject.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSPrivate.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSProcessInfo.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSRange.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSString.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSTypes.hpp
-        src/Platform/Metal/metal-cpp/Foundation/NSURL.hpp
+            src/Platform/Metal/metal-cpp/Foundation/Foundation.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSArray.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSAutoreleasePool.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSBundle.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSData.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSDate.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSDefines.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSDictionary.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSEnumerator.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSError.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSLock.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSNotification.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSNumber.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSObjCRuntime.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSObject.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSPrivate.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSProcessInfo.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSRange.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSString.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSTypes.hpp
+            src/Platform/Metal/metal-cpp/Foundation/NSURL.hpp
 
-        )
+            )
+endif()
 #SOUND-------------------------------------------------------------
 set(SOUND
-        src/RcEngine/Sound/SoundBuffer.cpp
-        src/RcEngine/Sound/SoundBuffer.h
-        src/RcEngine/Sound/SoundDevice.cpp src/RcEngine/Sound/SoundDevice.h)
+        src/RcEngine/Sound/SoundBuffer.cpp src/RcEngine/Sound/SoundBuffer.h src/RcEngine/Sound/SoundDevice.cpp src/RcEngine/Sound/SoundDevice.h)
 #SCENE-------------------------------------------------------------
 set(SCENE
         src/RcEngine/Scene/Scene.h
@@ -289,7 +294,6 @@ endif(APPLE)
 set(PCH
         src/rcpch.h)
 #------------------------------------------------------------------
-
 add_library(RcEngine STATIC
         ${CORE}
         ${LUA}
@@ -321,11 +325,10 @@ endif()
 target_precompile_headers(RcEngine PRIVATE src/rcpch.h)
 
 #link with libraries-------------------
-find_package(OpenGL REQUIRED)
 find_package(Lua51 REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(PkgConfig REQUIRED)
-find_package(OpenAL REQUIRED)
+find_package(OpenAL)
 
 
 #Rust library link---------------------
@@ -341,9 +344,9 @@ if(APPLE)
 
 endif()
 #--------------------------------------
+include_directories(${LIBSNDFILE_INCLUDE_DIRS})
 
 target_link_libraries(RcEngine
-        SndFile::sndfile
         glfw
         glm::glm
         box2d
@@ -358,6 +361,7 @@ target_link_libraries(RcEngine
         sol2
         lua::lib
         OpenAL
+        tinyobjloader
         ${LIBSNDFILE_LIBRARIES}
         )
 
