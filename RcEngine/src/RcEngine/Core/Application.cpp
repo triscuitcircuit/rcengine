@@ -27,7 +27,7 @@ namespace RcEngine{
 
         m_Window = Window::Create(WindowProps(name));
         m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
-        m_Window->SetVSync(false);
+        m_Window->SetVSync(true);
 
         SoundDevice::Init();
         Renderer::Init();

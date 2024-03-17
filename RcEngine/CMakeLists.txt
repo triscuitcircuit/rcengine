@@ -328,6 +328,7 @@ target_precompile_headers(RcEngine PRIVATE src/rcpch.h)
 find_package(Lua51 REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(PkgConfig REQUIRED)
+find_package(SndFile CONFIG REQUIRED)
 find_package(OpenAL)
 
 
@@ -361,6 +362,7 @@ target_link_libraries(RcEngine
         sol2
         lua::lib
         OpenAL
+        SndFile::sndfile
         tinyobjloader
         ${LIBSNDFILE_LIBRARIES}
         )
