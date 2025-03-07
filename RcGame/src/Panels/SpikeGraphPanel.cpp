@@ -23,6 +23,7 @@ namespace RcEngine {
         static float  m_Vr = -60.0f;
         static float m_A = 0.3f;
         static float m_B = -2;
+        static bool pause = false;
         ImGui::Begin("Spike Graph");
         ImGui::SliderFloat("resting membrane potential",&m_Vr, -100, 0, "%.3f");
         ImGui::SliderFloat("recovery time",&m_A, 0, 1, "%.3f");
@@ -32,7 +33,7 @@ namespace RcEngine {
         if(m_ViewPortSize != *((glm::vec2*)&viewportPanelSize) && viewportPanelSize.x > 0 && viewportPanelSize.y > 0){
             m_ViewPortSize = {viewportPanelSize.x,viewportPanelSize.y};
         }
-
+        
         for (int i = 0; i < s_v.size() - 1; ++i) {
             s_cur_time = s_v[i+1];
             s_v[i] = s_v[i + 1];
