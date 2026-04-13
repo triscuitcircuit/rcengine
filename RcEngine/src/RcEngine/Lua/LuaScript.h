@@ -24,14 +24,12 @@
 namespace LUtil{
 //    std::string getLuaVersion();
 
-    class LuaState{
+    class LuaScript{
     public:
-
-    LuaState(std::string& filename);
-    ~LuaState();
-
-    void initLua();
-
+        LuaScript(const char* filename);
+        ~LuaScript();
+    private:
+        bool b_hasLuaScript;
     };
 }
 

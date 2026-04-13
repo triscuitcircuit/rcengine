@@ -3,7 +3,6 @@
 //
 #include <glm/glm.hpp>
 
-#pragma once
 #include "SceneCamera.h"
 #include "RcEngine/Core/UUID.h"
 
@@ -15,6 +14,9 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
+
+// #include "RcEngine/Lua/LuaScript.h"
+#include "sol/function.hpp"
 
 #ifndef RCENGINE_CLION_COMPONENT_H
 #define RCENGINE_CLION_COMPONENT_H
@@ -116,8 +118,13 @@ namespace RcEngine{
             InstantiateScript = [] (){return static_cast<ScriptableEntity*>(new T()); };
             DestroyScript = [](NativeScriptComponent* nsc){delete nsc->Instance; nsc->Instance = nullptr;};
         }
-
     };
+    // struct LuaScriptComponent {
+    //     Ref<LUtil::LuaScript> Script;
+    //     LuaScriptComponent() = default;
+    //     LuaScriptComponent(const LuaScriptComponent&) = default;
+    //
+    // };
     struct RigidBodyFlatComponent{
         enum class BodyType {Static = 0, Kinematic = 1, Dynamic = 2};
         BodyType Type = BodyType::Static;
@@ -127,6 +134,17 @@ namespace RcEngine{
         void* RuntimeBody = nullptr;
         RigidBodyFlatComponent() = default;
         RigidBodyFlatComponent(const RigidBodyFlatComponent&) = default;
+
+    };
+    struct SpinComponent {
+        glm::vec3 Rotation = {0.0f,0.0f,0.0f};
+        float speed = 1.0f;
+        SpinComponent() = default;
+        SpinComponent(const SpinComponent&) = default;
+
+        glm::mat4 GetTransform() const {
+            return glm::translate(glm::mat4(speed),Rotation);
+        }
 
     };
     struct CircleRenderComponent{

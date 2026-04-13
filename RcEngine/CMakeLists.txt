@@ -83,7 +83,7 @@ if(APPLE)
 
     file(GLOB_RECURSE METAL "src/Platform/Metal/*.cpp" "src/Platform/Metal/*.h")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit -framework Metal -framework Cocoa")
-    add_subdirectory(external/corrosion)
+#    add_subdirectory(external/corrosion)
 
 endif(APPLE)
 
@@ -279,7 +279,11 @@ set(SCENE
         src/RcEngine/Scene/SceneSerializer.cpp src/RcEngine/Scene/SceneSerializer.h)
 #LUA---------------------------------------------------------------
 set(LUA
-        src/RcEngine/Lua/luastate.h src/RcEngine/Lua/luastate.cpp)
+        src/RcEngine/Lua/LuaScript.h src/RcEngine/Lua/LuaScript.cpp
+        src/RcEngine/Lua/LuaCameraController.cpp
+        src/RcEngine/Lua/LuaCameraController.h
+        src/RcEngine/Lua/luautil.h src/RcEngine/Lua/luautil.cpp
+        )
 #UTILS-------------------------------------------------------------
 set(UTILS
         src/RcEngine/Utils/PlatformUtils.h)
@@ -296,7 +300,7 @@ set(PCH
 #------------------------------------------------------------------
 add_library(RcEngine STATIC
         ${CORE}
-        ${LUA}
+#        ${LUA}
         ${RENDERER}
         ${EDITOR}
         ${OPENGL_CXT}
@@ -325,28 +329,29 @@ endif()
 target_precompile_headers(RcEngine PRIVATE src/rcpch.h)
 
 #link with libraries-------------------
-find_package(Lua51 REQUIRED)
+find_package(Lua REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(OpenAL)
 
 
 #Rust library link---------------------
-if(APPLE)
-    corrosion_import_crate(MANIFEST_PATH external/RcNetwork/Cargo.toml)
-    set(SDK_LOC /Volumes/MacStorage/sdk)
-    set_property(
-            TARGET rc_network
-            APPEND
-            PROPERTY CORROSION_ENVIRONMENT_VARIABLES
-            "STEAM_SDK_LOCATION=${SDK_LOC}"
-    )
+#if(APPLE)
+#    corrosion_import_crate(MANIFEST_PATH external/RcNetwork/Cargo.toml)
+#    set(SDK_LOC /Volumes/MacStorage/sdk)
+#    set_property(
+#            TARGET rc_network
+#            APPEND
+#            PROPERTY CORROSION_ENVIRONMENT_VARIABLES
+#            "STEAM_SDK_LOCATION=${SDK_LOC}"
+#    )
 
-endif()
+#endif()
 #--------------------------------------
 include_directories(${LIBSNDFILE_INCLUDE_DIRS})
-
+target_include_directories(RcEngine PUBLIC ${LIBSNDFILE_INCLUDE_DIRS})
 target_link_libraries(RcEngine
+        /opt/homebrew/lib/libsndfile.dylib
         glfw
         glm::glm
         box2d
@@ -362,12 +367,12 @@ target_link_libraries(RcEngine
         lua::lib
         OpenAL
         tinyobjloader
-        ${LIBSNDFILE_LIBRARIES}
         )
+message(STATUS "Libsndfile include directory: ${LIBSNDFILE_INCLUDE_DIRS}")
 
 if(APPLE)
     target_link_libraries(RcEngine
-            rc_network
+#            rc_network
             stdc++ "-framework Foundation" "-framework Cocoa" objc
             )
 endif()

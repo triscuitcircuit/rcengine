@@ -6,7 +6,7 @@
 #include "Core.h"
 #include <spdlog/spdlog.h>
 #include "spdlog/fmt/ostr.h"
-#include "glm/gtx/string_cast.hpp"
+#include <glm/gtx/string_cast.hpp>
 
 namespace RcEngine{
     class RC_API Log{
@@ -24,12 +24,14 @@ namespace RcEngine{
 }
 
 template<typename OStream, glm::length_t L, typename T, glm::qualifier Q>
-inline OStream& operator << (OStream& os, const glm::vec<L,T,Q>& vector){
-    return os<< glm::to_string(vector);
+ OStream& operator << (OStream& os, const glm::vec<L,T,Q>& vector){
+    os<< glm::to_string(vector);
+    return os;
 }
 template<typename OStream, glm::length_t C, glm::length_t R, typename T, glm::qualifier Q>
-inline OStream& operator << (OStream& os, const glm::mat<C,R,T,Q>& matrix){
-    return os<< glm::to_string(matrix);
+ OStream& operator << (OStream& os, const glm::mat<C,R,T,Q>& matrix){
+    os << glm::to_string(matrix);
+    return os;
 }
 
 #define RC_CORE_ERROR(...) ::RcEngine::Log::GetClientLogger()->error(__VA_ARGS__)

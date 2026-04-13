@@ -66,9 +66,8 @@ namespace RcEngine{
             void OnCreate(){
                 std::cout << "Entity Created" << std::endl;
             }
-            void OnDestroy(){
 
-            }
+            void OnDestroy(){}
             void OnUpdate(Timestep ts){
                 auto& translation = GetComponent<TransformComponent>().Translation;
                 float speed = 5.0f;

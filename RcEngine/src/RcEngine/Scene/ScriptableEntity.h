@@ -13,7 +13,6 @@ namespace RcEngine{
 
         template<typename T>
         T& GetComponent(){
-
             return m_Entity.template GetComponent<T>();
         }
     protected:

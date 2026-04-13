@@ -9,7 +9,7 @@ namespace RcEngine{
         @autoreleasepool {
             NSString *convertedString = [[NSString alloc] initWithCString:filter encoding:NSUTF8StringEncoding];
 
-            // Sets modal properties before  window is shown
+            // Sets modal properties before the window is shown
             // Generic NSOpenPanel is being used to pick files
             NSOpenPanel *panel = [NSOpenPanel openPanel];
             panel.canChooseFiles = YES;

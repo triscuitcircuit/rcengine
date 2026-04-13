@@ -5,6 +5,8 @@
 
 #include "Platform/processordetection.h"
 #include <sys/sysctl.h>
+#include <IOKit/IOKitLib.h>
+
 namespace RcEngine{
     template< typename T>
     int getCTLValue(const char key[], T * dest){

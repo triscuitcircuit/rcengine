@@ -1,4 +1,4 @@
-//
+ //
 // Created by Tristan Zippert on 7/6/21.
 //
 #include "rcpch.h"
@@ -6,7 +6,6 @@
 #include "ScriptableEntity.h"
 
 #include "Entity.h"
-
 #include "RcEngine/Renderer/Renderer2D.h"
 
 
@@ -55,6 +54,7 @@ namespace RcEngine{
         CopyComponent<SpriteRendererComponent>(dstSceneReg,srcSceneReg,enttMap);
         CopyComponent<CameraComponent>(dstSceneReg,srcSceneReg,enttMap);
         CopyComponent<RigidBodyFlatComponent>(dstSceneReg,srcSceneReg,enttMap);
+        CopyComponent<SpinComponent>(dstSceneReg,srcSceneReg,enttMap);
         CopyComponent<BoxFlatComponent>(dstSceneReg,srcSceneReg,enttMap);
         //CopyComponent<NativeScriptComponent>(dstSceneReg,srcSceneReg,enttMap);
 
@@ -85,6 +85,7 @@ namespace RcEngine{
                 Entity entity = {e, this};
                 auto& transform = entity.GetComponent<TransformComponent>();
                 auto& rb = entity.GetComponent<RigidBodyFlatComponent>();
+
 
                 b2Body* body = (b2Body*)rb.RuntimeBody;
 
@@ -174,13 +175,13 @@ namespace RcEngine{
                 Entity entity = {e, this};
                 auto& transform = entity.GetComponent<TransformComponent>();
                 auto& rb = entity.GetComponent<RigidBodyFlatComponent>();
-
                 b2Body* body = (b2Body*)rb.RuntimeBody;
 
                 const auto& position = body->GetPosition();
                 transform.Translation.x = position.x;
                 transform.Translation.y = position.y;
                 transform.Rotation.z = body->GetAngle();
+
             }
         }
 
@@ -304,6 +305,12 @@ namespace RcEngine{
     void Scene::OnAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component){
 
     }
+    template<>
+    // void Scene::OnAdded<LuaScriptComponent>(Entity e, LuaScriptComponent& component){
+    //
+    // }
+    template<>
+    void Scene::OnAdded<SpinComponent>(Entity entity, SpinComponent &component) {}
     template<>
     void Scene::OnAdded<SoundComponent>(Entity entity, SoundComponent &component) {}
     template<>

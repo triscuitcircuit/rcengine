@@ -67,6 +67,13 @@ namespace RcEngine{
                         ImGui::CloseCurrentPopup();
                     }
                 }
+                // if (!m_Selected.HasComponent<LuaScriptComponent>()) {
+                //     if (ImGui::MenuItem("Lua Script")) {
+                //         m_Selected.AddComponent<LuaScriptComponent>();
+                //
+                //         ImGui::CloseCurrentPopup();
+                //     }
+                // }
 
                 if (!m_Selected.HasComponent<SpriteRendererComponent>()) {
                     if (ImGui::MenuItem("Sprite")) {
@@ -380,6 +387,20 @@ namespace RcEngine{
             }
 
             ImGui::DragFloat("Tiling Factor",&comp.TilingFactor, 0.1f, 0.0f, 100.0f);
+
+        });
+        // DrawComponent<LuaScriptComponent>("Lua Script", entitySelection, [](auto& comp) {
+        //     ImGui::Button("Script",ImVec2(100.0f, 0.0f));
+        //     if(ImGui::BeginDragDropTarget()){
+        //         if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
+        //             const wchar_t* path = (const wchar_t *)payload->Data;
+        //             std::filesystem::path soundpath = std::filesystem::path(g_AssetPath)/path;
+        //             comp.Script = std::make_shared<LUtil::LuaScript>(soundpath.c_str());
+        //         }
+        //     }
+        // } );
+        DrawComponent<SpinComponent>("Transform",entitySelection,[](auto& comp) {
+            ImGui::DragFloat("speed",&comp.speed, 0.1f, 0.025f, 1.0f);
 
         });
         DrawComponent<SoundComponent>("Sound Component",entitySelection,[](auto& comp){

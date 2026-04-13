@@ -1,6 +1,4 @@
-//
-// Created by Tristan Zippert on 5/13/22.
-//
+
 
 #include "SoundBuffer.h"
 #include <cstddef>
@@ -9,17 +7,13 @@
 #include "RcEngine/Core/Core.h"
 
 namespace RcEngine {
-    SoundBuffer::SoundBuffer(const char *filename): m_Path(filename) {
+    SoundBuffer::SoundBuffer(const char *filename): Format(0), m_Path(filename) {
+        alGenSources(1, &a_Source);
 
+        alGenBuffers(NUM_BUFFERS, a_Buffers);
 
-        alGenSources(1,&a_Source);
-
-        alGenBuffers(NUM_BUFFERS,a_Buffers);
-
-        std::size_t  frame_size;
-
-        p_sndfile = sf_open(filename,SFM_READ,&p_Sinfo);
-        RC_CORE_ASSERT(p_sndfile,"Could not open provided music file");
+        p_sndfile = sf_open(filename, SFM_READ, &p_Sinfo);
+        RC_CORE_ASSERT(p_sndfile, "Could not open provided music file");
 
         switch (p_Sinfo.channels) {
             case 1:
@@ -29,24 +23,24 @@ namespace RcEngine {
                 Format = AL_FORMAT_STEREO16;
                 break;
             case 3:
-                if(sf_command(p_sndfile, SFC_WAVEX_GET_AMBISONIC,NULL,0)== SF_AMBISONIC_B_FORMAT)
+                if (sf_command(p_sndfile, SFC_WAVEX_GET_AMBISONIC,NULL, 0) == SF_AMBISONIC_B_FORMAT)
                     Format = AL_FORMAT_BFORMAT2D_16;
                 break;
             case 4:
-                if(sf_command(p_sndfile, SFC_WAVEX_GET_AMBISONIC,NULL,0)== SF_AMBISONIC_B_FORMAT)
+                if (sf_command(p_sndfile, SFC_WAVEX_GET_AMBISONIC,NULL, 0) == SF_AMBISONIC_B_FORMAT)
                     Format = AL_FORMAT_BFORMAT3D_16;
                 break;
-            break;
         }
-        if(!Format){
+        if (!Format) {
             sf_close(p_sndfile);
             p_sndfile = nullptr;
             RC_ERROR("Unsupported channel from file");
         }
-
-        frame_size =((size_t)BUFFER_SAMPLES * (size_t)p_Sinfo.channels * sizeof(short));
-        membuf = static_cast<short*>(malloc(frame_size));
+        std::size_t frame_size = (static_cast<size_t>(BUFFER_SAMPLES) * static_cast<size_t>(p_Sinfo.channels) * sizeof(
+                                      short));
+        membuf = static_cast<short *>(malloc(frame_size));
     }
+
     SoundBuffer::~SoundBuffer() {
         alDeleteSources(1,&a_Source);
         if(p_sndfile)
@@ -72,8 +66,8 @@ namespace RcEngine {
 
             slen = sf_readf_short(p_sndfile,membuf,BUFFER_SAMPLES);
             if(slen > 0){
-                slen *= p_Sinfo.channels * (sf_count_t)sizeof(short);
-                alBufferData(bufid,Format,membuf,(ALsizei)slen,p_Sinfo.samplerate);
+                slen *= p_Sinfo.channels * static_cast<sf_count_t>(sizeof(short));
+                alBufferData(bufid,Format,membuf,static_cast<ALsizei>(slen),p_Sinfo.samplerate);
                 alSourceQueueBuffers(a_Source,1,&bufid);
             }
             RC_ASSERT(alGetError() == AL_NO_ERROR,"Error buffering music Data");
