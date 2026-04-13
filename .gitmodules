@@ -1,0 +1,51 @@
+[submodule "RcEngine/external/GLFW"]
+	path = RcEngine/external/GLFW
+	url = https://github.com/glfw/glfw.git
+	branch = 3.3-stable
+[submodule "RcEngine/external/imgui"]
+	path = RcEngine/external/imgui
+	url = https://github.com/triscuitcircuit/imgui.git
+	branch = docking
+[submodule "RcEngine/external/spdlog"]
+	path = RcEngine/external/spdlog
+	url = https://github.com/gabime/spdlog.git
+	branch = v1.x
+[submodule "RcEngine/external/glm"]
+	path = RcEngine/external/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "RcEngine/external/GL"]
+	path = RcEngine/external/GL
+	url = https://github.com/nigels-com/glew.git
+[submodule "RcEngine/external/corrosion"]
+	path = RcEngine/external/corrosion
+	url = https://github.com/AndrewGaspar/corrosion.git
+[submodule "RcEngine/external/SOIL2"]
+	path = RcEngine/external/SOIL2
+	url = https://github.com/triscuitcircuit/SOIL2
+[submodule "RcEngine/external/yaml-cpp"]
+	path = RcEngine/external/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp
+[submodule "RcEngine/external/imguizmo"]
+	path = RcEngine/external/imguizmo
+	url = https://github.com/triscuitcircuit/ImGuizmo
+[submodule "RcEngine/external/box2d"]
+	path = RcEngine/external/box2d
+	url = https://github.com/triscuitcircuit/box2d
+[submodule "RcEngine/external/sol2"]
+	path = RcEngine/external/sol2
+	url = https://github.com/triscuitcircuit/sol2
+[submodule "RcEngine/external/lua"]
+	path = RcEngine/external/lua
+	url = https://github.com/triscuitcircuit/lua-cmake
+[submodule "RcEngine/external/openal-soft"]
+	path = RcEngine/external/openal-soft
+	url = https://github.com/triscuitcircuit/openal-soft
+[submodule "RcEngine/external/sndfile"]
+	path = RcEngine/external/sndfile
+	url = https://github.com/triscuitcircuit/libsndfile
+[submodule "RcEngine/external/ios-cmake"]
+	path = RcEngine/external/ios-cmake
+	url = https://github.com/leetal/ios-cmake
+[submodule "RcEngine/external/tinyobj"]
+	path = RcEngine/external/tinyobj
+	url = https://github.com/triscuitcircuit/tinyobjloader
