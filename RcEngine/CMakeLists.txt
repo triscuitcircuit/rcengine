@@ -5,6 +5,22 @@ cmake_minimum_required(VERSION 3.19)
 set(CMAKE_CXX_STANDARD 17)
 set(LANGUAGES C CXX)
 
+# ---- JoltPhysics (3D physics) via FetchContent ----
+include(FetchContent)
+FetchContent_Declare(
+    JoltPhysics
+    GIT_REPOSITORY https://github.com/jrouwe/JoltPhysics.git
+    GIT_TAG        v5.1.0
+    SOURCE_SUBDIR  Build
+)
+set(TARGET_HELLO_WORLD      OFF CACHE BOOL "" FORCE)
+set(TARGET_PERFORMANCE_TEST OFF CACHE BOOL "" FORCE)
+set(TARGET_SAMPLES          OFF CACHE BOOL "" FORCE)
+set(TARGET_VIEWER           OFF CACHE BOOL "" FORCE)
+set(TARGET_UNIT_TESTS       OFF CACHE BOOL "" FORCE)
+set(INTERPROCEDURAL_OPTIMIZATION OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(JoltPhysics)
+
 option(RCENGINE_RENDER_METAL "Build RcEngine with Metal on MacOS only" OFF)
 option(RCENGINE_RENDER_OPENGL "Build RcEngine with OpenGL" ON)
 option(RCENGINE_RENDER_VK "Build RcEngine with Vulkan" OFF)
@@ -138,7 +154,8 @@ set(RENDERER
         src/RcEngine/Renderer/EditorCamera.cpp src/RcEngine/Renderer/EditorCamera.h
         src/RcEngine/Renderer/Renderer3D.cpp src/RcEngine/Renderer/Renderer3D.h
         src/RcEngine/Renderer/UniformBuffer.cpp src/RcEngine/Renderer/UniformBuffer.h
-        src/RcEngine/Renderer/MeshLoader.cpp src/RcEngine/Renderer/MeshLoader.h)
+        src/RcEngine/Renderer/MeshLoader.cpp src/RcEngine/Renderer/MeshLoader.h
+        src/RcEngine/Renderer/Mesh.cpp src/RcEngine/Renderer/Mesh.h)
 #CORE--------------------------------------------------------------
 set(CORE
         src/RcEngine.h src/rcpch.cpp src/rcpch.h
@@ -300,7 +317,7 @@ set(PCH
 #------------------------------------------------------------------
 add_library(RcEngine STATIC
         ${CORE}
-#        ${LUA}
+        ${LUA}
         ${RENDERER}
         ${EDITOR}
         ${OPENGL_CXT}
@@ -367,6 +384,7 @@ target_link_libraries(RcEngine
         lua::lib
         OpenAL
         tinyobjloader
+        Jolt
         )
 message(STATUS "Libsndfile include directory: ${LIBSNDFILE_INCLUDE_DIRS}")
 

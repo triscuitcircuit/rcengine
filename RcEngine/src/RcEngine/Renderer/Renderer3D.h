@@ -1,31 +1,50 @@
 //
-// Created by Tristan Zippert on 7/28/21.
+// Renderer3D - 3D mesh rendering with Phong lighting (OpenGL 4.1)
 //
 #pragma once
 
-#include "RcEngine/Renderer/Camera.h"
-#include "RcEngine/Renderer/Texture.h"
-#include "RcEngine/Renderer/ProjectionCamera.h"
-#include "RcEngine/Renderer/EditorCamera.h"
+#include "Camera.h"
+#include "Texture.h"
+#include "ProjectionCamera.h"
+#include "EditorCamera.h"
+#include "Mesh.h"
 
-#ifndef RCENGINE_RENDERER3D_H
-#define RCENGINE_RENDERER3D_H
+#include <glm/glm.hpp>
 
-namespace RcEngine{
-    class Renderer3D{
+namespace RcEngine {
+
+    class Renderer3D {
     public:
         static void Init();
         static void Shutdown();
 
-        //TODO: implement perspective camera
         static void BeginScene(const ProjectionCamera& camera);
         static void BeginScene(const EditorCamera& camera);
-        static void BeginScene(const Camera& camera, const glm::mat4 transform);
+        static void BeginScene(const Camera& camera, const glm::mat4& transform);
 
         static void EndScene();
-        static void Flush();
 
+        // Draw an OBJ mesh with a flat color and optional Phong shading
+        static void DrawMesh(const glm::mat4& transform, Ref<Mesh> mesh,
+                             const glm::vec4& color = glm::vec4(1.0f),
+                             int entityID = -1);
+
+        // Draw an OBJ mesh with a texture
+        static void DrawMesh(const glm::mat4& transform, Ref<Mesh> mesh,
+                             Ref<Texture2D> texture,
+                             int entityID = -1);
+
+        // Draw a unit-cube primitive (useful for CubeComponent / box collider visualisation)
+        static void DrawCube(const glm::mat4& transform,
+                             const glm::vec4& color = glm::vec4(1.0f),
+                             int entityID = -1);
+
+        struct Stats {
+            uint32_t DrawCalls = 0;
+            uint32_t MeshCount = 0;
+        };
+        static Stats GetStats();
+        static void ResetStats();
     };
-}
 
-#endif //RCENGINE_RENDERER3D_H
+}

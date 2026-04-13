@@ -67,13 +67,43 @@ namespace RcEngine{
                         ImGui::CloseCurrentPopup();
                     }
                 }
-                // if (!m_Selected.HasComponent<LuaScriptComponent>()) {
-                //     if (ImGui::MenuItem("Lua Script")) {
-                //         m_Selected.AddComponent<LuaScriptComponent>();
-                //
-                //         ImGui::CloseCurrentPopup();
-                //     }
-                // }
+                if (!m_Selected.HasComponent<LuaScriptComponent>()) {
+                    if (ImGui::MenuItem("Lua Script")) {
+                        m_Selected.AddComponent<LuaScriptComponent>();
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+
+                if (!m_Selected.HasComponent<MeshComponent>()) {
+                    if (ImGui::MenuItem("Mesh (3D)")) {
+                        m_Selected.AddComponent<MeshComponent>();
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+                if (!m_Selected.HasComponent<CubeComponent>()) {
+                    if (ImGui::MenuItem("Cube (3D)")) {
+                        m_Selected.AddComponent<CubeComponent>();
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+                if (!m_Selected.HasComponent<RigidBody3DComponent>()) {
+                    if (ImGui::MenuItem("RigidBody 3D")) {
+                        m_Selected.AddComponent<RigidBody3DComponent>();
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+                if (!m_Selected.HasComponent<BoxCollider3DComponent>()) {
+                    if (ImGui::MenuItem("Box Collider 3D")) {
+                        m_Selected.AddComponent<BoxCollider3DComponent>();
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+                if (!m_Selected.HasComponent<SphereCollider3DComponent>()) {
+                    if (ImGui::MenuItem("Sphere Collider 3D")) {
+                        m_Selected.AddComponent<SphereCollider3DComponent>();
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
 
                 if (!m_Selected.HasComponent<SpriteRendererComponent>()) {
                     if (ImGui::MenuItem("Sprite")) {
@@ -466,10 +496,50 @@ namespace RcEngine{
             ImGui::DragFloat("Friction ",&component.Friction,0.01f,0.0f,1.0f);
             ImGui::DragFloat("Restitution ",&component.Bounce,0.01f,0.0f,1.0f);
             ImGui::DragFloat("Restitution Threshold",&component.BounceThreshold,0.01f,0.0f);
-
         });
 
+        // ---- 3D components ----
+        DrawComponent<MeshComponent>("Mesh (3D)", entitySelection, [](auto& comp){
+            char buf[256];
+            strncpy(buf, comp.FilePath.c_str(), sizeof(buf));
+            if (ImGui::InputText("File", buf, sizeof(buf)))
+                comp.FilePath = buf;
+            ImGui::ColorEdit4("Color", glm::value_ptr(comp.Color));
+        });
 
+        DrawComponent<CubeComponent>("Cube (3D)", entitySelection, [](auto& comp){
+            ImGui::ColorEdit4("Color", glm::value_ptr(comp.Color));
+        });
+
+        DrawComponent<LuaScriptComponent>("Lua Script", entitySelection, [](auto& comp){
+            char buf[512];
+            strncpy(buf, comp.FilePath.c_str(), sizeof(buf));
+            if (ImGui::InputText("Script File", buf, sizeof(buf)))
+                comp.FilePath = buf;
+        });
+
+        DrawComponent<RigidBody3DComponent>("RigidBody 3D", entitySelection, [](auto& comp){
+            const char* bodyTypes[] = {"Static", "Kinematic", "Dynamic"};
+            int current = (int)comp.Type;
+            if (ImGui::Combo("Type", &current, bodyTypes, 3))
+                comp.Type = (RigidBody3DComponent::BodyType)current;
+            ImGui::DragFloat("Linear Damping",  &comp.LinearDamping,  0.01f, 0.0f, 1.0f);
+            ImGui::DragFloat("Angular Damping", &comp.AngularDamping, 0.01f, 0.0f, 1.0f);
+        });
+
+        DrawComponent<BoxCollider3DComponent>("Box Collider 3D", entitySelection, [](auto& comp){
+            ImGui::DragFloat3("Half Extents", glm::value_ptr(comp.HalfExtents), 0.01f, 0.01f);
+            ImGui::DragFloat("Density",     &comp.Density,     1.0f, 0.0f);
+            ImGui::DragFloat("Friction",    &comp.Friction,    0.01f, 0.0f, 1.0f);
+            ImGui::DragFloat("Restitution", &comp.Restitution, 0.01f, 0.0f, 1.0f);
+        });
+
+        DrawComponent<SphereCollider3DComponent>("Sphere Collider 3D", entitySelection, [](auto& comp){
+            ImGui::DragFloat("Radius",      &comp.Radius,      0.01f, 0.01f);
+            ImGui::DragFloat("Density",     &comp.Density,     1.0f, 0.0f);
+            ImGui::DragFloat("Friction",    &comp.Friction,    0.01f, 0.0f, 1.0f);
+            ImGui::DragFloat("Restitution", &comp.Restitution, 0.01f, 0.0f, 1.0f);
+        });
 
     }
 

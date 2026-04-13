@@ -1,7 +1,7 @@
 //
 // Created by Tristan Zippert on 8/12/21.
 //
-#pragma once
+
 
 #include "Platform/processordetection.h"
 #include <sys/sysctl.h>

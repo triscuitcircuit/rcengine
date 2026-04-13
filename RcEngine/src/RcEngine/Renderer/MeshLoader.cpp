@@ -2,8 +2,8 @@
 // Created by Tristan Zippert on 7/30/22.
 //
 
+#include "rcpch.h"
 #include "MeshLoader.h"
-#include "vulkan/vulkan.h"
 
 namespace RcEngine{
     Mesh::Mesh(char *filename): m_filename(filename) {};
