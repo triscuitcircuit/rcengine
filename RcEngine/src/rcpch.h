@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <map>
 #include <sstream>
 
 #include "RcEngine/Core/Log.h"

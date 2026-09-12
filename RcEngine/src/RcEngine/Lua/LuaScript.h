@@ -1,40 +1,54 @@
 //
-// LuaScript - per-entity Lua script runner using Sol2
+// Created by Tristan Zippert on 12/30/21.
 //
-#pragma once
+
+#ifndef RCENGINE_LUASTATE_H
+#define RCENGINE_LUASTATE_H
+#include "RcEngine/Scene/Entity.h"
+
+extern "C" {
+#include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
+}
 
 #include "sol/sol.hpp"
-#include <string>
+#include <limits>
+#include <map>
 
-// Forward declare to avoid circular dependency:
-//   Component.h  -> LuaScript.h  (for LuaScriptComponent)
-//   LuaScript.h  -> Entity.h     (would pull Component.h back in)
-namespace RcEngine { class Entity; }
+
+#define SOL_SAFE_USERTYPE 1
+#define SOL_SAFE_REFERENCES 1
+#define SOL_SAFE_FUNCTION_CALLS 1
+#define SOL_SAFE_FUNCTION 1
+#define SOL_NO_NIL 0
+#define SOL_IN_DEBUG_DETECTED 0
+
+#define SOL_LUAJIT 0
+#define SOL_EXCEPTIONS_SAFE_PROPAGATION 0
+
 
 namespace LUtil {
-
     class LuaScript {
     public:
-        LuaScript() = default;
-        ~LuaScript() = default;
+        LuaScript(const char* filename);
+        ~LuaScript();
 
-        // Called from Scene::OnRuntimeStart  to bind the entity and load the file.
         void Initialize(RcEngine::Entity& entity, const std::string& filepath);
+        void RegisterBindings(RcEngine::Entity& entity);
 
         void OnCreate();
         void OnUpdate(float ts);
         void OnDestroy();
 
-        bool IsValid() const { return m_Valid; }
-
     private:
-        void RegisterBindings(RcEngine::Entity& entity);
-
-        sol::state   m_State;
-        sol::function m_OnCreate;
-        sol::function m_OnUpdate;
-        sol::function m_OnDestroy;
+        bool b_hasLuaScript;
         bool m_Valid = false;
-    };
 
+        sol::state m_State;
+        sol::protected_function m_OnCreate;
+        sol::protected_function m_OnUpdate;
+        sol::protected_function m_OnDestroy;
+    };
 }
+#endif //RCENGINE_LUASTATE_H

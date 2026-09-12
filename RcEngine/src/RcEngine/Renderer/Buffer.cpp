@@ -8,6 +8,7 @@
 #include "Platform/OpenGL/OpenGLBuffer.h"
 
 namespace RcEngine{
+#ifdef RC_OPENGL
     Ref<VertexBuffer> VertexBuffer::Create(uint32_t size) {
         switch (Renderer::GetAPI()) {
             case RenderAPI::API::None:
@@ -52,4 +53,5 @@ namespace RcEngine{
         RC_CORE_ASSERT(false, "Renderer not defined");
         return nullptr;
     }
+#endif
 }

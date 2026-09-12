@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 
-#find_package(Vulkan REQUIRED COMPONENTS glslc)
-#find_program(glslc_executable NAMES glslc HINTS Vulkan::glslc)
+find_package(Vulkan REQUIRED COMPONENTS glslc)
+find_program(glslc_executable NAMES glslc HINTS Vulkan::glslc)
 
 project(RcEditor)
 set(CMAKE_CXX_STANDARD 17)
@@ -14,12 +14,7 @@ file(GLOB SHADERS
         ${SHADER_SOURCE_DIR}/Vulkan/*.vert
         )
 
-#add_custom_command(
-#        COMMAND
-#        ${CMAKE_COMMAND} -E make_directory ${SHADERS_BINARY_DIR}
-#        OUTPUT ${SHADERS_BINARY_DIR}
-#        COMMENT "Creating ${SHADERS_BINARY_DIR}"
-#)
+file(MAKE_DIRECTORY ${SHADER_BINARY_DIR})
 
 foreach(GLSL IN LISTS SHADERS)
     get_filename_component(FILE_NAME ${GLSL} NAME)
@@ -31,7 +26,7 @@ foreach(GLSL IN LISTS SHADERS)
                 -o ${SHADER_BINARY_DIR}/${FILE_NAME}.spv
             ${GLSL}
             OUTPUT ${SHADER_BINARY_DIR}/${FILE_NAME}.spv
-            DEPENDS ${GLSL} ${SHADER_BINARY_DIR}
+            DEPENDS ${GLSL}
             COMMENT "COMPILING ${FILE_NAME}"
     )
             list(APPEND SPV_SHADERS ${SHADER_BINARY_DIR}/${FILE_NAME}.spv)

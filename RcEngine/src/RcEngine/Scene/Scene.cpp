@@ -127,10 +127,11 @@ namespace RcEngine {
         CopyComponent<SpinComponent>             (s->m_Registry, other->m_Registry, map);
         CopyComponent<MeshComponent>             (s->m_Registry, other->m_Registry, map);
         CopyComponent<CubeComponent>             (s->m_Registry, other->m_Registry, map);
-        CopyComponent<RigidBody3DComponent>      (s->m_Registry, other->m_Registry, map);
-        CopyComponent<BoxCollider3DComponent>    (s->m_Registry, other->m_Registry, map);
-        CopyComponent<SphereCollider3DComponent> (s->m_Registry, other->m_Registry, map);
-        CopyComponent<LuaScriptComponent>        (s->m_Registry, other->m_Registry, map);
+        // TODO: 3D physics components not yet implemented
+        // CopyComponent<RigidBody3DComponent>      (s->m_Registry, other->m_Registry, map);
+        // CopyComponent<BoxCollider3DComponent>    (s->m_Registry, other->m_Registry, map);
+        // CopyComponent<SphereCollider3DComponent> (s->m_Registry, other->m_Registry, map);
+        // CopyComponent<LuaScriptComponent>        (s->m_Registry, other->m_Registry, map);
         return s;
     }
 
@@ -224,6 +225,8 @@ namespace RcEngine {
     //  3D Physics (Jolt)                                                  //
     // ================================================================== //
     void Scene::OnPhysics3DStart() {
+        // TODO: 3D physics temporarily disabled until components are implemented
+        /*
         if (!JPH::Factory::sInstance)
             JPH::Factory::sInstance = new JPH::Factory();
         JPH::RegisterTypes();
@@ -305,9 +308,12 @@ namespace RcEngine {
         }
 
         physSys->OptimizeBroadPhase();
+        */
     }
 
     void Scene::OnPhysics3DStop() {
+        // TODO: 3D physics temporarily disabled until components are implemented
+        /*
         if (!m_JoltPhysicsSystem) return;
 
         auto* physSys = static_cast<JPH::PhysicsSystem*>(m_JoltPhysicsSystem);
@@ -337,6 +343,7 @@ namespace RcEngine {
         JPH::UnregisterTypes();
         delete JPH::Factory::sInstance;
         JPH::Factory::sInstance = nullptr;
+        */
     }
 
     // ================================================================== //
@@ -347,7 +354,9 @@ namespace RcEngine {
         OnPhysics2DStart();
         OnPhysics3DStart();
 
+        // TODO: Lua scripts temporarily disabled
         // Initialise Lua scripts
+        /*
         auto view = m_Registry.view<LuaScriptComponent>();
         for (auto e : view) {
             Entity entity = {e, this};
@@ -357,15 +366,19 @@ namespace RcEngine {
             lsc.Script->Initialize(entity, lsc.FilePath);
             lsc.Script->OnCreate();
         }
+        */
     }
 
     void Scene::OnRuntimeStop() {
+        // TODO: Lua scripts temporarily disabled
+        /*
         auto view = m_Registry.view<LuaScriptComponent>();
         for (auto e : view) {
             Entity entity = {e, this};
             auto& lsc     = entity.GetComponent<LuaScriptComponent>();
             if (lsc.Script) { lsc.Script->OnDestroy(); lsc.Script.reset(); }
         }
+        */
         OnPhysics2DStop();
         OnPhysics3DStop();
     }
@@ -394,6 +407,8 @@ namespace RcEngine {
 
     static void Step3DPhysics(void* sysPtr, void* allocPtr, void* jobPtr,
                                entt::registry& reg, Scene* scene, float ts) {
+        // TODO: 3D physics temporarily disabled
+        /*
         if (!sysPtr) return;
         auto* physSys = static_cast<JPH::PhysicsSystem*>(sysPtr);
         physSys->Update(ts, 1,
@@ -417,6 +432,7 @@ namespace RcEngine {
             glm::quat glmQ(rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ());
             transform.Rotation = glm::eulerAngles(glmQ);
         }
+        */
     }
 
     // ================================================================== //
@@ -438,13 +454,11 @@ namespace RcEngine {
         {
             auto group = m_Registry.view<TransformComponent, MeshComponent>();
             for (auto entity : group) {
-                auto& tr   = group.get<TransformComponent>(entity);
-                auto& mesh = group.get<MeshComponent>(entity);
-                if (!mesh.MeshData) continue;
-                if (mesh.DiffuseTexture)
-                    Renderer3D::DrawMesh(tr.GetTransform(), mesh.MeshData, mesh.DiffuseTexture, (int)entity);
-                else
-                    Renderer3D::DrawMesh(tr.GetTransform(), mesh.MeshData, mesh.Color, (int)entity);
+                auto& tr       = group.get<TransformComponent>(entity);
+                auto& meshComp = group.get<MeshComponent>(entity);
+                if (!meshComp.mesh || !meshComp.mesh->IsLoaded()) continue;
+                // TODO: Add texture/color fields to MeshComponent for materials
+                Renderer3D::DrawMesh(tr.GetTransform(), meshComp.mesh, glm::vec4(1.0f), (int)entity);
             }
         }
         {
@@ -481,7 +495,9 @@ namespace RcEngine {
             nsc.Instance->OnUpdate(ts);
         });
 
+        // TODO: Lua scripts temporarily disabled
         // Lua scripts
+        /*
         {
             auto view = m_Registry.view<LuaScriptComponent>();
             for (auto e : view) {
@@ -490,6 +506,7 @@ namespace RcEngine {
                     lsc.Script->OnUpdate(ts);
             }
         }
+        */
 
         Step2DPhysics(m_world, m_Registry, this, ts);
         Step3DPhysics(m_JoltPhysicsSystem, m_JoltTempAllocator, m_JoltJobSystem,
@@ -549,19 +566,21 @@ namespace RcEngine {
     template<> void Scene::OnAdded<CircleRenderComponent>      (Entity,CircleRenderComponent&)       {}
     template<>
     void Scene::OnAdded<MeshComponent>(Entity, MeshComponent& comp) {
-        if (!comp.FilePath.empty() && !comp.MeshData)
-            comp.MeshData = Mesh::Create(comp.FilePath);
+        // TODO: Add FilePath field to MeshComponent and implement lazy loading
+        // For now, mesh is loaded explicitly by user code
+        (void)comp; // Suppress unused parameter warning
     }
     template<> void Scene::OnAdded<CubeComponent>              (Entity,CubeComponent&)               {}
     template<> void Scene::OnAdded<SpinComponent>              (Entity,SpinComponent&)               {}
     template<> void Scene::OnAdded<SoundComponent>             (Entity,SoundComponent&)              {}
     template<> void Scene::OnAdded<NativeScriptComponent>      (Entity,NativeScriptComponent&)       {}
-    template<> void Scene::OnAdded<LuaScriptComponent>         (Entity,LuaScriptComponent&)          {}
+    // TODO: Unimplemented components temporarily disabled
+    // template<> void Scene::OnAdded<LuaScriptComponent>         (Entity,LuaScriptComponent&)          {}
     template<> void Scene::OnAdded<BoxFlatComponent>           (Entity,BoxFlatComponent&)            {}
     template<> void Scene::OnAdded<RigidBodyFlatComponent>     (Entity,RigidBodyFlatComponent&)      {}
-    template<> void Scene::OnAdded<RigidBody3DComponent>       (Entity,RigidBody3DComponent&)        {}
-    template<> void Scene::OnAdded<BoxCollider3DComponent>     (Entity,BoxCollider3DComponent&)      {}
-    template<> void Scene::OnAdded<SphereCollider3DComponent>  (Entity,SphereCollider3DComponent&)   {}
+    // template<> void Scene::OnAdded<RigidBody3DComponent>       (Entity,RigidBody3DComponent&)        {}
+    // template<> void Scene::OnAdded<BoxCollider3DComponent>     (Entity,BoxCollider3DComponent&)      {}
+    // template<> void Scene::OnAdded<SphereCollider3DComponent>  (Entity,SphereCollider3DComponent&)   {}
 
     template<>
     void Scene::OnAdded<CameraComponent>(Entity entity, CameraComponent& component) {

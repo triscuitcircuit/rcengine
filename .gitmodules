@@ -40,12 +40,12 @@
 [submodule "RcEngine/external/openal-soft"]
 	path = RcEngine/external/openal-soft
 	url = https://github.com/triscuitcircuit/openal-soft
+[submodule "RcEngine/external/tinyobj"]
+	path = RcEngine/external/tinyobj
+	url = https://github.com/triscuitcircuit/tinyobjloader
 [submodule "RcEngine/external/sndfile"]
 	path = RcEngine/external/sndfile
 	url = https://github.com/triscuitcircuit/libsndfile
 [submodule "RcEngine/external/ios-cmake"]
 	path = RcEngine/external/ios-cmake
 	url = https://github.com/leetal/ios-cmake
-[submodule "RcEngine/external/tinyobj"]
-	path = RcEngine/external/tinyobj
-	url = https://github.com/triscuitcircuit/tinyobjloader

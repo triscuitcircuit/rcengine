@@ -6,8 +6,6 @@
 #include "RcEngine/Scene/Component.h"
 #include "RcEngine/Scene/Entity.h"
 #include "RcEngine/Core/Core.h"
-#include "RcEngine/Lua/LuaCameraController.h"
-#include "sol/types.hpp"
 
 static const std::string Packages[] = {"coroutine", "math", "string", "table"};
 
@@ -15,23 +13,11 @@ namespace LuaUtil{
     LuaUtil::LuaUtil() {
         m_Lua.open_libraries(sol::lib::base,sol::lib::coroutine,sol::lib::math, sol::lib::bit32,
                              sol::lib::string, sol::lib::table, sol::lib::os, sol::lib::debug);
-        initBasePackage(m_Lua);
         for(const std::string & s: Packages){
-            // RC_CORE_ASSERT(m_Lua[s] != sol::lua_nil, "Lua function not found: %s" , s);
-            m_Packages[s] = m_Lua[s];
+            sol::object obj = m_Lua[s];
+            RC_CORE_ASSERT(obj.valid(), "Lua function not found: %s" , s);
+            m_Packages[s] = obj;
         }
-
-        m_Lua.new_usertype<RcEngine::LuaCameraController>("CameraController",
-            "OnCreate", &RcEngine::LuaCameraController::OnCreate,
-            "OnDestroy", &RcEngine::LuaCameraController::OnDestroy,
-            "OnUpdate", &RcEngine::LuaCameraController::OnUpdate
-            );
-
-        m_Lua["IsKeyPressed"] = [](int key) { return RcEngine::Input::IsKeyPressed(static_cast<RcEngine::KeyCode>(key)); };
-
-        m_Lua.new_usertype<RcEngine::TransformComponent>("TransformComponent",
-            "Translation", &RcEngine::TransformComponent::Translation);
-
     }
     template<typename T>
     void LuaUtil::addVecMethods(sol::usertype<T>& VecType){
@@ -80,19 +66,13 @@ namespace LuaUtil{
 
         return util;
     }
-    void LuaUtil::addPackage(std::string packageName, sol::object package) {
+    void LuaUtil::addPackage(std::string packageName, sol::object package){
         m_Packages.emplace(std::move(packageName), std::move(package));
     }
-    void LuaUtil::addScript(std::string &path) {
-        sol::table luastate = m_Lua.create_table();
-        m_Lua.script_file(path,luastate);
-    }
 
-
-    LuaUtil::~LuaUtil() {
-        m_Lua.collect_garbage();
-        m_Lua = sol::state{};
-        RC_WARN("LUA state destroyed");
-    }
-
+//    sol::table coreLuaPackage(sol::state& lua ){
+//        namespace RcEngine{
+//
+//        }
+//    }
 }

@@ -105,8 +105,14 @@ namespace RcEngine{
         virtual void SetLayout(const BufferLayout& layout)=0;
         virtual const BufferLayout& GetLayout() const =0;
 
-        static Ref<VertexBuffer> Create(uint32_t size);
-        static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
+    #ifdef RC_OPENGL
+            static Ref<VertexBuffer> Create(uint32_t size);
+            static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
+    #endif
+
+    #ifdef RC_VKN
+    #endif
+
     };
     //only supports 32 bit index buffers
     class IndexBuffer{
@@ -116,7 +122,11 @@ namespace RcEngine{
         virtual void Bind()const  =0;
         virtual void Unbind()const =0;
         virtual uint32_t GetCount() const =0;
+    #ifdef RC_OPENGL
+            static Ref<IndexBuffer> Create(uint32_t* vertices, uint32_t count);
+    #endif
+    #ifdef RC_VKN
 
-        static Ref<IndexBuffer> Create(uint32_t* vertices, uint32_t count);
+    #endif
     };
 }

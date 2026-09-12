@@ -1,0 +1,10 @@
+# Build artifacts
+.DS_Store
+*.DS_Store
+.cache/
+cmake-build-*/
+build/
+
+# IDE files
+.idea/
+.vscode/

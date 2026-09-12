@@ -5,13 +5,15 @@ cmake_minimum_required(VERSION 3.19)
 set(CMAKE_CXX_STANDARD 17)
 set(LANGUAGES C CXX)
 
-# ---- JoltPhysics (3D physics) via FetchContent ----
+option(RCENGINE_RENDER_METAL "Build RcEngine with Metal on MacOS only" OFF)
+option(RCENGINE_RENDER_OPENGL "Build RcEngine with OpenGL" ON)
+option(RCENGINE_RENDER_VK "Build RcEngine with Vulkan" OFF)
 include(FetchContent)
 FetchContent_Declare(
-    JoltPhysics
-    GIT_REPOSITORY https://github.com/jrouwe/JoltPhysics.git
-    GIT_TAG        v5.1.0
-    SOURCE_SUBDIR  Build
+        JoltPhysics
+        GIT_REPOSITORY https://github.com/jrouwe/JoltPhysics.git
+        GIT_TAG        v5.1.0
+        SOURCE_SUBDIR  Build
 )
 set(TARGET_HELLO_WORLD      OFF CACHE BOOL "" FORCE)
 set(TARGET_PERFORMANCE_TEST OFF CACHE BOOL "" FORCE)
@@ -20,10 +22,6 @@ set(TARGET_VIEWER           OFF CACHE BOOL "" FORCE)
 set(TARGET_UNIT_TESTS       OFF CACHE BOOL "" FORCE)
 set(INTERPROCEDURAL_OPTIMIZATION OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(JoltPhysics)
-
-option(RCENGINE_RENDER_METAL "Build RcEngine with Metal on MacOS only" OFF)
-option(RCENGINE_RENDER_OPENGL "Build RcEngine with OpenGL" ON)
-option(RCENGINE_RENDER_VK "Build RcEngine with Vulkan" OFF)
 
 if(APPLE)
     message(STATUS "Including Objective-C++ for APPLE")
@@ -46,18 +44,34 @@ include_directories(SYSTEM "external/glad/include")
 include_directories(SYSTEM "external/entt/include")
 include_directories(SYSTEM "src")
 
-
 add_subdirectory(external/SOIL2)
 add_subdirectory(external/imguizmo)
 add_subdirectory(external/glm)
 add_subdirectory(external/spdlog)
 add_subdirectory(external/imgui)
+
+# --- Lua detection (pinned to Homebrew 5.4 to avoid stale /usr/local/include
+#     header and to skip find_package's unreliable auto-search) -------------
+set(LUA_INCLUDE_DIR "/opt/homebrew/opt/lua@5.4/include/lua5.4" CACHE PATH "" FORCE)
+set(LUA_LIBRARIES "/opt/homebrew/opt/lua@5.4/lib/liblua.dylib" CACHE FILEPATH "" FORCE)
+find_package(Lua 5.4 REQUIRED)
+message(STATUS "LUA_INCLUDE_DIR = ${LUA_INCLUDE_DIR}")
+message(STATUS "LUA_LIBRARIES = ${LUA_LIBRARIES}")
+
+set(SOL2_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/sol2)
+
+# sol2 needs LUA_INCLUDE_DIR on its interface include path so it can see
+# lua.h and resolve LUA_VERSION_NUM before its own version-guard check runs.
+if(TARGET sol2)
+    target_include_directories(sol2 INTERFACE ${LUA_INCLUDE_DIR})
+endif()
+
 add_subdirectory(external/yaml-cpp)
 add_subdirectory(external/glad)
-add_subdirectory(external/lua)
 add_subdirectory(external/openal-soft)
 add_subdirectory(external/tinyobj)
+
 
 #BOX2D-------------------------------------------
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
@@ -95,11 +109,11 @@ if(APPLE)
             src/Platform/Mac/processordetection.cpp
             #            src/RcEngine/ImGui/CustomWidgets.h
             #            src/RcEngine/ImGui/CustomWidgets.mm
-            )
+    )
 
     file(GLOB_RECURSE METAL "src/Platform/Metal/*.cpp" "src/Platform/Metal/*.h")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit -framework Metal -framework Cocoa")
-#    add_subdirectory(external/corrosion)
+    #    add_subdirectory(external/corrosion)
 
 endif(APPLE)
 
@@ -129,7 +143,7 @@ set(GUI
         src/RcEngine/ImGui/ImGuiLayer.cpp
         src/RcEngine/ImGui/ImGuiLayer.h
         src/RcEngine/ImGui/ImGuiBuild.cpp
-        )
+)
 #RENDERER----------------------------------------------------------
 set(RENDERER
         src/RcEngine/Renderer/Shader.h src/RcEngine/Renderer/Shader.cpp
@@ -154,8 +168,8 @@ set(RENDERER
         src/RcEngine/Renderer/EditorCamera.cpp src/RcEngine/Renderer/EditorCamera.h
         src/RcEngine/Renderer/Renderer3D.cpp src/RcEngine/Renderer/Renderer3D.h
         src/RcEngine/Renderer/UniformBuffer.cpp src/RcEngine/Renderer/UniformBuffer.h
-        src/RcEngine/Renderer/MeshLoader.cpp src/RcEngine/Renderer/MeshLoader.h
-        src/RcEngine/Renderer/Mesh.cpp src/RcEngine/Renderer/Mesh.h)
+        src/RcEngine/Renderer/Mesh.cpp src/RcEngine/Renderer/Mesh.h
+        src/RcEngine/Renderer/MeshLoader.cpp src/RcEngine/Renderer/MeshLoader.h)
 #CORE--------------------------------------------------------------
 set(CORE
         src/RcEngine.h src/rcpch.cpp src/rcpch.h
@@ -281,7 +295,7 @@ if(RCENGINE_RENDER_METAL)
             src/Platform/Metal/metal-cpp/Foundation/NSTypes.hpp
             src/Platform/Metal/metal-cpp/Foundation/NSURL.hpp
 
-            )
+    )
 endif()
 #SOUND-------------------------------------------------------------
 set(SOUND
@@ -300,7 +314,7 @@ set(LUA
         src/RcEngine/Lua/LuaCameraController.cpp
         src/RcEngine/Lua/LuaCameraController.h
         src/RcEngine/Lua/luautil.h src/RcEngine/Lua/luautil.cpp
-        )
+)
 #UTILS-------------------------------------------------------------
 set(UTILS
         src/RcEngine/Utils/PlatformUtils.h)
@@ -333,20 +347,19 @@ add_library(RcEngine STATIC
         ${MTL_CXT}
         ${MTL_CPP}
         ${SOUND}
-        )
+)
 #------------------------------------------------------------------
 if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
     message("DEBUG BUILD")
     add_library(rcengine STATIC
             ${DEBUG_FILE}
-            )
+    )
 endif()
 #------------------------------------------------------------------
 
 target_precompile_headers(RcEngine PRIVATE src/rcpch.h)
 
 #link with libraries-------------------
-find_package(Lua REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(OpenAL)
@@ -365,8 +378,27 @@ find_package(OpenAL)
 
 #endif()
 #--------------------------------------
-include_directories(${LIBSNDFILE_INCLUDE_DIRS})
+# RcEngine also needs the Lua include dir directly, since LuaScript.h /
+# luautil.h include lua.h themselves (not just via the sol2 target).
+# Use BEFORE to ensure Lua 5.4 headers are found first, preventing
+# /opt/homebrew/include/lua (Lua 5.5) from being picked up
+include_directories(BEFORE SYSTEM ${LUA_INCLUDE_DIR})
+target_include_directories(RcEngine BEFORE PUBLIC ${LUA_INCLUDE_DIR})
+
+# Sol2 uses __has_include(<lua/lua.h>) which finds /opt/homebrew/include/lua (Lua 5.5).
+# Create wrapper headers in a lua/ subdirectory to intercept the include
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lua_wrapper/lua")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lua_wrapper/lua/lua.h" "#include \"${LUA_INCLUDE_DIR}/lua.h\"\n")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lua_wrapper/lua/lualib.h" "#include \"${LUA_INCLUDE_DIR}/lualib.h\"\n")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lua_wrapper/lua/lauxlib.h" "#include \"${LUA_INCLUDE_DIR}/lauxlib.h\"\n")
+target_include_directories(RcEngine BEFORE PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/lua_wrapper")
+target_compile_options(RcEngine PRIVATE 
+    -Wno-#pragma-messages
+)
+
+# Don't use global include_directories for libsndfile to avoid header conflicts
 target_include_directories(RcEngine PUBLIC ${LIBSNDFILE_INCLUDE_DIRS})
+
 target_link_libraries(RcEngine
         /opt/homebrew/lib/libsndfile.dylib
         glfw
@@ -381,18 +413,18 @@ target_link_libraries(RcEngine
         imguizmo
         Vulkan::Vulkan
         sol2
-        lua::lib
+        ${LUA_LIBRARIES}
         OpenAL
         tinyobjloader
         Jolt
-        )
+)
 message(STATUS "Libsndfile include directory: ${LIBSNDFILE_INCLUDE_DIRS}")
 
 if(APPLE)
     target_link_libraries(RcEngine
-#            rc_network
+            #            rc_network
             stdc++ "-framework Foundation" "-framework Cocoa" objc
-            )
+    )
 endif()
 #--------------------------------------
 target_include_directories(RcEngine PUBLIC $(CMAKE_CURRENT_SOURCE_DIR))

@@ -67,12 +67,15 @@ namespace RcEngine{
                         ImGui::CloseCurrentPopup();
                     }
                 }
+                // TODO: Temporarily disabled components
+                /*
                 if (!m_Selected.HasComponent<LuaScriptComponent>()) {
                     if (ImGui::MenuItem("Lua Script")) {
                         m_Selected.AddComponent<LuaScriptComponent>();
                         ImGui::CloseCurrentPopup();
                     }
                 }
+                */
 
                 if (!m_Selected.HasComponent<MeshComponent>()) {
                     if (ImGui::MenuItem("Mesh (3D)")) {
@@ -86,6 +89,8 @@ namespace RcEngine{
                         ImGui::CloseCurrentPopup();
                     }
                 }
+                // TODO: 3D physics components temporarily disabled
+                /*
                 if (!m_Selected.HasComponent<RigidBody3DComponent>()) {
                     if (ImGui::MenuItem("RigidBody 3D")) {
                         m_Selected.AddComponent<RigidBody3DComponent>();
@@ -104,6 +109,7 @@ namespace RcEngine{
                         ImGui::CloseCurrentPopup();
                     }
                 }
+                */
 
                 if (!m_Selected.HasComponent<SpriteRendererComponent>()) {
                     if (ImGui::MenuItem("Sprite")) {
@@ -499,6 +505,8 @@ namespace RcEngine{
         });
 
         // ---- 3D components ----
+        // TODO: MeshComponent UI needs rework to match new structure (mesh field only)
+        /*
         DrawComponent<MeshComponent>("Mesh (3D)", entitySelection, [](auto& comp){
             char buf[256];
             strncpy(buf, comp.FilePath.c_str(), sizeof(buf));
@@ -506,11 +514,14 @@ namespace RcEngine{
                 comp.FilePath = buf;
             ImGui::ColorEdit4("Color", glm::value_ptr(comp.Color));
         });
+        */
 
         DrawComponent<CubeComponent>("Cube (3D)", entitySelection, [](auto& comp){
             ImGui::ColorEdit4("Color", glm::value_ptr(comp.Color));
         });
 
+        // TODO: Lua and 3D physics components temporarily disabled
+        /*
         DrawComponent<LuaScriptComponent>("Lua Script", entitySelection, [](auto& comp){
             char buf[512];
             strncpy(buf, comp.FilePath.c_str(), sizeof(buf));
@@ -540,6 +551,7 @@ namespace RcEngine{
             ImGui::DragFloat("Friction",    &comp.Friction,    0.01f, 0.0f, 1.0f);
             ImGui::DragFloat("Restitution", &comp.Restitution, 0.01f, 0.0f, 1.0f);
         });
+        */
 
     }
 
