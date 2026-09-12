@@ -195,6 +195,8 @@ namespace RcEngine {
     // ------------------------------------------------------------------ //
     void Renderer3D::DrawCube(const glm::mat4& transform,
                               const glm::vec4& color, int entityID) {
+        s_Data.MeshShader->Bind();
+        
         glm::mat4 normalMatrix = glm::mat4(glm::transpose(glm::inverse(glm::mat3(transform))));
 
         s_Data.MeshShader->SetMat4  ("u_Model",        transform);
