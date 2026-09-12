@@ -8,3 +8,4 @@ build/
 # IDE files
 .idea/
 .vscode/
+BUILD_SUCCESS_SUMMARY.md

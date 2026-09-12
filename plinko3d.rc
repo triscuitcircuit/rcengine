@@ -1,0 +1,227 @@
+Scene: 3D Plinko
+Entities:
+  - Entity: 1000000001
+    TagComponent:
+      Tag: Main Camera
+    TransformComponent:
+      Translation: [0, 5, 15]
+      Rotation: [-0.3, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.1
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicFar: 1
+        OrthographicNear: -1
+      Primary: true
+      FixedAspect: false
+  - Entity: 1000000002
+    TagComponent:
+      Tag: Floor
+    TransformComponent:
+      Translation: [0, -8, 0]
+      Rotation: [0, 0, 0]
+      Scale: [20, 0.5, 10]
+    CubeComponent:
+      Color: [0.3, 0.3, 0.3, 1]
+  - Entity: 1000000003
+    TagComponent:
+      Tag: Back Wall
+    TransformComponent:
+      Translation: [0, 0, -5]
+      Rotation: [0, 0, 0]
+      Scale: [20, 20, 0.5]
+    CubeComponent:
+      Color: [0.2, 0.2, 0.25, 1]
+  - Entity: 1000000010
+    TagComponent:
+      Tag: Peg Row 1 - Center
+    TransformComponent:
+      Translation: [0, 5, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000011
+    TagComponent:
+      Tag: Peg Row 2 - Left
+    TransformComponent:
+      Translation: [-2, 3, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000012
+    TagComponent:
+      Tag: Peg Row 2 - Right
+    TransformComponent:
+      Translation: [2, 3, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000013
+    TagComponent:
+      Tag: Peg Row 3 - Left
+    TransformComponent:
+      Translation: [-3, 1, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000014
+    TagComponent:
+      Tag: Peg Row 3 - Center
+    TransformComponent:
+      Translation: [0, 1, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000015
+    TagComponent:
+      Tag: Peg Row 3 - Right
+    TransformComponent:
+      Translation: [3, 1, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000016
+    TagComponent:
+      Tag: Peg Row 4 - Far Left
+    TransformComponent:
+      Translation: [-4, -1, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000017
+    TagComponent:
+      Tag: Peg Row 4 - Left
+    TransformComponent:
+      Translation: [-1.5, -1, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000018
+    TagComponent:
+      Tag: Peg Row 4 - Right
+    TransformComponent:
+      Translation: [1.5, -1, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000019
+    TagComponent:
+      Tag: Peg Row 4 - Far Right
+    TransformComponent:
+      Translation: [4, -1, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000020
+    TagComponent:
+      Tag: Peg Row 5 - Far Left
+    TransformComponent:
+      Translation: [-5, -3, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000021
+    TagComponent:
+      Tag: Peg Row 5 - Mid Left
+    TransformComponent:
+      Translation: [-2.5, -3, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000022
+    TagComponent:
+      Tag: Peg Row 5 - Center
+    TransformComponent:
+      Translation: [0, -3, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000023
+    TagComponent:
+      Tag: Peg Row 5 - Mid Right
+    TransformComponent:
+      Translation: [2.5, -3, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000024
+    TagComponent:
+      Tag: Peg Row 5 - Far Right
+    TransformComponent:
+      Translation: [5, -3, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    CubeComponent:
+      Color: [1, 0.5, 0.2, 1]
+  - Entity: 1000000030
+    TagComponent:
+      Tag: Bucket 1
+    TransformComponent:
+      Translation: [-6, -6, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1.5, 1, 0.5]
+    CubeComponent:
+      Color: [0.2, 1, 0.2, 1]
+  - Entity: 1000000031
+    TagComponent:
+      Tag: Bucket 2
+    TransformComponent:
+      Translation: [-3, -6, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1.5, 1, 0.5]
+    CubeComponent:
+      Color: [0.2, 0.8, 1, 1]
+  - Entity: 1000000032
+    TagComponent:
+      Tag: Bucket 3
+    TransformComponent:
+      Translation: [0, -6, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1.5, 1, 0.5]
+    CubeComponent:
+      Color: [1, 1, 0.2, 1]
+  - Entity: 1000000033
+    TagComponent:
+      Tag: Bucket 4
+    TransformComponent:
+      Translation: [3, -6, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1.5, 1, 0.5]
+    CubeComponent:
+      Color: [0.2, 0.8, 1, 1]
+  - Entity: 1000000034
+    TagComponent:
+      Tag: Bucket 5
+    TransformComponent:
+      Translation: [6, -6, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1.5, 1, 0.5]
+    CubeComponent:
+      Color: [0.2, 1, 0.2, 1]
+  - Entity: 1000000040
+    TagComponent:
+      Tag: Ball
+    TransformComponent:
+      Translation: [0, 7, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.6, 0.6, 0.6]
+    CubeComponent:
+      Color: [1, 0.2, 0.2, 1]

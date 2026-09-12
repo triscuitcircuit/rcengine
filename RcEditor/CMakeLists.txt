@@ -36,7 +36,10 @@ set(SOURCE_FILES
         src/RcEditorApp.cpp
         src/EditorLayer.h src/EditorLayer.cpp
         src/Panels/ContentBrowserPanel.cpp
-        src/Panels/ContentBrowserPanel.h src/ViewPanel.cpp src/ViewPanel.h)
+        src/Panels/ContentBrowserPanel.h 
+        src/Panels/SpectrogramPanel.cpp
+        src/Panels/SpectrogramPanel.h
+        src/ViewPanel.cpp src/ViewPanel.h)
 
 set(PANELS
         src/Panels/SceneHierarchyPanel.cpp

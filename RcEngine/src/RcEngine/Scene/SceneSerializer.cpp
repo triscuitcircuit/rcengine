@@ -342,9 +342,9 @@ namespace RcEngine{
                     src.Size = BoxComp["Size"].as<glm::vec2>();
 
                     src.Density = BoxComp["Density"].as<float>();
-                    src.Friction = BoxComp["Density"].as<float>();
+                    src.Friction = BoxComp["Friction"].as<float>();
                     src.Bounce = BoxComp["Bounce"].as<float>();
-                    src.Bounce = BoxComp["BounceThreshold"].as<float>();
+                    src.BounceThreshold = BoxComp["BounceThreshold"].as<float>();
                 }
                 auto RigidComp = entity["RigidBodyFlatComponent"];
 
