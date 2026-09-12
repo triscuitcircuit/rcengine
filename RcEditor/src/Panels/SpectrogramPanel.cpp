@@ -15,7 +15,22 @@ namespace RcEngine {
             return;
         }
 
+        // Update data every frame if playing
+        if (m_SoundBuffer->isPlaying()) {
+            UpdateLiveData();
+        }
+
         ImGui::Text("Audio: %s", m_SoundBuffer->getPath().c_str());
+        
+        // Show playback position
+        if (m_SoundBuffer->isPlaying()) {
+            float pos = m_SoundBuffer->GetPlaybackPosition();
+            const auto& info = m_SoundBuffer->GetSoundInfo();
+            float duration = (float)info.frames / (float)info.samplerate;
+            ImGui::Text("Playing: %.2fs / %.2fs", pos, duration);
+            ImGui::ProgressBar(pos / duration);
+        }
+        
         ImGui::Separator();
 
         ImGui::Checkbox("Show Waveform", &m_ShowWaveform);
@@ -58,54 +73,39 @@ namespace RcEngine {
     void SpectrogramPanel::LoadAudioData() {
         if (!m_SoundBuffer) return;
         
-        // Open audio file with libsndfile
-        SF_INFO sfInfo;
-        SNDFILE* file = sf_open(m_SoundBuffer->getPath().c_str(), SFM_READ, &sfInfo);
+        // Load initial data from beginning of file
+        UpdateDataAtPosition(0);
+    }
+    
+    void SpectrogramPanel::UpdateLiveData() {
+        if (!m_SoundBuffer) return;
         
-        if (!file) {
-            // Failed to open file
-            std::fill(m_Waveform.begin(), m_Waveform.end(), 0.0f);
-            std::fill(m_Spectrum.begin(), m_Spectrum.end(), 0.0f);
-            return;
-        }
+        // Get current playback position in samples
+        float posSeconds = m_SoundBuffer->GetPlaybackPosition();
+        const auto& info = m_SoundBuffer->GetSoundInfo();
+        int posSamples = (int)(posSeconds * info.samplerate);
         
-        // Read first portion of audio for waveform (1 second or WAVEFORM_SAMPLES, whichever is less)
-        int samplesToRead = std::min(WAVEFORM_SAMPLES, (int)sfInfo.samplerate);
-        std::vector<short> tempBuffer(samplesToRead * sfInfo.channels);
-        sf_count_t samplesRead = sf_read_short(file, tempBuffer.data(), samplesToRead * sfInfo.channels);
+        // Update visualization with current data
+        UpdateDataAtPosition(posSamples);
+    }
+    
+    void SpectrogramPanel::UpdateDataAtPosition(int startSample) {
+        if (!m_SoundBuffer) return;
         
-        // Convert to float and downsample to mono if needed
-        for (int i = 0; i < WAVEFORM_SAMPLES && i < samplesToRead; ++i) {
-            float sample = 0.0f;
-            for (int ch = 0; ch < sfInfo.channels; ++ch) {
-                int index = i * sfInfo.channels + ch;
-                if (index < samplesRead) {
-                    sample += tempBuffer[index] / 32768.0f;  // Normalize to [-1, 1]
-                }
+        // Get waveform data
+        std::vector<float> waveformData;
+        if (m_SoundBuffer->GetPCMData(waveformData, startSample, WAVEFORM_SAMPLES)) {
+            // Copy to display buffer
+            for (int i = 0; i < WAVEFORM_SAMPLES && i < waveformData.size(); ++i) {
+                m_Waveform[i] = waveformData[i];
             }
-            m_Waveform[i] = sample / sfInfo.channels;  // Average channels
         }
         
-        // For spectrum, read FFT_SIZE samples
-        sf_seek(file, 0, SEEK_SET);  // Reset to beginning
-        std::vector<short> fftBuffer(FFT_SIZE * sfInfo.channels);
-        sf_read_short(file, fftBuffer.data(), FFT_SIZE * sfInfo.channels);
-        
-        std::vector<float> fftInput(FFT_SIZE);
-        for (int i = 0; i < FFT_SIZE; ++i) {
-            float sample = 0.0f;
-            for (int ch = 0; ch < sfInfo.channels; ++ch) {
-                int index = i * sfInfo.channels + ch;
-                if (index < FFT_SIZE * sfInfo.channels) {
-                    sample += fftBuffer[index] / 32768.0f;
-                }
-            }
-            fftInput[i] = sample / sfInfo.channels;
+        // Get spectrum data (FFT)
+        std::vector<float> fftInput;
+        if (m_SoundBuffer->GetPCMData(fftInput, startSample, FFT_SIZE)) {
+            ComputeFFT(fftInput, m_Spectrum);
         }
-        
-        ComputeFFT(fftInput, m_Spectrum);
-        
-        sf_close(file);
     }
 
     void SpectrogramPanel::ComputeFFT(const std::vector<float>& input, std::vector<float>& output) {

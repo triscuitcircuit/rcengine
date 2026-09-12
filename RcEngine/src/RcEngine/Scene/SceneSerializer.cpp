@@ -235,6 +235,16 @@ namespace RcEngine{
 
             out << YAML::EndMap;
         }
+        
+        if(entity1.HasComponent<CubeComponent>()){
+            out << YAML::Key << "CubeComponent";
+            out << YAML::BeginMap;
+
+            auto& cube = entity1.GetComponent<CubeComponent>();
+            out << YAML::Key << "Color" << YAML::Value << cube.Color;
+
+            out << YAML::EndMap;
+        }
 
 
         out << YAML::EndMap; // Entity Map
@@ -354,6 +364,13 @@ namespace RcEngine{
                     src.Type = RigidBodyFlatBodyTypeFromString(RigidComp["BodyType"].as<std::string>());
                     src.FixedRotation = RigidComp["FixedRotation"].as<bool>();
 
+                }
+                
+                auto CubeComp = entity["CubeComponent"];
+                
+                if(CubeComp){
+                    auto& cube = deserializedEntity.AddComponent<CubeComponent>();
+                    cube.Color = CubeComp["Color"].as<glm::vec4>();
                 }
 
             }

@@ -36,6 +36,13 @@ namespace RcEngine{
 
         void SetGain(const float& val);
         void Duration(float& val);
+        
+        // Spectrogram support
+        const SF_INFO& GetSoundInfo() const { return p_Sinfo; }
+        float GetPlaybackPosition() const;
+        
+        // Get PCM data for visualization
+        bool GetPCMData(std::vector<float>& outData, int startSample, int numSamples);
 
     private:
         ALuint a_Source;

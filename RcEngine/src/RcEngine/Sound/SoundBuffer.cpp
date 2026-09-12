@@ -135,5 +135,39 @@ namespace RcEngine {
     void SoundBuffer::Duration(float &val) {
         return;
     }
+    
+    float SoundBuffer::GetPlaybackPosition() const {
+        ALfloat seconds = 0.0f;
+        alGetSourcef(a_Source, AL_SEC_OFFSET, &seconds);
+        return seconds;
+    }
+    
+    bool SoundBuffer::GetPCMData(std::vector<float>& outData, int startSample, int numSamples) {
+        if (!p_sndfile) return false;
+        
+        // Seek to start position
+        sf_count_t seekPos = sf_seek(p_sndfile, startSample, SEEK_SET);
+        if (seekPos == -1) {
+            // Seek failed, reset to beginning
+            sf_seek(p_sndfile, 0, SEEK_SET);
+            return false;
+        }
+        
+        // Read samples
+        std::vector<short> tempBuffer(numSamples * p_Sinfo.channels);
+        sf_count_t samplesRead = sf_read_short(p_sndfile, tempBuffer.data(), numSamples * p_Sinfo.channels);
+        
+        // Convert to float and mix to mono
+        outData.resize(numSamples);
+        for (int i = 0; i < numSamples && i < samplesRead / p_Sinfo.channels; ++i) {
+            float sample = 0.0f;
+            for (int ch = 0; ch < p_Sinfo.channels; ++ch) {
+                sample += tempBuffer[i * p_Sinfo.channels + ch] / 32768.0f;
+            }
+            outData[i] = sample / p_Sinfo.channels;
+        }
+        
+        return true;
+    }
 
 }

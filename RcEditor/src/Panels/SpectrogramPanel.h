@@ -20,6 +20,8 @@ namespace RcEngine {
 
     private:
         void LoadAudioData();
+        void UpdateLiveData();
+        void UpdateDataAtPosition(int startSample);
         void ComputeFFT(const std::vector<float>& input, std::vector<float>& output);
         void DrawWaveform(const std::vector<float>& waveform);
         void DrawSpectrum(const std::vector<float>& spectrum);
