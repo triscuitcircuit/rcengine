@@ -8,9 +8,45 @@ namespace RcEngine {
     void SpectrogramPanel::OnImGuiRender() {
         ImGui::Begin("Audio Spectrogram");
 
+        // File selection UI
+        ImGui::Text("Drop audio file here or click to browse");
+        ImGui::Separator();
+        
+        // Drag-drop target
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
+                const wchar_t* path = (const wchar_t*)payload->Data;
+                std::filesystem::path audioPath = std::filesystem::path(path);
+                std::string pathStr = audioPath.string();
+                
+                // Check if it's an audio file
+                std::string ext = audioPath.extension().string();
+                if (ext == ".wav" || ext == ".ogg" || ext == ".mp3" || ext == ".flac") {
+                    LoadAudioFile(pathStr);
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+        
+        // Manual file picker button
+        if (ImGui::Button("Browse Audio File...")) {
+            // TODO: Integrate with file dialog when available
+            ImGui::OpenPopup("FilePathInput");
+        }
+        
+        if (ImGui::BeginPopup("FilePathInput")) {
+            static char pathBuffer[256] = "";
+            ImGui::Text("Enter audio file path:");
+            if (ImGui::InputText("##path", pathBuffer, sizeof(pathBuffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
+                LoadAudioFile(std::string(pathBuffer));
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+
         if (!m_SoundBuffer) {
             ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "No audio loaded");
-            ImGui::Text("Load an audio file to see waveform and spectrum");
+            ImGui::Text("Supported formats: .wav, .ogg, .mp3, .flac");
             ImGui::End();
             return;
         }
@@ -20,7 +56,31 @@ namespace RcEngine {
             UpdateLiveData();
         }
 
+        ImGui::Separator();
         ImGui::Text("Audio: %s", m_SoundBuffer->getPath().c_str());
+        
+        // Playback controls (only in independent mode)
+        if (m_IndependentMode) {
+            if (m_SoundBuffer->isPlaying()) {
+                if (ImGui::Button("Pause")) {
+                    m_SoundBuffer->Pause();
+                }
+            } else {
+                if (ImGui::Button("Play")) {
+                    m_SoundBuffer->Play();
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Stop")) {
+                m_SoundBuffer->Stop();
+            }
+            
+            // Volume control
+            static float volume = 1.0f;
+            if (ImGui::SliderFloat("Volume", &volume, 0.0f, 1.0f)) {
+                m_SoundBuffer->SetGain(volume);
+            }
+        }
         
         // Show playback position
         if (m_SoundBuffer->isPlaying()) {
@@ -52,6 +112,7 @@ namespace RcEngine {
 
     void SpectrogramPanel::SetSoundBuffer(Ref<SoundBuffer> buffer) {
         m_SoundBuffer = buffer;
+        m_IndependentMode = false;  // Set from component
         
         if (!buffer) {
             Clear();
@@ -61,6 +122,25 @@ namespace RcEngine {
         m_Waveform.resize(WAVEFORM_SAMPLES);
         m_Spectrum.resize(FFT_SIZE / 2);
         
+        LoadAudioData();
+    }
+    
+    void SpectrogramPanel::LoadAudioFile(const std::string& path) {
+        // Clear existing buffer
+        if (m_SoundBuffer) {
+            m_SoundBuffer.reset();
+        }
+        
+        // Create new independent sound buffer
+        m_SoundBuffer = CreateRef<SoundBuffer>(path.c_str());
+        m_IndependentMode = true;
+        m_LoadedFilePath = path;
+        
+        // Initialize data buffers
+        m_Waveform.resize(WAVEFORM_SAMPLES);
+        m_Spectrum.resize(FFT_SIZE / 2);
+        
+        // Load visualization data
         LoadAudioData();
     }
 
