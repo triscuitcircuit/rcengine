@@ -3,6 +3,7 @@
 //
 
 #include "SceneHierarchyPanel.h"
+#include "SpectrogramPanel.h"
 #include "RcEngine/Scene/Component.h"
 
 #include <../imgui/imgui.h>
@@ -439,7 +440,7 @@ namespace RcEngine{
             ImGui::DragFloat("speed",&comp.speed, 0.1f, 0.025f, 1.0f);
 
         });
-        DrawComponent<SoundComponent>("Sound Component",entitySelection,[](auto& comp){
+        DrawComponent<SoundComponent>("Sound Component",entitySelection,[this](auto& comp){
             ImGui::Text("Audio File:");
             ImGui::Button("Drop Audio Here", ImVec2(200.0f, 40.0f));
             if(ImGui::BeginDragDropTarget()){
@@ -447,6 +448,11 @@ namespace RcEngine{
                     const wchar_t* path = (const wchar_t *)payload->Data;
                     std::filesystem::path soundpath = std::filesystem::path(g_AssetPath)/path;
                     comp.Sound = std::make_shared<SoundBuffer>(soundpath.c_str());
+                    
+                    // Update spectrogram if available
+                    if (m_SpectrogramPanel) {
+                        m_SpectrogramPanel->SetSoundBuffer(comp.Sound);
+                    }
                 }
                 ImGui::EndDragDropTarget();
             }

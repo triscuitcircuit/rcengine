@@ -99,6 +99,7 @@ namespace RcEngine{
         m_FrameBuffer = RcEngine::FrameBuffer::Create(fbSpec);
 
         m_Panel.SetContext(m_ActiveScene);
+        m_Panel.SetSpectrogramPanel(&m_SpectrogramPanel);
 
         m_EditorCamera = EditorCamera(30.0f,1.778f, 0.1f, 1000.0f);
 
@@ -199,11 +200,6 @@ namespace RcEngine{
             m_FrameBuffer->Bind();
             RcEngine::RenderCommand::SetClearColor({0.15f, 0.15f, 0.17f, 1.0f});
             RcEngine::RenderCommand::Clear();
-            
-            // Draw grid if enabled
-            if (m_ShowGrid) {
-                DrawGrid();
-            }
         }
 
         float rotation = ts*(1000000.0f);
@@ -215,6 +211,13 @@ namespace RcEngine{
                 if(m_ViewportFocused){
                     m_CameraController.OnUpdate(ts);
                     m_EditorCamera.OnUpdate(ts);
+                }
+
+                // Draw grid before scene
+                if (m_ShowGrid) {
+                    Renderer3D::BeginScene(m_EditorCamera);
+                    DrawGrid();
+                    Renderer3D::EndScene();
                 }
 
                 m_ActiveScene->OnUpdateEditor(ts,m_EditorCamera);
@@ -631,27 +634,22 @@ namespace RcEngine{
     }
     
     void EditorLayer::DrawGrid() {
-        const float gridSize = 100.0f;
+        const float gridSize = 50.0f;
         const float gridSpacing = 1.0f;
         const int lineCount = (int)(gridSize / gridSpacing);
-        const glm::vec4 gridColor = {0.25f, 0.25f, 0.25f, 1.0f};
-        const glm::vec4 axisXColor = {0.8f, 0.2f, 0.2f, 1.0f};
-        const glm::vec4 axisZColor = {0.2f, 0.2f, 0.8f, 1.0f};
-        
-        Renderer2D::BeginScene(m_EditorCamera);
+        const glm::vec4 gridColor = {0.3f, 0.3f, 0.3f, 0.5f};
+        const glm::vec4 axisXColor = {0.8f, 0.2f, 0.2f, 0.8f};
+        const glm::vec4 axisZColor = {0.2f, 0.2f, 0.8f, 0.8f};
         
         // Draw grid lines parallel to X axis (along Z)
         for (int i = -lineCount; i <= lineCount; ++i) {
             float z = i * gridSpacing;
             glm::vec4 color = (i == 0) ? axisXColor : gridColor;
             
-            glm::vec3 start = {-gridSize, 0.0f, z};
-            glm::vec3 end = {gridSize, 0.0f, z};
-            
-            // Draw as thin quad
-            glm::mat4 transform = glm::translate(glm::mat4(1.0f), (start + end) * 0.5f);
-            transform = glm::scale(transform, glm::vec3(gridSize * 2.0f, 0.01f, 0.01f));
-            Renderer2D::DrawQuad(transform, color);
+            // Draw as thin cube/line
+            glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, z));
+            transform = glm::scale(transform, glm::vec3(gridSize * 2.0f, 0.02f, 0.02f));
+            Renderer3D::DrawCube(transform, color, -1);
         }
         
         // Draw grid lines parallel to Z axis (along X)
@@ -659,15 +657,10 @@ namespace RcEngine{
             float x = i * gridSpacing;
             glm::vec4 color = (i == 0) ? axisZColor : gridColor;
             
-            glm::vec3 start = {x, 0.0f, -gridSize};
-            glm::vec3 end = {x, 0.0f, gridSize};
-            
-            // Draw as thin quad
-            glm::mat4 transform = glm::translate(glm::mat4(1.0f), (start + end) * 0.5f);
-            transform = glm::scale(transform, glm::vec3(0.01f, 0.01f, gridSize * 2.0f));
-            Renderer2D::DrawQuad(transform, color);
+            // Draw as thin cube/line
+            glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(x, 0.0f, 0.0f));
+            transform = glm::scale(transform, glm::vec3(0.02f, 0.02f, gridSize * 2.0f));
+            Renderer3D::DrawCube(transform, color, -1);
         }
-        
-        Renderer2D::EndScene();
     }
 }

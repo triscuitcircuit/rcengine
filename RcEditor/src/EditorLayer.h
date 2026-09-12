@@ -40,6 +40,9 @@ namespace RcEngine{
         //UI specific functions
         void UI_Toolbar();
         void DrawGrid();
+        
+    public:
+        SpectrogramPanel& GetSpectrogramPanel() { return m_SpectrogramPanel; }
 
 
 

@@ -12,13 +12,17 @@
 #ifndef RCENGINE_CLION_SCENEHIERARCHYPANEL_H
 #define RCENGINE_CLION_SCENEHIERARCHYPANEL_H
 #include "RcEngine/Scene/Scene.h"
+
 namespace RcEngine{
+    class SpectrogramPanel;
+    
     class SceneHierarchyPanel{
     public:
         SceneHierarchyPanel()= default;
         SceneHierarchyPanel(const Ref<Scene>& scene);
 
         void SetContext(const Ref<Scene>& scene);
+        void SetSpectrogramPanel(SpectrogramPanel* panel) { m_SpectrogramPanel = panel; }
 
         void OnImGuiRender();
 
@@ -30,6 +34,7 @@ namespace RcEngine{
     private:
         Ref<Scene> m_Scene;
         Entity m_Selected;
+        SpectrogramPanel* m_SpectrogramPanel = nullptr;
         friend class Scene;
     };
 }
