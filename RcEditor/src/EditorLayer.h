@@ -5,6 +5,7 @@
 #include "RcEngine.h"
 #include "Panels/SceneHierarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
+#include "Panels/SpectrogramPanel.h"
 
 #ifndef RCENGINE_CLION_EDITORLAYER_H
 #define RCENGINE_CLION_EDITORLAYER_H
@@ -38,6 +39,7 @@ namespace RcEngine{
 
         //UI specific functions
         void UI_Toolbar();
+        void DrawGrid();
 
 
 
@@ -74,6 +76,11 @@ namespace RcEngine{
         //panels
         SceneHierarchyPanel m_Panel;
         ContentBrowserPanel m_ContentBrowserPanel;
+        SpectrogramPanel m_SpectrogramPanel;
+        
+        //panel visibility
+        bool m_ShowSpectrogramPanel = false;
+        bool m_ShowGrid = true;
 
         //editor menu
         Ref<Texture2D> m_IconPlay,m_StopPlay, m_IconSimulate, m_IconSimulateStop;

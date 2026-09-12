@@ -197,8 +197,13 @@ namespace RcEngine{
         {
             // Renderer submission
             m_FrameBuffer->Bind();
-            RcEngine::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 0.1f});
+            RcEngine::RenderCommand::SetClearColor({0.15f, 0.15f, 0.17f, 1.0f});
             RcEngine::RenderCommand::Clear();
+            
+            // Draw grid if enabled
+            if (m_ShowGrid) {
+                DrawGrid();
+            }
         }
 
         float rotation = ts*(1000000.0f);
@@ -319,6 +324,12 @@ namespace RcEngine{
                     if(ImGui::MenuItem("Settings")){
                         settingsWindow = true;
                     }
+                    ImGui::EndMenu();
+                }
+                
+                if(ImGui::BeginMenu("View")){
+                    ImGui::MenuItem("Show Grid", nullptr, &m_ShowGrid);
+                    ImGui::MenuItem("Audio Spectrogram", nullptr, &m_ShowSpectrogramPanel);
                     ImGui::EndMenu();
                 }
 
@@ -471,6 +482,10 @@ namespace RcEngine{
             ImGui::PopStyleVar();
             m_Panel.OnImGuiRender();
             m_ContentBrowserPanel.OnImGuiRender();
+            
+            if (m_ShowSpectrogramPanel) {
+                m_SpectrogramPanel.OnImGuiRender();
+            }
 
             ImGui::Begin("Renderer 2D Stats");
             auto stats = RcEngine::Renderer2D::GetStats();
@@ -613,5 +628,46 @@ namespace RcEngine{
             serializer.Serialize(file);
             m_EditorScenePath = file;
         }
+    }
+    
+    void EditorLayer::DrawGrid() {
+        const float gridSize = 100.0f;
+        const float gridSpacing = 1.0f;
+        const int lineCount = (int)(gridSize / gridSpacing);
+        const glm::vec4 gridColor = {0.25f, 0.25f, 0.25f, 1.0f};
+        const glm::vec4 axisXColor = {0.8f, 0.2f, 0.2f, 1.0f};
+        const glm::vec4 axisZColor = {0.2f, 0.2f, 0.8f, 1.0f};
+        
+        Renderer2D::BeginScene(m_EditorCamera);
+        
+        // Draw grid lines parallel to X axis (along Z)
+        for (int i = -lineCount; i <= lineCount; ++i) {
+            float z = i * gridSpacing;
+            glm::vec4 color = (i == 0) ? axisXColor : gridColor;
+            
+            glm::vec3 start = {-gridSize, 0.0f, z};
+            glm::vec3 end = {gridSize, 0.0f, z};
+            
+            // Draw as thin quad
+            glm::mat4 transform = glm::translate(glm::mat4(1.0f), (start + end) * 0.5f);
+            transform = glm::scale(transform, glm::vec3(gridSize * 2.0f, 0.01f, 0.01f));
+            Renderer2D::DrawQuad(transform, color);
+        }
+        
+        // Draw grid lines parallel to Z axis (along X)
+        for (int i = -lineCount; i <= lineCount; ++i) {
+            float x = i * gridSpacing;
+            glm::vec4 color = (i == 0) ? axisZColor : gridColor;
+            
+            glm::vec3 start = {x, 0.0f, -gridSize};
+            glm::vec3 end = {x, 0.0f, gridSize};
+            
+            // Draw as thin quad
+            glm::mat4 transform = glm::translate(glm::mat4(1.0f), (start + end) * 0.5f);
+            transform = glm::scale(transform, glm::vec3(0.01f, 0.01f, gridSize * 2.0f));
+            Renderer2D::DrawQuad(transform, color);
+        }
+        
+        Renderer2D::EndScene();
     }
 }
