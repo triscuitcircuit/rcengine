@@ -440,24 +440,60 @@ namespace RcEngine{
 
         });
         DrawComponent<SoundComponent>("Sound Component",entitySelection,[](auto& comp){
-            ImGui::Button("Sound",ImVec2(100.0f, 0.0f));
+            ImGui::Text("Audio File:");
+            ImGui::Button("Drop Audio Here", ImVec2(200.0f, 40.0f));
             if(ImGui::BeginDragDropTarget()){
                 if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
                     const wchar_t* path = (const wchar_t *)payload->Data;
                     std::filesystem::path soundpath = std::filesystem::path(g_AssetPath)/path;
                     comp.Sound = std::make_shared<SoundBuffer>(soundpath.c_str());
                 }
+                ImGui::EndDragDropTarget();
             }
+            
             if(comp.Sound != nullptr){
                 auto& snd = comp.Sound;
-                if (ImGui::DragFloat("Gain",&comp.Gain,0.1f,0.0f,1.0f)){
-                    snd->SetGain(comp.Gain);
-                };
-                ImGui::Text("Sound File: %s",snd->getPath().c_str());
-                if(ImGui::Button("Play",ImVec2(100.0f,0.0f))){
-                    snd->SetGain(comp.Gain);
-                    snd->Play();
+                
+                ImGui::Separator();
+                ImGui::TextColored(ImVec4(0.2f, 1.0f, 0.2f, 1.0f), "Loaded: %s", snd->getPath().c_str());
+                
+                ImGui::Separator();
+                ImGui::Text("Playback Controls:");
+                
+                bool isPlaying = snd->isPlaying();
+                
+                if (ImGui::Button(isPlaying ? "Pause" : "Play", ImVec2(80.0f, 0.0f))){
+                    if (isPlaying) {
+                        snd->Pause();
+                        comp.Playing = false;
+                    } else {
+                        snd->SetGain(comp.Gain);
+                        snd->Play();
+                        comp.Playing = true;
+                    }
                 }
+                
+                ImGui::SameLine();
+                if(ImGui::Button("Stop", ImVec2(80.0f, 0.0f))){
+                    snd->Stop();
+                    comp.Playing = false;
+                }
+                
+                ImGui::Separator();
+                ImGui::Text("Settings:");
+                
+                if (ImGui::SliderFloat("Volume", &comp.Gain, 0.0f, 1.0f)){
+                    snd->SetGain(comp.Gain);
+                }
+                
+                ImGui::Checkbox("Loop", &comp.Loop);
+                
+                if (comp.Playing) {
+                    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "▶ PLAYING");
+                }
+            } else {
+                ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), 
+                    "Drag an audio file from Content Browser");
             }
         });
         DrawComponent<CircleRenderComponent>("Sprite Renderer",entitySelection,[](auto& comp){
