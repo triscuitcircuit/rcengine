@@ -213,14 +213,14 @@ namespace RcEngine{
                     m_EditorCamera.OnUpdate(ts);
                 }
 
-                // Draw grid before scene
+                m_ActiveScene->OnUpdateEditor(ts,m_EditorCamera);
+                
+                // Draw grid after scene (separate render pass)
                 if (m_ShowGrid) {
                     Renderer3D::BeginScene(m_EditorCamera);
                     DrawGrid();
                     Renderer3D::EndScene();
                 }
-
-                m_ActiveScene->OnUpdateEditor(ts,m_EditorCamera);
                 break;
             }
             case SceneState::Play:{

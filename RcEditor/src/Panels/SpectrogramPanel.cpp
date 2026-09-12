@@ -46,14 +46,66 @@ namespace RcEngine {
         m_Waveform.resize(WAVEFORM_SAMPLES);
         m_Spectrum.resize(FFT_SIZE / 2);
         
-        std::fill(m_Waveform.begin(), m_Waveform.end(), 0.0f);
-        std::fill(m_Spectrum.begin(), m_Spectrum.end(), 0.0f);
+        LoadAudioData();
     }
 
     void SpectrogramPanel::Clear() {
         m_Waveform.clear();
         m_Spectrum.clear();
         m_SoundBuffer = nullptr;
+    }
+
+    void SpectrogramPanel::LoadAudioData() {
+        if (!m_SoundBuffer) return;
+        
+        // Open audio file with libsndfile
+        SF_INFO sfInfo;
+        SNDFILE* file = sf_open(m_SoundBuffer->getPath().c_str(), SFM_READ, &sfInfo);
+        
+        if (!file) {
+            // Failed to open file
+            std::fill(m_Waveform.begin(), m_Waveform.end(), 0.0f);
+            std::fill(m_Spectrum.begin(), m_Spectrum.end(), 0.0f);
+            return;
+        }
+        
+        // Read first portion of audio for waveform (1 second or WAVEFORM_SAMPLES, whichever is less)
+        int samplesToRead = std::min(WAVEFORM_SAMPLES, (int)sfInfo.samplerate);
+        std::vector<short> tempBuffer(samplesToRead * sfInfo.channels);
+        sf_count_t samplesRead = sf_read_short(file, tempBuffer.data(), samplesToRead * sfInfo.channels);
+        
+        // Convert to float and downsample to mono if needed
+        for (int i = 0; i < WAVEFORM_SAMPLES && i < samplesToRead; ++i) {
+            float sample = 0.0f;
+            for (int ch = 0; ch < sfInfo.channels; ++ch) {
+                int index = i * sfInfo.channels + ch;
+                if (index < samplesRead) {
+                    sample += tempBuffer[index] / 32768.0f;  // Normalize to [-1, 1]
+                }
+            }
+            m_Waveform[i] = sample / sfInfo.channels;  // Average channels
+        }
+        
+        // For spectrum, read FFT_SIZE samples
+        sf_seek(file, 0, SEEK_SET);  // Reset to beginning
+        std::vector<short> fftBuffer(FFT_SIZE * sfInfo.channels);
+        sf_read_short(file, fftBuffer.data(), FFT_SIZE * sfInfo.channels);
+        
+        std::vector<float> fftInput(FFT_SIZE);
+        for (int i = 0; i < FFT_SIZE; ++i) {
+            float sample = 0.0f;
+            for (int ch = 0; ch < sfInfo.channels; ++ch) {
+                int index = i * sfInfo.channels + ch;
+                if (index < FFT_SIZE * sfInfo.channels) {
+                    sample += fftBuffer[index] / 32768.0f;
+                }
+            }
+            fftInput[i] = sample / sfInfo.channels;
+        }
+        
+        ComputeFFT(fftInput, m_Spectrum);
+        
+        sf_close(file);
     }
 
     void SpectrogramPanel::ComputeFFT(const std::vector<float>& input, std::vector<float>& output) {

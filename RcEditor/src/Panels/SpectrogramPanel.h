@@ -5,6 +5,7 @@
 #include <vector>
 #include <complex>
 #include <cmath>
+#include <sndfile.h>
 
 namespace RcEngine {
 
@@ -18,6 +19,7 @@ namespace RcEngine {
         void Clear();
 
     private:
+        void LoadAudioData();
         void ComputeFFT(const std::vector<float>& input, std::vector<float>& output);
         void DrawWaveform(const std::vector<float>& waveform);
         void DrawSpectrum(const std::vector<float>& spectrum);
